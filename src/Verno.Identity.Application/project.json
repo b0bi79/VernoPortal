@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "Abp.EntityFrameworkCore": "0.11.1",
+    "Abp.AutoMapper": "0.11.1",
+    "Verno.Identity.Core": "1.0.0-*"
+  },
+
+  "frameworks": {
+    "net461": {
+    }
+  }
+}

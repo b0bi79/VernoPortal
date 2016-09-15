@@ -13,16 +13,16 @@ namespace Verno.Reports.Configuration
             ConfigurationCache = new ConcurrentDictionary<string, IConfigurationRoot>();
         }
 
-        public static IConfigurationRoot Get(string path, string environmentName = null)
+        public static IConfigurationRoot Get(string path, string environmentName = null, bool addUserSecrets = false)
         {
-            var cacheKey = path + "#" + environmentName;
+            var cacheKey = path + "#" + environmentName + "#" + addUserSecrets;
             return ConfigurationCache.GetOrAdd(
                 cacheKey,
-                _ => BuildConfiguration(path, environmentName)
+                _ => BuildConfiguration(path, environmentName, addUserSecrets)
             );
         }
 
-        private static IConfigurationRoot BuildConfiguration(string path, string environmentName = null)
+        private static IConfigurationRoot BuildConfiguration(string path, string environmentName = null, bool addUserSecrets = false)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(path)
@@ -32,8 +32,13 @@ namespace Verno.Reports.Configuration
             {
                 builder = builder.AddJsonFile($"appsettings.{environmentName}.json", optional: true);
             }
-            
+
             builder = builder.AddEnvironmentVariables();
+
+            if (addUserSecrets)
+            {
+                builder.AddUserSecrets();
+            }
 
             return builder.Build();
         }

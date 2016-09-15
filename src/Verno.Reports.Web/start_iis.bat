@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\IIS Express\iisexpress.exe"  /config:"D:\Sources\SSIV\Reports\.vs\config\applicationhost.config" /site:"Verno.Reports.Web" /apppool:"Clr4IntegratedAppPool"

@@ -1,0 +1,7 @@
+﻿{
+  "culture": "en",
+  "texts": {
+    "Identity.UserNotLoggedIn": "User not logged in.",
+    "Identity.PasswordMismatch": "Incorrect password."
+  }
+}

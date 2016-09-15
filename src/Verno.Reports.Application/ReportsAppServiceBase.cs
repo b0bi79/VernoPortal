@@ -5,9 +5,9 @@ namespace Verno.Reports
     /// <summary>
     /// Derive your application services from this class.
     /// </summary>
-    public abstract class ReportsAppServiceBase : ApplicationService
+    public abstract class IdentityAppServiceBase : ApplicationService
     {
-        protected ReportsAppServiceBase()
+        protected IdentityAppServiceBase()
         {
             LocalizationSourceName = ReportsConsts.LocalizationSourceName;
         }

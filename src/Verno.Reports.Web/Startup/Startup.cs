@@ -1,5 +1,8 @@
 using System;
+using System.Net;
+using System.Threading.Tasks;
 using Abp.AspNetCore;
+using Abp.Castle.Logging.Log4Net;
 using Castle.Facilities.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,17 +10,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Abp.AspNetCore.Mvc;
-using Abp.AspNetCore.Mvc.Auditing;
-using Abp.Auditing;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Verno.Identity;
-using Verno.Identity.Data;
 using Verno.Identity.Roles;
 using Verno.Identity.Users;
 using Verno.Reports.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Verno.Reports.Web.Configuration;
+using Verno.Reports.Web.Modules.Print;
 
 namespace Verno.Reports.Web.Startup
 {
@@ -27,13 +28,8 @@ namespace Verno.Reports.Web.Startup
 
         public Startup(IHostingEnvironment env)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
-
-            Configuration = builder.Build();
+            env.ApplicationName = "Verno.Portal";
+            Configuration = env.GetAppConfiguration();
         }
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
@@ -42,18 +38,29 @@ namespace Verno.Reports.Web.Startup
                 options => options.UseSqlServer(Configuration.GetConnectionString("Default"))
             );
 
-            services.AddDbContext<Verno.Identity.Data.IdentityDbContext>(
+            services.AddDbContext<PrintDbContext>(
+                options => options.UseSqlServer(Configuration.GetConnectionString("Print"))
+            );
+
+            services.AddDbContext<Identity.Data.IdentityDbContext>(
                 options => options.UseSqlServer(Configuration.GetConnectionString("Identity"))
             );
 
             // добавление сервисов Idenity
-            services.AddIdentity<User, Role>()
+            services.AddIdentity<User, Role>(options =>
+                {
+                    options.Password.RequireDigit = false;
+                    options.Password.RequiredLength = User.MinimumPasswordLength;
+                    options.Password.RequireLowercase = false;
+                    options.Password.RequireNonAlphanumeric = false;
+                    options.Password.RequireUppercase = false;
+                })
                 //.AddEntityFrameworkStores()
                 .AddDefaultTokenProviders();
 
             services.AddMvc(options =>
             {
-                options.AddAbp(services); //Add ABP infrastructure to MVC
+                //options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
 
             //Configure Abp and Dependency Injection
@@ -63,7 +70,7 @@ namespace Verno.Reports.Web.Startup
 
                 //Configure Log4Net logging
                 options.IocManager.IocContainer.AddFacility<LoggingFacility>(
-                    f => f.UseLog4Net().WithConfig("log4net.config")
+                    f => f.UseAbpLog4Net().WithConfig("log4net.config")
                 );
             });
             return result;
@@ -71,6 +78,8 @@ namespace Verno.Reports.Web.Startup
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            loggerFactory.AddProvider(new DbLoggerProvider());
+
             app.UseAbp(); //Initializes ABP framework.
 
             if (env.IsDevelopment())
@@ -80,6 +89,7 @@ namespace Verno.Reports.Web.Startup
             }
             else
             {
+                app.UseStatusCodePagesWithRedirects("~/Error?statusCode={0}");
                 app.UseExceptionHandler("/Error");
             }
 

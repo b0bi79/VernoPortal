@@ -7,7 +7,7 @@ using Verno.Reports.Products.Dtos;
 
 namespace Verno.Reports.Products
 {
-    public class ProductAppService : ReportsAppServiceBase, IProductAppService
+    public class ProductAppService : IdentityAppServiceBase, IProductAppService
     {
         private readonly IRepository<Product> _productRepository;
 
@@ -16,7 +16,7 @@ namespace Verno.Reports.Products
             _productRepository = productRepository;
         }
 
-        [AbpAuthorize()]
+        [AbpAuthorize("Products.Read")]
         public async Task<ListResultOutput<ProductDto>> GetAllProducts()
         {
             var products = await _productRepository.GetAllListAsync();

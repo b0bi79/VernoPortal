@@ -19,10 +19,7 @@ namespace Verno.Reports.Web.Tests
         {
             services.AddEntityFrameworkInMemoryDatabase();
 
-            services.AddMvc(options =>
-            {
-                options.AddAbp(services); //Add ABP infrastructure to MVC
-            });
+            services.AddMvc();
 
             //Configure Abp and Dependency Injection
             return services.AddAbp<ReportsWebTestModule>(options =>

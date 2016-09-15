@@ -1,0 +1,7 @@
+﻿{
+  "culture": "ru",
+  "texts": {
+    "Identity.UserNotLoggedIn": "Пользователь не зарегистрирован в системе.",
+    "Identity.PasswordMismatch": "Неверный пароль."
+  }
+}

@@ -1,0 +1,55 @@
+﻿@model Identity.Sql2.Models.IndexViewModel
+
+@{
+    ViewBag.Title = "Управление профилем";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="windows-1251" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="300" />
+    @Styles.Render("~/Content/css")
+    <title>@ViewBag.Title</title>
+
+    <script src="~/Scripts/TimeZoneCookies.js"></script>
+</head>
+<body>
+
+    <section class="container body-content">
+        @Html.ActionLink("Назад", "Index", "Main")
+        <h2>@ViewBag.Title.</h2>
+
+        <h3>@Model.UserName</h3>
+        <p class="text-success">@TempData["Message"]</p>
+        <div class="row">
+            <div class="col-md-8">
+                <p>
+                    @if (Model.HasPassword)
+                    {
+                        @Html.ActionLink("Изменить пароль", "ChangePassword", null, new { @class = "btn btn-primary" })
+                    }
+                    else
+                    {
+                        @Html.ActionLink("Укажите пароль", "SetPassword", null, new { @class = "btn btn-primary" })
+                    }
+            </div>
+            <div class="col-md-8">
+                @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="submit" name="commit" value="Выйти" class="btn btn-danger" />
+                }
+            </div>
+        </div>
+        <br />
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Верный</p>
+        </footer>
+    </section>
+
+    @Scripts.Render("~/bundles/jqueryval")
+</body>
+</html>

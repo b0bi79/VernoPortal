@@ -11,12 +11,12 @@ namespace Verno.Reports.Web.Controllers
     [Authorize]
     public class ManageController : ReportsControllerBase
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger _logger;
 
         public ManageController(
-        UserManager<User> userManager,
+        UserManager userManager,
         SignInManager<User> signInManager,
         ILoggerFactory loggerFactory)
         {

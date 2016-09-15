@@ -4,6 +4,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Abp.Net.Mail;
+using Abp.Web.Models;
+using Abp.Web.Mvc.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,13 +19,13 @@ namespace Verno.Reports.Web.Controllers
     [Authorize]
     public class AccountController : ReportsControllerBase
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager _userManager;
         private readonly SignInManager _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
 
         public AccountController(
-            UserManager<User> userManager,
+            UserManager userManager,
             SignInManager signInManager,
             IEmailSender emailSender,
             ILoggerFactory loggerFactory)
@@ -45,11 +47,27 @@ namespace Verno.Reports.Web.Controllers
         }
 
         //
+        // GET: /Account/JoinIn
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> JoinIn(string userName)
+        {
+            var user = await _userManager.FindByNameAsync(userName);
+            if (!await _userManager.HasPasswordAsync(user))
+            {
+                await _signInManager.SignInAsync(user, false);
+                return RedirectToAction("SetPassword", "Manage");
+            }
+            else
+                return RedirectToAction("Index", "Home");
+        }
+
+        //
         // POST: /Account/Login
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = "")
         {
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
@@ -125,8 +143,6 @@ namespace Verno.Reports.Web.Controllers
 
         //
         // POST: /Account/LogOff
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> LogOff()
         {
             await _signInManager.SignOutAsync();
@@ -268,11 +284,11 @@ namespace Verno.Reports.Web.Controllers
 
                 // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
                 // Send an email with this link
-                //var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                //var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                //await _emailSender.SendEmailAsync(model.Email, "Reset Password",
-                //   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
-                //return View("ForgotPasswordConfirmation");
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                await _emailSender.SendAsync(model.Email, "Сброс пароля",
+                   $"Вы можете сбросить ваш пароль для Verno.Portal нажав на ссылку: <a href='{callbackUrl}'>Сбросить пароль</a>");
+                return View("ForgotPasswordConfirmation");
             }
 
             // If we got this far, something failed, redisplay form
