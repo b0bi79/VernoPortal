@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Abp.Application.Services;
@@ -13,25 +14,37 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Verno.Identity.Users;
 using Verno.Reports.Web.ActionResults;
+using Abp.AutoMapper;
+using Abp.Runtime.Validation;
+using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
+using Verno.Configuration;
+using Verno.Reports.Web.Utils;
 
 namespace Verno.Reports.Web.Modules.Returns
 {
     public interface IReturnsAppService
     {
-        Task<ListResultOutput<ReturnDto>> GetList(DateTime dfrom, DateTime dto);
+        Task<ListResultOutput<ReturnDto>> GetList(DateTime dfrom, DateTime dto, bool unreclaimedOnly);
+        Task<ListResultOutput<ReturnFileDto>> GetFilesList(int rasxod);
         Task<ActionResult> File(int fileId);
+        //Task<ReturnFileDto> UploadFile(/*int rasxod, */IFormFile file);
+        Task<ReturnFileDto> DeleteFile(int fileId);
     }
 
+    [Route("api/services/app/returns")]
     [AbpAuthorize("Documents.Returns")]
     public class ReturnsAppService : ApplicationService, IReturnsAppService
     {
         private readonly ReturnsDbContext _context;
-        private readonly string _root;
+        private readonly AppSettings _appSettings;
+        private readonly HttpContext _httpContext;
 
-        public ReturnsAppService(ReturnsDbContext context, IHttpContextAccessor contextAccessor)
+        public ReturnsAppService(ReturnsDbContext context, IOptions<AppSettings> appSettings, IHttpContextAccessor contextAccessor)
         {
             _context = context;
-            _root = contextAccessor.HttpContext.Request.PathBase;
+            _appSettings = appSettings.Value;
+            _httpContext = contextAccessor.HttpContext;
         }
 
         public UserManager UserManager { get; set; }
@@ -39,54 +52,122 @@ namespace Verno.Reports.Web.Modules.Returns
         #region Implementation of IReturnAppService
 
         [HttpGet]
-        [Route("returns/{dfrom:datetime}!{dto:datetime}")]
-        public async Task<ListResultOutput<ReturnDto>> GetList(DateTime dfrom, DateTime dto)
+        [Route("{dfrom:datetime}!{dto:datetime}")]
+        public async Task<ListResultOutput<ReturnDto>> GetList(DateTime dfrom, DateTime dto, bool unreclaimedOnly)
         {
             int shopNum = await GetUserShopNum();
-            var result =
-                from d in _context.PrintDocs
-                join f in _context.PrintDocForms on d.Id equals f.DokId
-                join s in _context.Sklads on d.SklIst equals s.NomerSklada
-                where d.DataNakl >= dfrom && d.DataNakl <= dto &&
-                      (d.MagPol == shopNum || shopNum == 0) && f.Deleted == null
-                select new ReturnDto(d.Liniah, d.NomNakl, d.DataNakl, f.ImahDok, d.SklIst, s.Postavthik /*d.SkladSrc.Platelqthik*/,
-                    _root + "/api/services/app/Print/File?fileId=" + f.Id);
-            return new ListResultOutput<ReturnDto>(await result.ToListAsync());
-            /*var result = new [] {
-                new PrintDto(6, "131/s1", DateTime.Today.AddDays(-2), "Акт инвентаризации", _root + "/api/services/app/Print/File?fileId=8"),
-                new PrintDto(5, "141/u3", DateTime.Today.AddDays(-1), "Акт списания", _root + "/api/services/app/Print/File?fileId=8"),
-                new PrintDto(5, "185/u12", DateTime.Today, "Акт списания", _root + "/api/services/app/Print/File?fileId=8"),
-            }.Where(d=> d.DataNakl >= dfrom && d.DataNakl <= dto);
-            return new ListResultOutput<PrintDto>(result.ToList());*/
+            var result = from d in _context.ReturnDatas
+                         where d.DocDate >= dfrom && d.DocDate <= dto &&
+                               (d.ShopNum == shopNum || shopNum == 0)
+                         select d;
+            if (unreclaimedOnly)
+                result = result.Where(r => r.Status == 0 /*ReturnStatus.None*/);
+            return new ListResultOutput<ReturnDto>((await result.Take(500).ToListAsync()).MapTo<List<ReturnDto>>());
+        }
+
+        [HttpGet]
+        [Route("{rasxod}/files")]
+        public async Task<ListResultOutput<ReturnFileDto>> GetFilesList(int rasxod)
+        {
+            var fileEntities = await (from r in _context.ReturnFiles
+                    where !r.Deleted && r.Return.Rasxod == rasxod
+                    select r)
+                .ToListAsync();
+            var result = new List<ReturnFileDto>();
+            foreach (var file in fileEntities)
+            {
+                var item = new ReturnFileDto(file.Id, "", file.FileName, 0, file.Name, file.ReturnId, 
+                    _httpContext.CreateUrl("/api/services/app/returns/files/" + file.Id));
+                var fileInfo = new FileInfo(Path.Combine(ServPath, file.SavedName));
+                if (fileInfo.Exists)
+                    item.FileSize = fileInfo.Length;
+                else
+                    item.Error = "Файл был удалён с сервера.";
+                result.Add(item);
+            }
+            return new ListResultOutput<ReturnFileDto>(result);
         }
 
         [HttpGet]
         [AbpAuthorize("Documents.Returns.GetFile")]
+        [Route("files/{fileId}")]
         public async Task<ActionResult> File(int fileId)
         {
-            var resultFile = await _context.PrintDocForms.FirstOrDefaultAsync(f => f.Id == fileId);
+            var resultFile = await _context.ReturnFiles.FirstOrDefaultAsync(f => f.Id == fileId);
             if (resultFile != null)
             {
-                var filepath = Path.Combine(ServPath, resultFile.Putq);
+                var filepath = Path.Combine(ServPath, resultFile.SavedName);
                 if (System.IO.File.Exists(filepath))
                 {
                     string contentType;
-                    new FileExtensionContentTypeProvider().TryGetContentType(filepath, out contentType);
+                    new FileExtensionContentTypeProvider().TryGetContentType(resultFile.FileName, out contentType);
                     return new PhysicalFileResultWithContentDisposition(filepath, contentType ?? "application/octet-stream", new ContentDisposition()
                     {
                         Inline = true,
-                        FileName = Path.GetFileName(resultFile.Putq)
+                        FileName = Path.GetFileName(resultFile.FileName)
                     });
                 }
             }
             return new NotFoundResult();
         }
 
-        private string _servPath;
-        public string ServPath
+        [HttpDelete]
+        [AbpAuthorize("Documents.Returns.DeleteFile")]
+        [Route("files/{fileId}")]
+        public async Task<ReturnFileDto> DeleteFile(int fileId)
         {
-            get { return _servPath ?? (_servPath = _context.PutqServ.Select(s => s.Putq).FirstOrDefault()); }
+            var file = await _context.ReturnFiles.FirstOrDefaultAsync(x => x.Id == fileId);
+            if (file==null)
+                throw new ApplicationException($"Файла с id={fileId} не существует.");
+            file.Deleted = true;
+            await _context.SaveChangesAsync(true);
+            return file.MapTo<ReturnFileDto>();
         }
+
+        /*[HttpPost]
+        [Route("api/services/app/returns/{rasxod}/files")]
+        [Route("api/services/app/returns/files")]*/
+        internal async Task<ReturnFileDto> UploadFile(int rasxod, IFormFile file)
+        {
+            var fileName = ContentDispositionHeaderValue
+                .Parse(file.ContentDisposition)
+                .FileName
+                .Trim('"');
+
+            string savedName;
+            string savedFilePath;
+            do
+            {
+                savedName = Path.GetRandomFileName();
+                savedFilePath = Path.Combine(ServPath, savedName);
+            } while (System.IO.File.Exists(savedFilePath));
+
+            using (FileStream fs = System.IO.File.Create(savedFilePath))
+            {
+                await file.CopyToAsync(fs);
+                await fs.FlushAsync();
+            }
+
+            Return r = _context.Returns.FirstOrDefault(x => x.Rasxod == rasxod);
+            if (r == null)
+            {
+                r = new Return(rasxod);
+                _context.Add(r);
+                await _context.SaveChangesAsync(true); //To get new user's id.
+            }
+            var fileEntity = r.AddFile(Path.GetFileNameWithoutExtension(fileName), fileName, savedName);
+            _context.Add(fileEntity);
+
+            await _context.SaveChangesAsync(true); //To get new user's id.
+
+            var result = fileEntity.MapTo<ReturnFileDto>();
+            result.FileSize = file.Length;
+            result.Url = _httpContext.CreateUrl("/api/services/app/returns/files/" + fileEntity.Id);
+            return result;
+        }
+
+        private string _servPath;
+        public string ServPath => _servPath ?? (_servPath = _appSettings.PrintFilesPath);
 
         #endregion
 

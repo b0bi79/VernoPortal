@@ -7,21 +7,21 @@
             <div class="form-group">
                 <div class="btn-toolbar" role="toolbar">
                     <div class="btn-group" role="group">
-                        <button *ngIf="isGranted('Administration.UserManagement.CreateUser')" class="btn btn-default" (click)="showEdit()">
+                        <button *ngIf="isGranted('Administration.UserManagement.CreateUser')" class="btn btn-default" (click)="editUser(null)">
                             <i class="fa fa-plus-square-o fa-fw"></i> Новый
                         </button>
-                        <button *ngIf="isGranted('Administration.UserManagement.UpdateUser')" class="btn btn-default" (click)="showEdit(selectedRow)" [hidden]="!selectedRow">
+                        <button *ngIf="isGranted('Administration.UserManagement.UpdateUser')" class="btn btn-default" (click)="editUser(mf.activeRow)" [hidden]="!mf.activeRow">
                             <i class="fa fa-pencil-square-o fa-fw"></i> Изменить
                         </button>
-                        <button *ngIf="isGranted('Administration.UserManagement.DeleteUser')" class="btn btn-default" (click)="deleteUser(selectedRow)" [hidden]="!selectedRow">
+                        <button *ngIf="isGranted('Administration.UserManagement.DeleteUser')" class="btn btn-default" (click)="deleteUser(mf.activeRow)" [hidden]="!mf.activeRow">
                             <i class="fa fa-trash-o fa-fw"></i> Удалить
                         </button>
                     </div>
                     <div class="btn-group" role="group">
-                        <button *ngIf="isGranted('Administration.UserManagement.EditRoles')" class="btn btn-default" (click)="showRoles(selectedRow)" [hidden]="!selectedRow">
+                        <button *ngIf="isGranted('Administration.UserManagement.EditRoles')" class="btn btn-default" (click)="showRoles(mf.activeRow)" [hidden]="!mf.activeRow">
                             <i class="fa fa-user-secret fa-fw"></i> Роли
                         </button>
-                        <button *ngIf="isGranted('Administration.UserManagement.ResetPassword')" class="btn btn-default" (click)="resetPassword(selectedRow)" [hidden]="!selectedRow">
+                        <button *ngIf="isGranted('Administration.UserManagement.ResetPassword')" class="btn btn-default" (click)="resetPassword(mf.activeRow)" [hidden]="!mf.activeRow">
                             <i class="fa fa-unlock fa-fw"></i> Сброс пароля
                         </button>
                     </div>
@@ -34,34 +34,45 @@
                 </div>
             </div>
         </div>
+        <!--<datatable class="table table-striped"
+            [rows]="filteredDatas"
+                   [options]="options"
+                   (onRowClick)="onRowClick($event)">
+        </datatable>-->
         <table class="table table-striped" [mfData]="filteredDatas" #mf="mfDataTable" [mfRowsOnPage]="5">
             <thead>
-                <tr>
-                    <th><mfDefaultSorter by="name">ФИО</mfDefaultSorter></th>
-                    <th><mfDefaultSorter by="userName">Логин</mfDefaultSorter></th>
-                    <th><mfDefaultSorter by="orgUnit.name">Подразделение</mfDefaultSorter></th>
-                    <th><mfDefaultSorter by="position">Должность</mfDefaultSorter></th>
-                </tr>
+            <tr>
+                <th><mfDefaultSorter by="name">ФИО</mfDefaultSorter></th>
+                <th><mfDefaultSorter by="userName">Логин</mfDefaultSorter></th>
+                <th><mfDefaultSorter by="orgUnit.name">Подразделение</mfDefaultSorter></th>
+                <th><mfDefaultSorter by="position">Должность</mfDefaultSorter></th>
+            </tr>
             </thead>
             <tbody>
-                <!--<tr *ngFor="let row of mf.data | userFilter:filter">-->
-                <tr *ngFor="let row of mf.data" (click)="onRowClick($event, row)">
-                    <td>{{row.name}}</td>
-                    <td>{{row.userName}}</td>
-                    <td>{{row.orgUnit && row.orgUnit.name}}</td>
-                    <td>{{row.position}}</td>
-                </tr>
+            <!--<tr *ngFor="let row of mf.data | userFilter:filter">-->
+            <tr [mfSelectable]="row" *ngFor="let row of mf.data" >
+                <td>{{row.name}}</td>
+                <td>{{row.userName}}</td>
+                <td>{{row.orgUnit && row.orgUnit.name}}</td>
+                <td>{{row.position}}</td>
+            </tr>
             </tbody>
             <tfoot>
-                <tr>
-                    <td colspan="4">
-                        <mfBootstrapPaginator [rowsOnPageSet]="[10,25,50]"></mfBootstrapPaginator>
-                    </td>
-                </tr>
+            <tr>
+                <td colspan="4">
+                    <mfBootstrapPaginator [rowsOnPageSet]="[10,25,50]"></mfBootstrapPaginator>
+                </td>
+            </tr>
             </tfoot>
         </table>
     </ba-card>
 </div>
-<user-edit (confirm)="userSaved($event)" (loaded)="userEditLoaded($event)"></user-edit>
-<user-roles (loaded)="userRolesLoaded($event)"></user-roles>
-<password-reset (loaded)="resetPasswordLoaded($event)"></password-reset>
+<!--<modal-dialog #userEditForm>
+    <user-edit #userEdit [user]="selectedRow" (saved)="userSaved($event)"></user-edit>
+</modal-dialog>
+<modal-dialog #rolesEditForm>
+    <user-roles></user-roles>
+</modal-dialog>
+<modal-dialog #passwordResetForm (confirm)="passwordReset.save()">
+    <password-reset #passwordReset></password-reset>
+</modal-dialog>-->

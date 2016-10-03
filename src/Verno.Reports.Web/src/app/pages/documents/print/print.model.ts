@@ -7,6 +7,7 @@
         this.url = url;
     }
 
+    id: number;
     liniah: number;
     nomNakl: string;
     dataNakl: Date;

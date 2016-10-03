@@ -1,7 +1,3 @@
-/**
- * @author: @AngularClass
- */
-
 const helpers = require('./helpers');
 const webpackMerge = require('webpack-merge'); // used to merge webpack configs
 const commonConfig = require('./webpack.common.js'); // the settings that are common to prod and dev
@@ -16,7 +12,7 @@ const IgnorePlugin = require('webpack/lib/IgnorePlugin');
 const DedupePlugin = require('webpack/lib/optimize/DedupePlugin');
 const UglifyJsPlugin = require('webpack/lib/optimize/UglifyJsPlugin');
 const WebpackMd5Hash = require('webpack-md5-hash');
-const CompressionPlugin = require('compression-webpack-plugin');
+
 /**
  * Webpack Constants
  */
@@ -57,12 +53,12 @@ module.exports = function(env) {
      */
     output: {
 
-    /**
-     * The output directory as absolute path (required).
-     *
-     * See: http://webpack.github.io/docs/configuration.html#output-path
-     */
-    path: helpers.root('wwwroot'),
+      /**
+       * The output directory as absolute path (required).
+       *
+       * See: http://webpack.github.io/docs/configuration.html#output-path
+       */
+      path: helpers.root('wwwroot'),
 
       /**
        * Specifies the name of each output file on disk.
@@ -160,7 +156,8 @@ module.exports = function(env) {
 
 
         beautify: false, //prod
-        mangle: { screw_ie8 : true, keep_fnames: true }, //prod
+        // mangle: { screw_ie8 : true, keep_fnames: true }, //prod
+        mangle: false,
         compress: { screw_ie8: true }, //prod
         comments: false //prod
       }),
@@ -186,17 +183,18 @@ module.exports = function(env) {
 
       // new IgnorePlugin(/angular2-hmr/),
 
-    /**
-     * Plugin: CompressionPlugin
-     * Description: Prepares compressed versions of assets to serve
-     * them with Content-Encoding
-     *
-     * See: https://github.com/webpack/compression-webpack-plugin
-     */
-    new CompressionPlugin({
-      regExp: /\.css$|\.html$|\.js$|\.map$/,
-      threshold: 2 * 1024
-    })
+      /**
+       * Plugin: CompressionPlugin
+       * Description: Prepares compressed versions of assets to serve
+       * them with Content-Encoding
+       *
+       * See: https://github.com/webpack/compression-webpack-plugin
+       */
+      //  install compression-webpack-plugin
+      // new CompressionPlugin({
+      //   regExp: /\.css$|\.html$|\.js$|\.map$/,
+      //   threshold: 2 * 1024
+      // })
 
     ],
 

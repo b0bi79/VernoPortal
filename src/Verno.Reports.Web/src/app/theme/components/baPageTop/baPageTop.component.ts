@@ -1,17 +1,13 @@
-import {Component, ViewEncapsulation} from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 
 import {GlobalState} from '../../../global.state';
-import {BaProfilePicturePipe} from '../../pipes';
 //import {BaMsgCenter} from '../../components/baMsgCenter';
-import {BaScrollPosition} from '../../directives';
 import { IdentityService } from '../../../identity';
 
 @Component({
   selector: 'ba-page-top',
   styles: [require('./baPageTop.scss')],
   template: require('./baPageTop.html'),
-  directives: [/*BaMsgCenter, */BaScrollPosition],
-  pipes: [BaProfilePicturePipe],
   providers: [IdentityService],
   encapsulation: ViewEncapsulation.None
 })

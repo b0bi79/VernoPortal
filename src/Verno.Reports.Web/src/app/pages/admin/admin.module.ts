@@ -5,22 +5,23 @@ import { NgaModule } from '../../theme/nga.module';
 
 import { routing } from './admin.routing';
 
-import { RatingModule } from 'ng2-bootstrap/ng2-bootstrap';
 import { Admin } from './admin.component';
 import { Users } from './components/users';
-
+import { UserEdit, PasswordReset, UserRolesEdit } from "./components/users/components";
 
 @NgModule({
     imports: [
         CommonModule,
         AngularFormsModule,
         NgaModule,
-        RatingModule,
         routing
     ],
     declarations: [
         Users,
-        Admin
-    ]
+        Admin,
+        UserEdit,
+        PasswordReset,
+        UserRolesEdit,
+    ],
 })
 export default class AdminModule { }

@@ -7,7 +7,7 @@ import { Pipe, PipeTransform } from '@angular/core';
     pure: false,
 })
 export class UserFilterPipe implements PipeTransform {
-    transform(value: abp.services.identity.userDto[], filter: string) {
+    transform(value: users.User[], filter: string) {
         return value.filter(doc => !filter
             || doc.name.indexOf(filter) >= 0
             || doc.email.indexOf(filter) >= 0

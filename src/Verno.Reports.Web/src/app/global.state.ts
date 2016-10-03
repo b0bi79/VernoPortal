@@ -6,11 +6,16 @@ export class GlobalState {
 
   private _data = new Subject<Object>();
   private _dataStream$ = this._data.asObservable();
+  public user: abp.services.identity.userLoginInfoDto;
 
   private _subscriptions: Map<string, Array<Function>> = new Map<string, Array<Function>>();
 
   constructor() {
+    var self = this;
     this._dataStream$.subscribe((data) => this._onEvent(data));
+    abp.services.identity.session.getCurrentLoginInformations({ async: false }).done(result => {
+        self.user = result.user;
+    });
   }
 
   notifyDataChanged(event, value) {

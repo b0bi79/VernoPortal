@@ -6,7 +6,7 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>0fa75a5b-ab83-4fd0-b545-279774c01e87</ProjectGuid>
+    <ProjectGuid>15734ba8-3ffa-47b1-a347-881c6682d38b</ProjectGuid>
     <RootNamespace>Verno.Reports</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.\obj</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>

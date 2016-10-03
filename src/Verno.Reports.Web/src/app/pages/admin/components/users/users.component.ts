@@ -1,43 +1,37 @@
-﻿import { Component, ViewEncapsulation, OnInit, NgZone } from '@angular/core';
-//import { SimpleModal, SimpleModalType } from 'app/theme/components/modal/simple-modal';
+﻿import { Component, ViewChild, ViewEncapsulation, OnInit, NgZone } from '@angular/core';
+import { Router } from '@angular/router';
 
-import { UserDtoImpl } from './user.model';
-import { UserEdit } from "./components/userEdit/userEdit.component"
-import { UserRolesEdit } from "./components/userRoles/userRoles.component"
-import { PasswordReset } from "./components/resetPassword/passwordReset.component"
+import { Modal, BSModalContext } from 'angular2-modal/plugins/bootstrap';
 
-import identity = abp.services.identity;
+import { TableOptions, TableColumn, ColumnMode } from 'angular2-data-table';
+
+import * as users from './users.model';
+import { UserEdit } from './components/userEdit/userEdit.component'
+import { UserRolesEdit } from './components/userRoles/userRoles.component'
+import { PasswordReset } from './components/resetPassword/passwordReset.component'
+import { UsersService } from './users.service'
 
 @Component({
     selector: 'users',
     //encapsulation: ViewEncapsulation.None,
     styles: [require('./users.scss')],
     template: require('./users.html'),
-    //changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [UsersService]
 })
 export class Users implements OnInit {
     filter: string;
-    private datas: identity.userDto[];
-    private filteredDatas: identity.userDto[];
-    private editModal: UserEdit;
-    private rolesModal: UserRolesEdit;
-    private passwordResetModal: PasswordReset;
-    private selectedRow: identity.userDto;
+    private datas: users.User[];
+    private filteredDatas: users.User[] = [];
 
-    /*constructor(private modal: SimpleModal) {
-    }*/
+    constructor(private service: UsersService, private router: Router) { }
 
     ngOnInit() {
         this.getDatas();
     }
 
-    userEditLoaded(modal: UserEdit) { this.editModal = modal; }
-    userRolesLoaded(modal: UserRolesEdit) { this.rolesModal = modal; }
-    resetPasswordLoaded(modal: PasswordReset) { this.passwordResetModal = modal; }
-
     getDatas() {
         var self = this;
-        identity.user.getAll().done(result => {
+        this.service.getUsers().then(result => {
             self.datas = result.items;
             self.filteredDatas = result.items;
         });
@@ -58,24 +52,24 @@ export class Users implements OnInit {
         }
     }
 
-    showEdit(user?: identity.userDto) {
-        this.editModal.showModal(user);
+    editUser(user: users.User) {
+      this.router.navigate(["/pages", "admin", "users", user ? user.id : 'new']);
     }
 
-    showRoles(user: identity.userDto) {
-        this.rolesModal.showModal(user);
+    showRoles(user: users.User) {
+      this.router.navigate(["/pages", "admin", "users", user.id, 'roles']);
     }
 
-    resetPassword(user: identity.userDto) {
-        this.passwordResetModal.showModal(user);
+    resetPassword(user: users.User) {
+      this.router.navigate(["/pages", "admin", "users", user.id, 'reset-password']);
     }
 
-    deleteUser(user: identity.userDto) {
+    deleteUser(user: users.User) {
         var self = this;
         abp.message.confirm('Пользователь будет удалён.', 'Вы уверены?',
             isConfirmed => {
                 if (isConfirmed) {
-                    identity.user.delete(user).done(user => {
+                  this.service.delete(user.id).then(user => {
                         self.datas = self.datas.filter(x=>x.id !== user.id);
                         self.filteredDatas = self.datas;
                     });
@@ -83,13 +77,7 @@ export class Users implements OnInit {
             }
         );
     }
-
-    onRowClick(event, row: identity.userDto) {
-        this.selectedRow = row;
-        jQuery(event.currentTarget).siblings().removeClass("active");
-        jQuery(event.currentTarget).addClass("active");
-    }
-
+  
     userSaved(event) {
         if (event.isNew) {
             this.datas = [...this.datas, event.user];
@@ -110,6 +98,4 @@ export class Users implements OnInit {
     public isGranted(name: string): boolean {
         return abp.auth.isGranted(name);
     }
-    //TODO password reset
-    //TODO если пустой пароль - заставить изменить
 }

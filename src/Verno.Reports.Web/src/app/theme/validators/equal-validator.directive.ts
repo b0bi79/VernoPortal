@@ -1,10 +1,11 @@
-﻿import { Directive, forwardRef, provide, Attribute } from '@angular/core';
+﻿import { Directive, forwardRef, Attribute } from '@angular/core';
 import { Validator, AbstractControl, NG_VALIDATORS } from '@angular/forms';
 
 @Directive({
     selector: '[validateEqual][formControlName],[validateEqual][formControl],[validateEqual][ngModel]',
     providers: [
-        provide(NG_VALIDATORS, { useExisting: forwardRef(() => EqualValidator), multi: true })
+      { provide: NG_VALIDATORS, useExisting: EqualValidator, multi: true },
+        //provide(NG_VALIDATORS, { useExisting: forwardRef(() => EqualValidator), multi: true })
     ]
 })
 export class EqualValidator implements Validator {
@@ -23,7 +24,7 @@ export class EqualValidator implements Validator {
         let v = c.value;
 
         // control vlaue
-        let e = c.root.find(this.validateEqual);
+        let e = c.root.get(this.validateEqual);
 
         // value not equal
         if (e && v !== e.value && !this.isReverse) {

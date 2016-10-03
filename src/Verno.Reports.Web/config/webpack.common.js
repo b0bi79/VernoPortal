@@ -10,6 +10,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ForkCheckerPlugin = require('awesome-typescript-loader').ForkCheckerPlugin;
 const HtmlElementsPlugin = require('./html-elements-plugin');
 const AssetsPlugin = require('assets-webpack-plugin');
+const ContextReplacementPlugin = require('webpack/lib/ContextReplacementPlugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 /*
@@ -21,14 +22,15 @@ const METADATA = {
     isDevServer: helpers.isWebpackDevServer()
 };
 
-var InitialCssPlugin = new ExtractTextPlugin('initial.css', { allChunks: true });
+var InitialCssPlugin = new ExtractTextPlugin({ filename: 'initial.css', allChunks: true });
+var LoginCssPlugin = new ExtractTextPlugin({ filename: 'login.css', allChunks: true });
 
 /*
  * Webpack configuration
  *
  * See: http://webpack.github.io/docs/configuration.html#cli
  */
-module.exports = function(options) {
+module.exports = function (options) {
   isProd = options.env === 'production';
   return {
 
@@ -46,7 +48,7 @@ module.exports = function(options) {
      *
      * See: http://webpack.github.io/docs/configuration.html#cache
      */
-     //cache: false,
+    //cache: false,
 
     /*
      * The entry point for the bundle
@@ -57,8 +59,8 @@ module.exports = function(options) {
     entry: {
 
       'polyfills': './src/polyfills.browser.ts',
-      'vendor':    './src/vendor.browser.ts',
-      'main':      './src/main.browser.ts'
+      'vendor': './src/vendor.browser.ts',
+      'main': './src/main.browser.ts'
 
     },
 
@@ -69,12 +71,12 @@ module.exports = function(options) {
      */
     resolve: {
 
-        /*
-         * An array of extensions that should be used to resolve modules.
-         *
-         * See: http://webpack.github.io/docs/configuration.html#resolve-extensions
-         */
-        extensions: ['', '.ts', '.js', '.css', '.scss', '.json'],
+      /*
+       * An array of extensions that should be used to resolve modules.
+       *
+       * See: http://webpack.github.io/docs/configuration.html#resolve-extensions
+       */
+      extensions: ['', '.ts', '.js', '.css', '.scss', '.json'],
 
       // Make sure root is src
       root: helpers.root('src'),
@@ -91,13 +93,12 @@ module.exports = function(options) {
      */
     module: {
 
-        /*
-         * An array of applied pre and post loaders.
-         *
-         * See: http://webpack.github.io/docs/configuration.html#module-preloaders-module-postloaders
-         */
-        preLoaders: [
-
+      /*
+       * An array of applied pre and post loaders.
+       *
+       * See: http://webpack.github.io/docs/configuration.html#module-preloaders-module-postloaders
+       */
+      preLoaders: [
         {
           test: /\.ts$/,
           loader: 'string-replace-loader',
@@ -148,39 +149,50 @@ module.exports = function(options) {
           loader: 'json-loader'
         },
 
-          /*
-           * to string and css loader support for *.css files
-           * Returns file content as string
-           *
-           */
-          {
-              test: /\.css$/,
-              loaders: ['to-string-loader', 'css-loader']
-              //loaders: ['raw-loader']
-          },
+        /*
+         * to string and css loader support for *.css files
+         * Returns file content as string
+         *
+         */
+        {
+          test: /\.css$/,
+          // loaders: ['to-string-loader', 'css-loader']
+          loaders: ['raw-loader']
+        },
 
-      {
+        {
           test: /\.scss$/,
           loaders: ['raw-loader', 'sass-loader']
-      },
+        },
 
-      {
+        {
           test: /initial\.scss$/,
-          loader: InitialCssPlugin.extract('style-loader', 'css-loader!sass-loader')
-      },
+          loader: InitialCssPlugin.extract({
+            fallbackLoader: 'style-loader',
+            loader: 'css-loader!sass-loader?sourceMap'
+          })
+        },
 
-      {
+        {
+          test: /login\.scss$/,
+          loader: LoginCssPlugin.extract({
+            fallbackLoader: 'style-loader',
+            loader: 'css-loader!sass-loader?sourceMap'
+          })
+        },
+
+        {
           test: /\.woff(2)?(\?v=.+)?$/, loader: 'url-loader?limit=10000&mimetype=application/font-woff'
-      },
+        },
 
-      {
+        {
           test: /\.(ttf|eot|svg)(\?v=.+)?$/, loader: 'file-loader'
-      },
+        },
 
-      {
+        {
           test: /bootstrap\/dist\/js\/umd\//,
           loader: 'imports?jQuery=jquery'
-      },
+        },
 
         /* Raw loader support for *.html
          * Returns file content as string
@@ -194,7 +206,7 @@ module.exports = function(options) {
         },
 
         /* File loader for supporting images, for example, in CSS files.
-        */
+         */
         {
           test: /\.(jpg|png|gif)$/,
           loader: 'file'
@@ -214,22 +226,21 @@ module.exports = function(options) {
       ]
     },
 
+
     /*
      * Add additional plugins to the compiler.
      *
      * See: http://webpack.github.io/docs/configuration.html#plugins
      */
     plugins: [
+      InitialCssPlugin,
+      LoginCssPlugin,
+
       new AssetsPlugin({
         path: helpers.root('wwwroot'),
         filename: 'webpack-assets.json',
         prettyPrint: true
       }),
-    InitialCssPlugin,
-
-    /*new webpack.ResolverPlugin(
-      new webpack.ResolverPlugin.DirectoryDescriptionFilePlugin('bower.json', ['main'])
-    ),*/
 
       /*
        * Plugin: ForkCheckerPlugin
@@ -249,6 +260,20 @@ module.exports = function(options) {
       new webpack.optimize.CommonsChunkPlugin({
         name: ['polyfills', 'vendor'].reverse()
       }),
+
+
+      /**
+       * Plugin: ContextReplacementPlugin
+       * Description: Provides context to Angular's use of System.import
+       *
+       * See: https://webpack.github.io/docs/list-of-plugins.html#contextreplacementplugin
+       * See: https://github.com/angular/angular/issues/11580
+       */
+      new ContextReplacementPlugin(
+        // The (\\|\/) piece accounts for path separators in *nix and Windows
+        /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
+        helpers.root('src') // location of your src
+      ),
 
       /*
        * Plugin: CopyWebpackPlugin
@@ -271,8 +296,6 @@ module.exports = function(options) {
           { from: 'bower_modules/abp-web-resources', to: 'assets/libs/abp-web-resources' },
           { from: 'node_modules/normalize.css/normalize.css', to: 'assets/libs/normalize.css/normalize.css' },
           { from: 'node_modules/bootstrap/dist', to: 'assets/libs/bootstrap' },
-          { from: 'node_modules/primeui', to: 'assets/libs/primeui', ignore: 'themes/**/*' },
-          { from: 'node_modules/primeui/themes/omega', to: 'assets/libs/primeui/themes/omega' }
       ]),
 
       /*
@@ -295,6 +318,7 @@ module.exports = function(options) {
         'Tether': 'tether',
         'window.Tether': 'tether'
     }),
+
       /*
        * Plugin: HtmlHeadConfigPlugin
        * Description: Generate html tags based on javascript maps.
@@ -319,7 +343,7 @@ module.exports = function(options) {
        */
       new HtmlElementsPlugin({
         headTags: require('./head-config.common')
-      }),
+      })
 
     ],
 
@@ -336,13 +360,12 @@ module.exports = function(options) {
      * See: https://webpack.github.io/docs/configuration.html#node
      */
     node: {
-        //fs: "empty",
-        global: 'window',
-        crypto: 'empty',
-        process: true,
-        module: false,
-        clearImmediate: false,
-        setImmediate: false
+      global: 'window',
+      crypto: 'empty',
+      process: true,
+      module: false,
+      clearImmediate: false,
+      setImmediate: false
     }
 
   };

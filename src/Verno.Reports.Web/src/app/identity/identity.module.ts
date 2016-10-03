@@ -5,23 +5,24 @@ import { NgaModule } from '../theme/nga.module';
 
 import { routing } from './identity.routing';
 
-import { RatingModule } from 'ng2-bootstrap/ng2-bootstrap';
 import { Account } from './identity.component'
 import { UserProfile, ChangePassword } from './Components'
-
+import { IdentityService } from "./identity.service"
 
 @NgModule({
     imports: [
         CommonModule,
         AngularFormsModule,
         NgaModule,
-        RatingModule,
         routing
     ],
     declarations: [
         Account,
         UserProfile,
         ChangePassword
+    ],
+    providers: [
+      IdentityService
     ]
 })
-export default class IdentityModule { }
+export class IdentityModule { }

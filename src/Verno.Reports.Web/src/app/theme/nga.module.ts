@@ -3,6 +3,9 @@ import { CommonModule }  from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
+import { ModalModule } from 'ng2-bootstrap/components/modal';
+import { DropdownModule } from 'ng2-bootstrap/components/dropdown';
+
 import {
   BaThemeConfig
 } from './theme.config';
@@ -19,24 +22,39 @@ import {
   BaCheckbox,
   BaContentTop,
   BaFullCalendar,
+  BaMenuItem,
   BaMenu,
   BaMsgCenter,
   BaMultiCheckbox,
   BaPageTop,
   BaPictureUploader,
-  BaSidebar
+  BaSidebar,
+  ModalDialog,
+  HtmlForm,
+  FileDownloader,
+  SearchableDropdownComponent,
+  BootstrapPaginator, 
+  DataTable,
+  DefaultSorter,
+  Paginator,
+  Selectable,
 } from './components';
+
+import { BaCardBlur } from './components/baCard/baCardBlur.directive';
 
 import {
   BaScrollPosition,
   BaSlimScroll,
-  BaThemeRun
+  BaThemeRun,
+  DateRangePickerDirective
 } from './directives';
 
 import {
   BaAppPicturePipe,
   BaKameleonPicturePipe,
-  BaProfilePicturePipe
+  BaProfilePicturePipe,
+  FilterByPrefixPipe,
+  FileSizePipe,
 } from './pipes';
 
 import {
@@ -47,6 +65,7 @@ import {
 
 import {
   EmailValidator,
+  EqualValidator,
   EqualPasswordsValidator
 } from './validators';
 
@@ -58,24 +77,40 @@ const NGA_COMPONENTS = [
   BaCheckbox,
   BaContentTop,
   BaFullCalendar,
+  BaMenuItem,
   BaMenu,
   BaMsgCenter,
   BaMultiCheckbox,
   BaPageTop,
   BaPictureUploader,
-  BaSidebar
+  BaSidebar,
+  ModalDialog,
+  HtmlForm,
+  FileDownloader,
+  SearchableDropdownComponent,
+  BootstrapPaginator, 
+  DataTable,
+  DefaultSorter,
+  Paginator,
+  Selectable
 ];
 
 const NGA_DIRECTIVES = [
   BaScrollPosition,
   BaSlimScroll,
-  BaThemeRun
+  BaThemeRun,
+  BaCardBlur,
+  DateRangePickerDirective,
+  EmailValidator,
+  EqualValidator
 ];
 
 const NGA_PIPES = [
   BaAppPicturePipe,
   BaKameleonPicturePipe,
-  BaProfilePicturePipe
+  BaProfilePicturePipe,
+  FilterByPrefixPipe,
+  FileSizePipe,
 ];
 
 const NGA_SERVICES = [
@@ -85,8 +120,12 @@ const NGA_SERVICES = [
 ];
 
 const NGA_VALIDATORS = [
-  EmailValidator,
   EqualPasswordsValidator
+];
+
+const THIRD_PARTY_MODULES = [
+    ModalModule,
+    DropdownModule,
 ];
 
 @NgModule({
@@ -100,6 +139,7 @@ const NGA_VALIDATORS = [
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
+    ...THIRD_PARTY_MODULES
   ],
   providers: [
     BaThemeConfigProvider,

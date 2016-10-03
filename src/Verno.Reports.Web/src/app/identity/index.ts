@@ -1,2 +1,2 @@
-export * from './identity.service.ts';
+export * from './identity.service';
 export * from './Components';

@@ -1,90 +1,84 @@
-﻿import { Component, Output, EventEmitter, ViewChild, OnInit } from '@angular/core';
-import { ModalDirective } from 'ng2-bootstrap/ng2-bootstrap';
+﻿import { Component, ViewEncapsulation, OnInit, ElementRef } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
+import { Location } from '@angular/common';
 
-import { UserDtoImpl } from "../../user.model";
-
-import identity = abp.services.identity;
+import { User, UserDtoImpl, OrgUnit, OrgUnitService, UsersService } from "../../index";
 
 @Component({
-    selector: 'user-edit',
-    template: require('./userEdit.html')
+  selector: 'user-edit',
+  encapsulation: ViewEncapsulation.None,
+  template: require('./userEdit.html'),
+  providers: [UsersService, OrgUnitService]
 })
-export class UserEdit implements OnInit {
-    @ViewChild('editModal') public editModal: ModalDirective;
+export class UserEdit {
+  private isNew: boolean = true;
+  private data: User;
+  private orgUnit: any;
+  private title: string;
 
-    @Output('confirm') confirmEmitter: EventEmitter<any> = new EventEmitter<any>();
-    @Output('cancel') cancelEmitter: EventEmitter<any> = new EventEmitter<any>();
-    @Output('loaded') loadedEmitter: EventEmitter<UserEdit> = new EventEmitter<UserEdit>();
+  private orgUnitNames: Array<string> = [];
+  private orgUnits: Array<OrgUnit> = [];
 
-    public title: string;
-    private isNew: boolean;
-    public data: identity.userDto = new UserDtoImpl();
-    private srcData: identity.userDto;
-    private orgUnit: any;
+  constructor(
+    private usersService: UsersService,
+    private orgUnitService: OrgUnitService,
+    private route: ActivatedRoute,
+    private location: Location,
+    private element: ElementRef
+  ) { }
 
-    public items: Array<string> = [];
-    public orgUnits: Array<identity.orgUnit> = [];
+  ngOnInit(): void {
+    var self = this;
 
-    ngOnInit() {
-        var self = this;
+    this.user = new UserDtoImpl();
 
-        this.loadedEmitter.next(this);
+    this.route.params.forEach((params: Params) => {
+      let id = +params['id'];
+      if (id)
+        this.setBusy(this.usersService.getUser(id).then(user => this.user = user));
+      else
+        this.isNew = true;
+    });
 
-        identity.orgUnit.getAll().done(result => {
-            self.items = result.items.map(x=>x.name);
-            self.orgUnits = result.items;
-        });
-    }
+    this.orgUnitService.getAll().then(result => {
+      self.orgUnitNames = result.items.map(x => x.name);
+      self.orgUnits = result.items;
+    });
+  }
 
-    cancel(): void {
-        this.cancelEmitter.emit(null);
-        this.editModal.hide();
-    }
+  set user(value: User) {
+    this.isNew = value == null;
+    this.title = this.isNew ? "Новый пользователь" : "Редактирование пользователя";
+    this.data = value;
+    this.orgUnit = this.data.orgUnit.name;
+  }
+  get user(): User { return this.data; }
 
-    save(isValid: boolean): void {
-        if (!isValid)
-            return;
+  save(value: User, isValid: boolean) {
+    if (!isValid)
+      return;
 
-        if (this.isNew)
-            abp.ui.setBusy("#userEditModal .modal-dialog",
-                {
-                    blockUI: true,
-                    promise: identity.user.create(this.data)
-                        .done((result: identity.userDto) => {
-                            this.confirmEmitter.emit({ user: result, isNew: this.isNew });
-                            this.editModal.hide();
-                        })
-                });
-        else
-            abp.ui.setBusy("#userEditModal .modal-dialog",
-                {
-                    blockUI: true,
-                    promise: identity.user.update(this.data)
-                        .done((result: identity.userDto) => {
-                            for (var attr in this.srcData) {
-                                if (this.srcData.hasOwnProperty(attr)) this.srcData[attr] = result[attr];
-                            }
-                            this.confirmEmitter.emit({ user: result, isNew: this.isNew });
-                            this.editModal.hide();
-                        })
-                });
-    }
+    if (this.isNew)
+      this.setBusy(this.usersService.create(this.user).then(() => this.goBack()));
+    else
+      this.setBusy(this.usersService.update(this.user).then(() => this.goBack()));
+  }
 
-    orgUnitSelected(value: any): void {
-        var idx = this.items.indexOf(value);
-        this.data.orgUnit = this.orgUnits[idx];
-        this.data.orgUnitId = this.data.orgUnit.id;
-    }
+  private setBusy(promise: any): void {
+    abp.ui.setBusy(jQuery('form', this.element.nativeElement),
+      {
+        blockUI: true,
+        promise: promise
+      });    
+  }
 
-    showModal(user?: identity.userDto): void {
-        var self = this;
-        this.title = user ? "Редактирование пользователя" : "Новый пользователь";
-        this.srcData = user;
-        this.isNew = user == null;
-        this.data = user
-            ? jQuery.extend(true, {}, user) // clone user for rollback when canceled
-            : new UserDtoImpl();            // create new user
-        this.orgUnit = self.data.orgUnit.name;
-        this.editModal.show();
-    }
+  private goBack(): void {
+    this.location.back();
+  }
+
+  private orgUnitSelected(value: any): void {
+    var idx = this.orgUnitNames.indexOf(value);
+    this.user.orgUnit = this.orgUnits[idx];
+    this.user.orgUnitId = this.user.orgUnit.id;
+  }
 }

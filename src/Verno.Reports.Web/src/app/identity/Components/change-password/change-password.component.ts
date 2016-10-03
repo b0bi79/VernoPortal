@@ -1,6 +1,11 @@
-﻿import { Component, ViewEncapsulation, OnInit } from '@angular/core';
+﻿import { Component, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
-import identity = abp.services.identity;
+import { IdentityService } from '../../identity.service'
+
+import { GlobalState } from '../../../global.state';
+import * as models from '../../identity.model';
+
+//import identity = abp.services.identity;
 
 @Component({
     selector: 'change-password',
@@ -8,23 +13,19 @@ import identity = abp.services.identity;
   styles: [ require('./change-password.scss') ],
   template: require('./change-password.html')
 })
-export class ChangePassword implements OnInit {
-    private user: identity.userLoginInfoDto = { };
-    private model: identity.changePasswordInput = { oldPassword: "", newPassword: "", confirmPassword:""};
-    constructor(private router: Router) {
+export class ChangePassword {
+  private model: models.ChangePasswordInput = { oldPassword: "", newPassword: "", confirmPassword:""};
+      
+    constructor(
+      private router: Router,
+      private identity: IdentityService,
+      private state: GlobalState) {
     }
 
-    ngOnInit() {
-        identity.session.getCurrentLoginInformations()
-            .done(result => {
-                this.user = result.user;
-            });
-    }
-
-    save(model: identity.changePasswordInput, isValid: boolean) {
+    save(model: models.ChangePasswordInput, isValid: boolean) {
         if (isValid) {
-            identity.account.changePassword(model)
-                .done(() => {
+            this.identity.changePassword(model)
+                .then(() => {
                     this.router.navigate(['/profile']);
                     abp.message.success("Пароль успешно изменён.", "Пароль сохранён");
                 });

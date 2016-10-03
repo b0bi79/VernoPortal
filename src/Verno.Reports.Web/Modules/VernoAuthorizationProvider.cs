@@ -7,8 +7,13 @@ namespace Verno.Reports.Web.Modules
         public override void SetPermissions(IPermissionDefinitionContext context)
         {
             var documents = context.CreatePermission("Documents");
-            documents.CreateChildPermission("Documents.Print");
-            documents.CreateChildPermission("Documents.Returns");
+            var print = documents.CreateChildPermission("Documents.Print");
+            print.CreateChildPermission("Documents.Print.GetFile");
+
+            var returns = documents.CreateChildPermission("Documents.Returns");
+            returns.CreateChildPermission("Documents.Returns.GetFile");
+            returns.CreateChildPermission("Documents.Returns.UploadFile");
+            returns.CreateChildPermission("Documents.Returns.DeleteFile");
         }
     }
 }

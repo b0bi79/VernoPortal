@@ -1,15 +1,17 @@
 import { Routes, RouterModule } from '@angular/router';
 
-import { Admin } from './admin.component';
-import { Users } from './components/users/users.component';
+import { Documents } from './documents.component';
+import { Print } from './print';
+import { Returns } from './returns';
 
 // noinspection TypeScriptValidateTypes
 const routes: Routes = [
     {
         path: '',
-        component: Admin,
+        component: Documents,
         children: [
-            { path: 'users', component: Users },
+            { path: 'print-list', component: Print },
+            { path: 'returns', component: Returns },
         ]
     }
 ];

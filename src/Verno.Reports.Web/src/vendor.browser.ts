@@ -3,8 +3,6 @@
 // at the entry point of the async loaded file. Also see custom-typings.d.ts as you also need to
 // run `typings install x` where `x` is your module
 
-// TODO(gdi2290): switch to DLLs
-
 // Angular 2
 import '@angular/platform-browser';
 import '@angular/platform-browser-dynamic';
@@ -21,26 +19,16 @@ import '@angularclass/hmr';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
 
-// PrimeNG (http://www.primefaces.org/primeng)
-//import 'primeng/primeng';
-
-// https://github.com/mariuszfoltak/angular2-datatable
-//import 'angular2-datatable/datatable';
-
 // Web dependencies
-//import 'jquery';
-//import 'bootstrap-loader';
-//import 'font-awesome-sass-loader';
-//import 'lodash';
-//import 'file-saver';
+import 'jquery';
+import 'bootstrap-loader';
+import 'font-awesome-sass-loader';
+import 'lodash';
+import 'file-saver';
 
-//import 'abp';
-
+import 'abp';
 if ('production' === ENV) {
   // Production
-
-
 } else {
   // Development
-
 }

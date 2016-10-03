@@ -80,7 +80,6 @@ export class BaMenuService {
       item.skip = true;
     }
 
-    //abp.auth.isGranted('Administration.UserManagement.CreateUser');
     // we have to collect all paths to correctly build the url then
     item.route.paths = parent && parent.route && parent.route.paths ? parent.route.paths.slice(0) : [];
     item.route.paths.push(item.route.path);

@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -9,13 +9,13 @@
 
   <meta name="description" content="<%= webpackConfig.metadata.title %>">
 
-    <!-- base url -->
-    <base href="<%= webpackConfig.metadata.baseUrl %>">
-
   <% if (webpackConfig.htmlElements.headTags) { %>
   <!-- Configured Head Tags  -->
   <%= webpackConfig.htmlElements.headTags %>
   <% } %>
+
+  <!-- base url -->
+  <base href="<%= webpackConfig.metadata.baseUrl %>">
 
 </head>
 
@@ -41,7 +41,8 @@
     <script src="assets/libs/abp-web-resources/Abp/Framework/scripts/libs/abp.jquery.js" type="text/javascript"></script>
     <script src="assets/libs/abp-web-resources/Abp/Framework/scripts/libs/abp.toastr.js" type="text/javascript"></script>
     <script src="assets/libs/abp-web-resources/Abp/Framework/scripts/libs/abp.blockUI.js" type="text/javascript"></script>
-    <script src="assets/libs/abp-web-resources/Abp/Framework/scripts/libs/abp.spin.js" type="text/javascript"></script>
+    <!--<script src="assets/libs/abp-web-resources/Abp/Framework/scripts/libs/abp.spin.js" type="text/javascript"></script>-->
+    <script src="assets/scripts/abp.spin.js" type="text/javascript"></script>
     <script src="assets/libs/abp-web-resources/Abp/Framework/scripts/libs/abp.sweet-alert.js" type="text/javascript"></script>
     <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />

@@ -6,7 +6,7 @@ import { BrowserXhr } from '@angular/http';
 let saver = require("file-saver");
 
 @Component({
-    selector: 'pdf-downloader',
+    selector: 'file-downloader',
     //styles: [require('./downloader.scss')],
     template: `
         <button
@@ -23,7 +23,7 @@ let saver = require("file-saver");
         </button>
         `
 })
-export class PdfDownloader {
+export class FileDownloader {
 
     @Input() url: string;
     @Input() fileName: string;
@@ -65,12 +65,25 @@ export class PdfDownloader {
 
             // If we get an HTTP status OK (200), save the file using fileSaver
             if (xhr.readyState === 4 && xhr.status === 200) {
-                var blob = new Blob([this.response], { type: 'application/pdf' });
-                callback(blob, self.fileName);
+                let contentType = xhr.getResponseHeader('Content-Type') || 'application/pdf';
+                let fileName = self.getFileName(xhr);
+                var blob = new Blob([this.response], { type: contentType });
+                callback(blob, self.fileName || fileName);
             }
         };
 
         // Start the Ajax request
         xhr.send();
+    }
+
+    getFileName(xhr: XMLHttpRequest) {
+        var filename = "";
+        var disposition = xhr.getResponseHeader('Content-Disposition');
+        if (disposition && disposition.indexOf('attachment') !== -1) {
+            var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+            var matches = filenameRegex.exec(disposition);
+            if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+        }
+        return filename;
     }
 }

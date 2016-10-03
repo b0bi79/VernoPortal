@@ -5,74 +5,82 @@ using Abp.Domain.Entities;
 
 namespace Verno.Reports.Web.Modules.Returns
 {
-    [Table("Dokumenty")]
-    public class PrintDoc : Entity<int>
+    [Table("vReturns")]
+    public class ReturnData : Entity<int>
     {
-        // PRIMARY KEY DokId
-        public int? SklIst { get; set; }
-        public int? MagIst { get; set; }
-        public int? SklPol { get; set; }
-        public int? MagPol { get; set; }
-        public int? Liniah { get; set; }
-        public string NomNakl { get; set; }
-        public DateTime? DataNakl { get; set; }
+        // PRIMARY KEY Rasxod
+        public int ShopNum { get; set; }
+        [Column(TypeName = "datetime")]
+        public DateTime DocDate { get; set; }
+        public string DocNum { get; set; }
+        public int SupplierId { get; set; }
+        public string SupplierName { get; set; }
+        public decimal Summ { get; set; }
+        public short Liniah { get; set; }
+        public string LiniahTip { get; set; }
+        public int? ReturnId { get; set; }
+        public int Status { get; set; }
 
-        [ForeignKey("DokId")]
-        public virtual ICollection<PrintDocForm> Forms { get; set; }
-
-        public virtual Sklad SkladSrc { get; set; }
+        //public Return Return { get; set; }
     }
 
-    [Table("FormyDokumentov")]
-    public class PrintDocForm : Entity<int>
+
+    [Table("Returns")]
+    public class Return : Entity<int>
     {
-        // PRIMARY KEY FrmId
-        public int? DokId { get; set; }
-        public int? TipDok { get; set; }
-        public string ImahDok { get; set; }
-        public string Putq { get; set; }
-        public DateTime? DataPech { get; set; }
-        public DateTime? Deleted { get; set; }
-        public DateTime? Created { get; set; }
+        public Return()
+        {
+        }
+
+        public Return(int rasxod)
+        {
+            Rasxod = rasxod;
+            Status = ReturnStatus.Processed;
+        }
+
+        public int Rasxod { get; set; }
+        public ReturnStatus Status { get; set; }
+
+        public virtual ICollection<ReturnFile> Files { get; set; } =  new List<ReturnFile>();
+
+        public ReturnFile AddFile(string name, string fileName, string savedName)
+        {
+            var file = new ReturnFile()
+            {
+                Name = name,
+                FileName = fileName,
+                SavedName = savedName,
+                ReturnId = this.Id,
+                DateLot = DateTime.Now,
+                Deleted = false,
+                EditDate = DateTime.Now,
+            };
+            Files.Add(file);
+            return file;
+        }
     }
 
-    [Table("Sklady")]
-    public class Sklad : Entity<int>
+    [Table("ReturnFiles")]
+    public class ReturnFile : Entity<int>
     {
-        public int? NomerSklada { get; set; }
-        public string Postavthik { get; set; }
-        public int? Filial { get; set; }
-        public string Platelqthik { get; set; }
-        public short? FlagD { get; set; }
-        public string Ruk { get; set; }
-        public string GlBux { get; set; }
-        public string PutqPochta { get; set; }
-        public int? TipNakl { get; set; }
-        public short? Ind { get; set; }
-        public int? KodGr { get; set; }
-        public string Adres { get; set; }
-        public int? Brak { get; set; }
-        public int? Opt { get; set; }
-        public int? MySkl { get; set; }
-        public short? Otkr { get; set; }
-        public int? IndSp { get; set; }
-        public DateTime? VremahSp { get; set; }
-        public short? OtprSp { get; set; }
-        public int? VidPodd { get; set; }
-        public int? SvahzSkl { get; set; }
-        public int? Fas { get; set; }
-        public short? Lim { get; set; }
-        public int? LimGB { get; set; }
-        public int? PLnRegion { get; set; }
-        public int? SubkontoSkl { get; set; }
-        public string KPPSklad { get; set; }
-        public string ServerPath { get; set; }
-        public short? ZaprKorrNakl { get; set; }
-        public string EgaisRegId { get; set; }
+        public int ReturnId { get; set; }
+        public string Name { get; set; }
+        public string FileName { get; set; }
+        public string SavedName { get; set; }
+        [Column(TypeName = "datetime")]
+        public DateTime DateLot { get; set; }
+        public bool Deleted { get; set; }
+        public string EditUser { get; set; }
+        [Column(TypeName = "datetime")]
+        public DateTime EditDate { get; set; }
+
+        [ForeignKey("ReturnId")]
+        public Return Return { get; set; }
     }
 
-    public class PutqServ : Entity<int>
+    public enum ReturnStatus
     {
-        public string Putq { get; set; }
+        None = 0,
+        Processed = 10,
     }
 }

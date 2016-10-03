@@ -22,14 +22,8 @@
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { DROPDOWN_DIRECTIVES } from 'ng2-bootstrap/ng2-bootstrap';
-
-import { FilterByPrefixPipe } from '../../pipes';
-
 @Component({
     selector: 'searchable-dropdown',
-    directives: [DROPDOWN_DIRECTIVES],
-    pipes: [FilterByPrefixPipe],
     styles: [
         require('./searchable-dropdown.component.scss')
     ],
@@ -37,7 +31,7 @@ import { FilterByPrefixPipe } from '../../pipes';
 })
 export class SearchableDropdownComponent {
 
-    @Input() items: Array<string>;
+    @Input() items: Array<string> = [];
     @Input() shortcutMap: Object;
     @Input() value: string;
     prefix: string = '';

@@ -8,45 +8,49 @@ using System.Linq;
 using System.Net.Mail;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using System.Transactions;
 using Abp.AutoMapper;
 using Abp.Extensions;
 using Abp.Net.Mail;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Verno.Configuration;
 
 namespace Verno.Identity.Users
 {
     [AbpAuthorize("Administration.UserManagement")]
     public class UserAppService : IdentityAppServiceBase, IUserAppService
     {
+        private const string ServiceUrl = "api/services/identity/users";
         private readonly IPermissionManager _permissionManager;
         private readonly IEmailSender _emailSender;
         private readonly string _rootUrl;
-        private readonly string _appName;
+        private readonly AppSettings _appSettings;
 
-        public UserAppService(IPermissionManager permissionManager, IEmailSender emailSender, IHttpContextAccessor contextAccessor, IHostingEnvironment env)
+        public UserAppService(IPermissionManager permissionManager, IEmailSender emailSender, IHttpContextAccessor contextAccessor, IOptions<AppSettings> appSettings)
         {
             _permissionManager = permissionManager;
             _emailSender = emailSender;
             var request = contextAccessor.HttpContext.Request;
             _rootUrl = $"{request.Scheme}://{request.Host}{request.PathBase}";
-            _appName = env.ApplicationName;
+            _appSettings = appSettings.Value;
         }
 
+        [HttpDelete]
+        [Route(ServiceUrl + "/{userId}/permissions/{permissionName}")]
         [AbpAuthorize("Administration.UserManagement.EditPermissions")]
-        public async Task ProhibitPermission(ProhibitPermissionInput input)
+        public async Task ProhibitPermission(int userId, string permissionName)
         {
-            var user = await UserManager.FindByIdAsync(input.UserId);
-            var permission = _permissionManager.GetPermission(input.PermissionName);
+            var user = await UserManager.FindByIdAsync(userId);
+            var permission = _permissionManager.GetPermission(permissionName);
 
             await UserManager.ProhibitPermissionAsync(user, permission);
         }
 
         //Example for primitive method parameters.
+        [HttpPut]
+        [Route(ServiceUrl+"/{userId}/roles")]
         [AbpAuthorize("Administration.UserManagement.EditRoles")]
         public async Task UpdateRoles(int userId, string[] roleNames)
         {
@@ -55,6 +59,8 @@ namespace Verno.Identity.Users
         }
 
         //Example for primitive method parameters.
+        [HttpGet]
+        [Route(ServiceUrl + "/{userId}/roles")]
         [AbpAuthorize("Administration.UserManagement.EditRoles")]
         public async Task<ListResultOutput<string>> GetRoles(int userId)
         {
@@ -63,6 +69,8 @@ namespace Verno.Identity.Users
             return new ListResultOutput<string>(roles.ToList());
         }
 
+        [HttpGet]
+        [Route(ServiceUrl)]
         public ListResultOutput<UserDto> GetAll()
         {
             return new ListResultOutput<UserDto>(
@@ -75,6 +83,8 @@ namespace Verno.Identity.Users
                 );
         }
 
+        [HttpPost]
+        [Route(ServiceUrl)]
         [AbpAuthorize("Administration.UserManagement.CreateUser")]
         public async Task<UserDto> Create(UserDto input)
         {
@@ -97,8 +107,8 @@ namespace Verno.Identity.Users
             try
             {
                 var callbackUrl = _rootUrl + $"/Account/JoinIn?userName={UrlEncoder.Default.Encode(user.UserName)}";
-                await _emailSender.SendAsync(user.Email, $"Доступ в {_appName}",
-                    $"Поздравляем, вы зарегистрированы в системе {_appName}, теперь вы можете войти на сайт нажав на ссылку: <a href='{callbackUrl}'>{_appName}</a>.");
+                await _emailSender.SendAsync(user.Email, $"Доступ в {_appSettings.SiteTitle}",
+                    $"Поздравляем, вы зарегистрированы в системе {_appSettings.SiteTitle}, теперь вы можете войти на сайт нажав на ссылку: <a href='{callbackUrl}'>{_appSettings.SiteTitle}</a>.");
             }
             catch (SmtpException ex)
             {
@@ -107,6 +117,8 @@ namespace Verno.Identity.Users
             return input;
         }
 
+        [HttpPut]
+        [Route(ServiceUrl)]
         [AbpAuthorize("Administration.UserManagement.UpdateUser")]
         public async Task<UserDto> Update(UserDto input)
         {
@@ -125,20 +137,24 @@ namespace Verno.Identity.Users
                 throw new Exception(string.Join(", ", result.Errors.Select(x => x.Description)));
         }
 
+        [HttpDelete]
+        [Route(ServiceUrl)]
         [AbpAuthorize("Administration.UserManagement.DeleteUser")]
-        public async Task<UserDto> Delete(UserDto input)
+        public async Task<UserDto> Delete(int id)
         {
-            var user = await UserManager.FindByIdAsync(input.Id);
+            var user = await UserManager.FindByIdAsync(id);
             user.IsActive = false;
             CheckErrors(await UserManager.UpdateAsync(user));
             await CurrentUnitOfWork.SaveChangesAsync();
-            return input;
+            return user.MapTo<UserDto>();
         }
 
+        [HttpPost]
+        [Route(ServiceUrl + "/{userId:int:min(1)}/PasswordReset")]
         [AbpAuthorize("Administration.UserManagement.ResetPassword")]
-        public async Task PasswordReset(PasswordResetInput input)
+        public async Task PasswordReset(int userId, PasswordResetInput input)
         {
-            var user = await UserManager.FindByIdAsync(input.UserId);
+            var user = await UserManager.FindByIdAsync(userId);
 
             CheckErrors(await UserManager.RemovePasswordAsync(user));
             if (!input.NewPassword.IsNullOrWhiteSpace())
@@ -148,8 +164,8 @@ namespace Verno.Identity.Users
                 try
                 {
                     var curUser = await GetCurrentUserAsync();
-                    await _emailSender.SendAsync(user.Email, $"Изменён пароль к {_appName}",
-                        $"Ваш пароль в системе {_appName} был изменён администратором ({curUser.Name}). " +
+                    await _emailSender.SendAsync(user.Email, $"Изменён пароль к {_appSettings.SiteTitle}",
+                        $"Ваш пароль в системе {_appSettings.SiteTitle} был изменён администратором ({curUser.Name}). " +
                         $"Что бы узнать текущий пароль обратитесь к администратору или по электронной почте " +
                         $"<a href='mailto:{curUser.Email}'>{curUser.Email}</a>.");
                 }
@@ -163,8 +179,8 @@ namespace Verno.Identity.Users
                 {
                     var callbackUrl = _rootUrl + $"/Account/JoinIn?userName={UrlEncoder.Default.Encode(user.UserName)}";
                     var curUser = await GetCurrentUserAsync();
-                    await _emailSender.SendAsync(user.Email, $"Сброшен пароль к {_appName}",
-                        $"Ваш пароль в системе {_appName} был сброшен администратором ({curUser.Name}). " +
+                    await _emailSender.SendAsync(user.Email, $"Сброшен пароль к {_appSettings.SiteTitle}",
+                        $"Ваш пароль в системе {_appSettings.SiteTitle} был сброшен администратором ({curUser.Name}). " +
                         $"Что бы задать новый пароль перейдите по ссылке: " +
                         $"<a href='{callbackUrl}'>Задать новый пароль</a>.");
                 }

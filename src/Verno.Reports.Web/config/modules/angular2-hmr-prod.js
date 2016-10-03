@@ -1,3 +1,2 @@
 exports.HmrState = function() {
-
 };

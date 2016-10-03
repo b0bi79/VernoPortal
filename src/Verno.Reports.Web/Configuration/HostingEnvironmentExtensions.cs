@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Verno.Reports.Configuration;
+using Verno.Configuration;
 
 namespace Verno.Reports.Web.Configuration
 {

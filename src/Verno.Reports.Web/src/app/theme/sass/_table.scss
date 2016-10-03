@@ -244,12 +244,12 @@ input.search-input {
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-@mixin color-row($color) {
-  background-color: rgba($color, 0.7);
-  color: $label-text;
+@mixin color-row($color, $color-text: $label-text) {
+  background-color: rgba($color, 0.7) !important;
+  color: $color-text;
   border: none;
   a.email-link {
-    color: $label-text;
+    color: $color-text;
     &:hover {
       color: $danger;
     }
@@ -269,6 +269,9 @@ input.search-input {
 }
 .table > tbody > tr.info > td {
   @include color-row($info);
+}
+.table > tbody > tr.active{
+  @include color-row($primary, $primary-text);
 }
 
 .editable-click, a.editable-click {

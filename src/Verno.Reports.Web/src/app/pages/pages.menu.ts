@@ -6,7 +6,7 @@ export const PAGES_MENU = [
         path: 'dashboard',
         data: {
           menu: {
-            title: 'Dashboard',
+            title: 'Главная',
             icon: 'ion-android-home',
             selected: false,
             expanded: false,
@@ -14,7 +14,64 @@ export const PAGES_MENU = [
           }
         }
       },
-      {
+            {
+                path: 'documents',
+                data: {
+                    authorize: 'Documents',
+                    menu: {
+                        title: 'Документы',
+                        icon: 'ion-document',
+                        selected: false,
+                        expanded: true,
+                        order: 100,
+                    }
+                },
+                children: [
+                    {
+                        path: 'print-list',
+                        data: {
+                            authorize: 'Documents.Print',
+                            menu: {
+                                title: 'Печатные формы',
+                            }
+                        }
+                    },
+                    {
+                        path: 'returns',
+                        data: {
+                            authorize: 'Documents.Returns',
+                            menu: {
+                                title: 'Возвраты',
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                path: 'admin',
+                data: {
+                    authorize: 'Administration',
+                    menu: {
+                        title: 'Администрирование',
+                        icon: 'ion-settings',
+                        selected: false,
+                        expanded: false,
+                        order: 10001,
+                    }
+                },
+                children: [
+                    {
+                        path: 'users',
+                        data: {
+                            authorize: 'Administration.UserManagement',
+                            menu: {
+                                title: 'Пользователи',
+                            }
+                        }
+                    }
+                ]
+            },      
+      /*{
         path: 'editors',
         data: {
           menu: {
@@ -318,7 +375,7 @@ export const PAGES_MENU = [
             target: '_blank'
           }
         }
-      }
+      }*/
     ]
   }
 ];

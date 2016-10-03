@@ -18,6 +18,7 @@ import { AppState, InteralStateType } from './app.service';
 import { GlobalState } from './global.state';
 import { NgaModule } from './theme/nga.module';
 import { PagesModule } from './pages/pages.module';
+import { IdentityModule } from './identity/identity.module';
 import { NoContent } from './no-content';
 
 // Application wide providers
@@ -37,7 +38,7 @@ type StoreType = {
  * `AppModule` is the main entry point into Angular2's bootstraping process
  */
 @NgModule({
-  bootstrap: [ App ],
+  bootstrap: [App],
   declarations: [
     App,
     NoContent,
@@ -50,6 +51,7 @@ type StoreType = {
     ReactiveFormsModule,
     NgaModule,
     PagesModule,
+    IdentityModule,
     routing
   ],
   providers: [ // expose our Services and Providers into Angular's dependency injection
@@ -57,8 +59,11 @@ type StoreType = {
     APP_PROVIDERS
   ]
 })
+
 export class AppModule {
-  constructor(public appRef: ApplicationRef, public appState: AppState) {}
+
+  constructor(public appRef: ApplicationRef, public appState: AppState) {
+  }
 
   hmrOnInit(store: StoreType) {
     if (!store || !store.state) return;
@@ -70,7 +75,6 @@ export class AppModule {
       let restoreInputValues = store.restoreInputValues;
       setTimeout(restoreInputValues);
     }
-
     this.appRef.tick();
     delete store.state;
     delete store.restoreInputValues;
@@ -84,7 +88,7 @@ export class AppModule {
     // recreate root elements
     store.disposeOldHosts = createNewHosts(cmpLocation);
     // save input values
-    store.restoreInputValues  = createInputTransfer();
+    store.restoreInputValues = createInputTransfer();
     // remove styles
     removeNgStyles();
   }
@@ -94,6 +98,4 @@ export class AppModule {
     store.disposeOldHosts();
     delete store.disposeOldHosts;
   }
-
 }
-

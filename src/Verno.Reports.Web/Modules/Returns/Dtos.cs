@@ -1,26 +1,54 @@
 ﻿using System;
+using Abp.Application.Services.Dto;
+using Abp.AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 
 namespace Verno.Reports.Web.Modules.Returns
 {
-    public class ReturnDto
+    [AutoMap(typeof(ReturnData))]
+    public class ReturnDto : EntityDto<int>
     {
-        public int? Liniah { get; set; }
-        public string NomNakl { get; set; }
-        public DateTime? DataNakl { get; set; }
-        public string ImahDok { get; set; }
-        public string Url { get; set; }
-        public string SrcWarehouse { get; set; }
-        public int? SrcWhId { get; set; }
-
-        public ReturnDto(int? liniah, string nomNakl, DateTime? dataNakl, string imahDok, int? srcWhId, string srcWarehouse, string url)
-        {
-            DataNakl = dataNakl;
-            ImahDok = imahDok;
-            Liniah = liniah;
-            NomNakl = nomNakl;
-            Url = url;
-            SrcWhId = srcWhId;
-            SrcWarehouse = srcWarehouse;
-        }
+        public int ShopNum { get; set; }
+        public DateTime DocDate { get; set; }
+        public string DocNum { get; set; }
+        public int SupplierId { get; set; }
+        public string SupplierName { get; set; }
+        public decimal Summ { get; set; }
+        public int Liniah { get; set; }
+        public string LiniahTip { get; set; }
+        public int? ReturnId { get; set; }
+        public ReturnStatus Status { get; set; }
     }
+
+    [AutoMap(typeof(ReturnFile))]
+    public class ReturnFileDto : EntityDto<int>
+    {
+        public ReturnFileDto()
+        {
+        }
+
+        public ReturnFileDto(int id, string error, string fileName, long fileSize, string name, int returnId, string url) : base(id)
+        {
+            Error = error;
+            FileName = fileName;
+            FileSize = fileSize;
+            Name = name;
+            ReturnId = returnId;
+            Url = url;
+        }
+
+        public int ReturnId { get; set; }
+        public string Name { get; set; }
+        public string FileName { get; set; }
+        public long FileSize { get; set; }
+        public string Error { get; set; }
+        public string Url { get; set; }
+    }
+
+    /*public class FileUploadInput : EntityDto<int>
+    {
+        public int Rasxod { get; set; }
+        public FormFile File { get; set; }
+    }*/
 }

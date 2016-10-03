@@ -1,96 +1,78 @@
-﻿<div bsModal #editModal="bs-modal" (onCancel)="cancel()" (onConfirm)="confirm()" id="userEditModal"
-     class="modal fade" aria-labelledby="mySmallModalLabel" aria-hidden="true" tabindex="-1" role="dialog">
-    <form novalidate class="modal-dialog" (ngSubmit)="save(userForm.valid)" #userForm="ngForm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" (click)="cancel('Cancel')">
-                    <span>&times;</span><span class="sr-only">Close</span>
-                </button>
-                <img *ngIf="icon" class="modal-icon" style="width:24px;position:relative;top:-2px;" [src]="icon" alt="" title="" />
-                <h4 class="modal-title" style="display:inline-block;" id="modal-title" [innerHTML]="title"></h4>
-            </div>
-            <div class="modal-body">
-                <!-- Text input-->
-                <div class="form-group row">
-                    <label class="col-sm-2 col-form-label" for="name">ФИО</label>
-                    <div class="col-sm-10">
-                        <input [(ngModel)]="data.name" #name="ngModel" id="name" name="name" type="text" class="form-control input-md" required="">
-                        <div class="alert alert-danger" [hidden]="name.valid || name.pristine">
-                            <i class="fa fa-exclamation-triangle"></i>
-                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                            <span>Обязательное поле! Введите имя.</span>
-                        </div>
-                    </div>
-                </div>
+﻿<form novalidate (ngSubmit)="save(user, form.valid)" #form="ngForm" ngForm>
+    <ba-card title="{{title}}" baCardClass="container">
 
-                <!-- Text input-->
-                <div class="form-group row">
-                    <label class="col-sm-2 col-form-label" for="email">Email</label>
-                    <div class="col-sm-10">
-                        <input [(ngModel)]="data.email" #email="ngModel" id="email" name="email" type="email" class="form-control input-md" required="" validateEmail>
-                        <div class="alert alert-danger" [hidden]="email.valid || email.pristine">
-                            <i class="fa fa-exclamation-triangle"></i>
-                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                            <span *ngIf="email?.errors?.required">Обязательное поле! Введите email.</span>
-                            <span *ngIf="email?.errors?.validateEmail">Неправильный формат адреса электронной почты.</span>
-                        </div>
-                    </div>
+        <!-- Text input-->
+        <div class="form-group has-feedback row">
+            <label class="col-sm-2 col-form-label" for="name">ФИО</label>
+            <div class="col-sm-10">
+                <input [(ngModel)]="user.name" #name="ngModel" id="name" name="name" type="text" class="form-control input-md" required="">
+                <i class="form-control-feedback" aria-hidden="true"></i>
+                <div class="alert alert-danger" [hidden]="name.valid || name.pristine">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    <span>Обязательное поле! Введите имя.</span>
                 </div>
-
-                <!-- Text input-->
-                <div class="form-group row">
-                    <label class="col-sm-2 col-form-label" for="userName">Логин</label>
-                    <div class="col-sm-10">
-                        <input [(ngModel)]="data.userName" #userName="ngModel" id="userName" name="userName" type="text" class="form-control input-md" required="">
-                        <div class="alert alert-danger" [hidden]="userName.valid || userName.pristine">
-                            <i class="fa fa-exclamation-triangle"></i>
-                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                            <span>Обязательное поле! Введите логин.</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Text input-->
-                <div class="form-group row">
-                    <label class="col-sm-2 col-form-label" for="position">Должность</label>
-                    <div class="col-sm-10">
-                        <input [(ngModel)]="data.position" #position="ngModel" id="position" name="position" type="text" class="form-control input-md">
-
-                    </div>
-                </div>
-
-                <!-- Text input-->
-                <div class="form-group row">
-                    <label class="col-sm-2 col-form-label" for="position">Магазин №</label>
-                    <div class="col-sm-10">
-                        <input [(ngModel)]="data.shopNum" #shopNum="ngModel" id="shopNum" name="shopNum" type="text" class="form-control input-md">
-                    </div>
-                </div>
-
-                <!-- Select Basic -->
-                <div class="form-group row">
-                    <label class="col-sm-2 col-form-label" for="orgUnit">Подразделение</label>
-                    <div class="col-sm-10">
-                        <searchable-dropdown 
-                            [value]="orgUnit" 
-                            [items]="items" 
-                            (onSelect)="orgUnitSelected($event)"
-                            placeholder="Не выбрано подразделение"
-                            id="orgUnit" name="orgUnit"></searchable-dropdown>
-                        <!--<ng-select [allowClear]="true"
-                                       [items]="items"
-                                       [initData]="orgUnit"
-                                       (selected)="orgUnitSelected($event)"
-                                       placeholder="Не выбрано подразделение"
-                                       id="orgUnit" name="orgUnit">
-                        </ng-select>-->
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <a class="btn btn-default margin-top-5" (click)="cancel()">Отмена</a>
-                <input class="btn btn-primary margin-top-5" [disabled]="!userForm.form.valid" type="submit" value="Сохранить" />
             </div>
         </div>
-    </form>
-</div>
+
+        <!-- Text input-->
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label" for="email">Email</label>
+            <div class="col-sm-10">
+                <input [(ngModel)]="user.email" #email="ngModel" id="email" name="email" type="email" class="form-control input-md" required="" validateEmail>
+                <div class="alert alert-danger" [hidden]="email.valid || email.pristine">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    <span *ngIf="email?.errors?.required">Обязательное поле! Введите email.</span>
+                    <span *ngIf="email?.errors?.validateEmail">Неправильный формат адреса электронной почты.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label" for="userName">Логин</label>
+            <div class="col-sm-10">
+                <input [(ngModel)]="user.userName" #userName="ngModel" id="userName" name="userName" type="text" class="form-control input-md" required="">
+                <div class="alert alert-danger" [hidden]="userName.valid || userName.pristine">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    <span>Обязательное поле! Введите логин.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label" for="position">Должность</label>
+            <div class="col-sm-10">
+                <input [(ngModel)]="user.position" #position="ngModel" id="position" name="position" type="text" class="form-control input-md">
+
+            </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label" for="position">Магазин №</label>
+            <div class="col-sm-10">
+                <input [(ngModel)]="user.shopNum" #shopNum="ngModel" id="shopNum" name="shopNum" type="text" class="form-control input-md">
+            </div>
+        </div>
+
+        <!-- Select Basic -->
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label" for="orgUnit">Подразделение</label>
+            <div class="col-sm-10">
+                <searchable-dropdown [value]="orgUnit"
+                                     [items]="orgUnitNames"
+                                     (onSelect)="orgUnitSelected($event)"
+                                     placeholder="Не выбрано подразделение"
+                                     id="orgUnit" name="orgUnit"></searchable-dropdown>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" (click)="goBack()">Отмена</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!form.form.valid">Сохранить</button>
+        </div>
+    </ba-card>
+</form>

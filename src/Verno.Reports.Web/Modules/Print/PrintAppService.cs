@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Verno.Identity.Users;
 using Verno.Reports.Web.ActionResults;
+using Verno.Reports.Web.Utils;
 
 namespace Verno.Reports.Web.Modules.Print
 {
@@ -30,12 +31,12 @@ namespace Verno.Reports.Web.Modules.Print
     public class PrintAppService : ApplicationService, IPrintAppService
     {
         private readonly PrintDbContext _context;
-        private readonly string _root;
+        private readonly HttpContext _httpContext;
 
         public PrintAppService(PrintDbContext context, IHttpContextAccessor contextAccessor)
         {
             _context = context;
-            _root = contextAccessor.HttpContext.Request.PathBase;
+            _httpContext = contextAccessor.HttpContext;
         }
 
         public UserManager UserManager { get; set; }
@@ -43,7 +44,7 @@ namespace Verno.Reports.Web.Modules.Print
         #region Implementation of IPrintAppService
 
         [HttpGet]
-        [Route("print-forms/{dfrom:datetime}!{dto:datetime}")]
+        [Route("api/services/app/print-forms/{dfrom:datetime}!{dto:datetime}")]
         public async Task<ListResultOutput<PrintDto>> GetList(DateTime dfrom, DateTime dto)
         {
             int shopNum = await GetUserShopNum();
@@ -54,8 +55,8 @@ namespace Verno.Reports.Web.Modules.Print
                 where d.DataNakl >= dfrom && d.DataNakl <= dto &&
                       (d.MagPol == shopNum || shopNum == 0) && f.Deleted == null
                 select new PrintDto(d.Liniah, d.NomNakl, d.DataNakl, f.ImahDok, d.SklIst, s.Postavthik /*d.SkladSrc.Platelqthik*/,
-                    _root + "/api/services/app/Print/File?fileId=" + f.Id);
-            return new ListResultOutput<PrintDto>(await result.ToListAsync());
+                    _httpContext.CreateUrl("/api/services/app/Print/File?fileId=" + f.Id));
+            return new ListResultOutput<PrintDto>(await result.Take(500).ToListAsync());
             /*var result = new [] {
                 new PrintDto(6, "131/s1", DateTime.Today.AddDays(-2), "Акт инвентаризации", _root + "/api/services/app/Print/File?fileId=8"),
                 new PrintDto(5, "141/u3", DateTime.Today.AddDays(-1), "Акт списания", _root + "/api/services/app/Print/File?fileId=8"),

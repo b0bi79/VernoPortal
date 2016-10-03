@@ -8,7 +8,7 @@
     "Verno.Reports.Tests": "1.0.0.0-*",
     "Verno.Reports.Web": "1.0.0-*",
     "Microsoft.AspNetCore.Mvc": "1.0.0",
-    "AngleSharp": "0.9.7" 
+    "AngleSharp": "0.9.7"
   },
 
   "frameworks": {

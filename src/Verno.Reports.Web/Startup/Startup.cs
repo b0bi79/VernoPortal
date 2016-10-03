@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Abp.AspNetCore;
 using Abp.Castle.Logging.Log4Net;
+using Abp.Owin;
 using Castle.Facilities.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,25 +11,26 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Verno.Identity;
-using Verno.Identity.Roles;
-using Verno.Identity.Users;
-using Verno.Reports.EntityFrameworkCore;
-using Verno.Reports.Web.Configuration;
-using Verno.Reports.Web.Modules.Print;
+using Owin;
 
 namespace Verno.Reports.Web.Startup
 {
+    using Verno.Configuration;
+    using Identity;
+    using Identity.Roles;
+    using Identity.Users;
+    using EntityFrameworkCore;
+    using Configuration;
+    using Modules.Print;
+    using Modules.Returns;
+    using Owin;
+
     public class Startup
     {
         public IConfigurationRoot Configuration { get; }
 
         public Startup(IHostingEnvironment env)
         {
-            env.ApplicationName = "Verno.Portal";
             Configuration = env.GetAppConfiguration();
         }
 
@@ -40,6 +42,10 @@ namespace Verno.Reports.Web.Startup
 
             services.AddDbContext<PrintDbContext>(
                 options => options.UseSqlServer(Configuration.GetConnectionString("Print"))
+            );
+
+            services.AddDbContext<ReturnsDbContext>(
+                options => options.UseSqlServer(Configuration.GetConnectionString("Returns"))
             );
 
             services.AddDbContext<Identity.Data.IdentityDbContext>(
@@ -57,6 +63,13 @@ namespace Verno.Reports.Web.Startup
                 })
                 //.AddEntityFrameworkStores()
                 .AddDefaultTokenProviders();
+
+            services.AddOptions();
+            services.Configure<AppSettings>(s =>
+            {
+                s.SiteTitle = "Verno.Portal";
+                s.PrintFilesPath = Configuration.GetSection("Print")["FilesPath"];
+            });
 
             services.AddMvc(options =>
             {
@@ -80,6 +93,9 @@ namespace Verno.Reports.Web.Startup
         {
             loggerFactory.AddProvider(new DbLoggerProvider());
 
+            app.Properties["host.AppMode"]="development";
+            app.UseDeveloperExceptionPage();
+
             app.UseAbp(); //Initializes ABP framework.
 
             if (env.IsDevelopment())
@@ -96,12 +112,28 @@ namespace Verno.Reports.Web.Startup
             app.UseStaticFiles();
             app.UseIdentity();
 
+            //Integrate to OWIN
+            app.UseAppBuilder(ConfigureOwinServices);
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private static void ConfigureOwinServices(IAppBuilder app)
+        {
+            app.UseAbp();
+
+            app.MapSignalR();
+
+            //Enable it to use HangFire dashboard (uncomment only if it's enabled in AbpProjectNameWebModule)
+            //app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            //{
+            //    Authorization = new[] { new AbpHangfireAuthorizationFilter(AppPermissions.Pages_Administration_HangfireDashboard) }
+            //});
         }
     }
 }

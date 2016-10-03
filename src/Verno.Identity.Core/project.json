@@ -2,8 +2,8 @@
   "version": "1.0.0-*",
 
   "dependencies": {
-    "Abp.AspNetCore": "0.11.1",
-    "Abp.EntityFrameworkCore": "0.11.1",
+    "Abp.AspNetCore": "0.12.0",
+    "Abp.EntityFrameworkCore": "0.12.0",
     "Microsoft.AspNetCore.Identity": "1.0.0",
     "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.0.0",
     "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0",

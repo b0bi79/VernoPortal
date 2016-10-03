@@ -4,8 +4,8 @@ namespace Verno.Identity.Users.Dto
 {
     public class PasswordResetInput
     {
-        [Range(1, long.MaxValue)]
-        public int UserId { get; set; }
+        /*[Range(1, long.MinValue)]
+        public int UserId { get; set; }*/
 
         [StringLength(User.MaximumPasswordLength, ErrorMessage = "{0} должен быть не меньше {2} и не больше {1} символов.", MinimumLength = User.MinimumPasswordLength)]
         [DataType(DataType.Password)]
