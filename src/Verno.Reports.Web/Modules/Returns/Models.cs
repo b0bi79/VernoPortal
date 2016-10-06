@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using Abp.Domain.Entities;
+using Abp.Domain.Entities.Auditing;
 
 namespace Verno.Reports.Web.Modules.Returns
 {
@@ -50,10 +51,9 @@ namespace Verno.Reports.Web.Modules.Returns
                 Name = name,
                 FileName = fileName,
                 SavedName = savedName,
-                ReturnId = this.Id,
                 DateLot = DateTime.Now,
                 Deleted = false,
-                EditDate = DateTime.Now,
+                LastModificationTime = DateTime.Now,
             };
             Files.Add(file);
             return file;
@@ -61,7 +61,7 @@ namespace Verno.Reports.Web.Modules.Returns
     }
 
     [Table("ReturnFiles")]
-    public class ReturnFile : Entity<int>
+    public class ReturnFile : Entity<int>, IModificationAudited
     {
         public int ReturnId { get; set; }
         public string Name { get; set; }
@@ -70,9 +70,10 @@ namespace Verno.Reports.Web.Modules.Returns
         [Column(TypeName = "datetime")]
         public DateTime DateLot { get; set; }
         public bool Deleted { get; set; }
-        public string EditUser { get; set; }
-        [Column(TypeName = "datetime")]
-        public DateTime EditDate { get; set; }
+        [Column("EditDate", TypeName = "datetime")]
+        public DateTime? LastModificationTime { get; set; }
+        [Column("EditUserId")]
+        public long? LastModifierUserId { get; set; }
 
         [ForeignKey("ReturnId")]
         public Return Return { get; set; }

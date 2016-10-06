@@ -12,9 +12,8 @@ namespace Verno.Reports.Web.Modules.Returns
         public ReturnsDbContext(DbContextOptions<ReturnsDbContext> options)
             : base(options)
         {
-
-
         }
+
         /*protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder); // This needs to go before the other rules!

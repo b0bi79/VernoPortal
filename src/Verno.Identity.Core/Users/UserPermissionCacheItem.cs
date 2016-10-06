@@ -9,25 +9,13 @@ namespace Verno.Identity.Users
     {
         public const string CacheStoreName = "VernoUserPermissions";
 
-        /// <summary>
-        /// Gets/sets expire time for cache items.
-        /// Default: 20 minutes.
-        /// TODO: This is not used yet!
-        /// </summary>
-        public static TimeSpan CacheExpireTime { get; private set; }
-
-        public int UserId { get; set; }
+        public long UserId { get; set; }
 
         public List<int> RoleIds { get; set; }
 
         public HashSet<string> GrantedPermissions { get; set; }
 
         public HashSet<string> ProhibitedPermissions { get; set; }
-
-        static UserPermissionCacheItem()
-        {
-            CacheExpireTime = TimeSpan.FromMinutes(20.0);
-        }
 
         public UserPermissionCacheItem()
         {
@@ -36,8 +24,8 @@ namespace Verno.Identity.Users
             ProhibitedPermissions = new HashSet<string>();
         }
 
-        public UserPermissionCacheItem(int userId)
-          : this()
+        public UserPermissionCacheItem(long userId)
+            : this()
         {
             UserId = userId;
         }

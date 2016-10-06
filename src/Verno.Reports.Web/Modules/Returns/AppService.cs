@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Verno.Identity.Users;
 using Verno.Reports.Web.ActionResults;
 using Abp.AutoMapper;
+using Abp.Domain.Repositories;
 using Abp.Runtime.Validation;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
@@ -39,10 +40,15 @@ namespace Verno.Reports.Web.Modules.Returns
         private readonly ReturnsDbContext _context;
         private readonly AppSettings _appSettings;
         private readonly HttpContext _httpContext;
+        private readonly ReturnFilesRepository _filesRepository;
+        private readonly ReturnsRepository _returnsRepository;
 
-        public ReturnsAppService(ReturnsDbContext context, IOptions<AppSettings> appSettings, IHttpContextAccessor contextAccessor)
+        public ReturnsAppService(ReturnsDbContext context, IOptions<AppSettings> appSettings, 
+            IHttpContextAccessor contextAccessor, ReturnFilesRepository filesRepository, ReturnsRepository returnsRepository)
         {
             _context = context;
+            _filesRepository = filesRepository;
+            _returnsRepository = returnsRepository;
             _appSettings = appSettings.Value;
             _httpContext = contextAccessor.HttpContext;
         }
@@ -69,10 +75,7 @@ namespace Verno.Reports.Web.Modules.Returns
         [Route("{rasxod}/files")]
         public async Task<ListResultDto<ReturnFileDto>> GetFilesList(int rasxod)
         {
-            var fileEntities = await (from r in _context.ReturnFiles
-                    where !r.Deleted && r.Return.Rasxod == rasxod
-                    select r)
-                .ToListAsync();
+            var fileEntities = await _filesRepository.GetByRasxod(rasxod).ToListAsync();
             var result = new List<ReturnFileDto>();
             foreach (var file in fileEntities)
             {
@@ -93,7 +96,7 @@ namespace Verno.Reports.Web.Modules.Returns
         [Route("files/{fileId}")]
         public async Task<ActionResult> File(int fileId)
         {
-            var resultFile = await _context.ReturnFiles.FirstOrDefaultAsync(f => f.Id == fileId);
+            var resultFile = await _filesRepository.GetAsync(fileId);
             if (resultFile != null)
             {
                 var filepath = Path.Combine(ServPath, resultFile.SavedName);
@@ -116,13 +119,10 @@ namespace Verno.Reports.Web.Modules.Returns
         [Route("files/{fileId}")]
         public async Task<ReturnFileDto> DeleteFile(int fileId)
         {
-            var file = await _context.ReturnFiles.FirstOrDefaultAsync(x => x.Id == fileId);
+            var file = await _filesRepository.GetAsync(fileId);
             if (file==null)
                 throw new ApplicationException($"Файла с id={fileId} не существует.");
-            file.Deleted = true;
-            var user = await GetCurrentUserAsync();
-            file.EditUser = user.UserName;
-            await _context.SaveChangesAsync(true);
+            await _filesRepository.DeleteAsync(file);
             return file.MapTo<ReturnFileDto>();
         }
 
@@ -150,19 +150,11 @@ namespace Verno.Reports.Web.Modules.Returns
                 await fs.FlushAsync();
             }
 
-            var user = await GetCurrentUserAsync();
-            Return r = await _context.Returns.FirstOrDefaultAsync(x => x.Rasxod == rasxod);
-            if (r == null)
-            {
-                r = new Return(rasxod);
-                _context.Add(r);
-                await _context.SaveChangesAsync(true); //To get new user's id.
-            }
+            var r = await _returnsRepository.GetByRasxod(rasxod) 
+                ?? await _returnsRepository.InsertAsync(new Return(rasxod));
             var fileEntity = r.AddFile(Path.GetFileNameWithoutExtension(fileName), fileName, savedName);
-            fileEntity.EditUser = user.UserName;
-            _context.Add(fileEntity);
 
-            await _context.SaveChangesAsync(true); //To get new user's id.
+            await CurrentUnitOfWork.SaveChangesAsync(); //To get admin user's id
 
             var result = fileEntity.MapTo<ReturnFileDto>();
             result.FileSize = file.Length;

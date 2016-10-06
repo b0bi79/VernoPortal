@@ -14,14 +14,15 @@ using Verno.Identity.Data;
 
 namespace Verno.Identity.Roles
 {
-    public class RoleManager: RoleManager<Role>
+    public class RoleManager : RoleManager<Role>
     {
         private readonly IPermissionManager _permissionManager;
         private readonly ICacheManager _cacheManager;
 
         /// <inheritdoc />
-        public RoleManager(IRoleStore<Role> store, IEnumerable<IRoleValidator<Role>> roleValidators, ILookupNormalizer keyNormalizer, 
-            IdentityErrorDescriber errors, ILogger<RoleManager<Role>> logger, IHttpContextAccessor contextAccessor, IPermissionManager permissionManager, ICacheManager cacheManager) 
+        public RoleManager(IRoleStore<Role> store, IEnumerable<IRoleValidator<Role>> roleValidators, ILookupNormalizer keyNormalizer,
+            IdentityErrorDescriber errors, ILogger<RoleManager<Role>> logger, IHttpContextAccessor contextAccessor, IPermissionManager permissionManager,
+            ICacheManager cacheManager)
             : base(store, roleValidators, keyNormalizer, errors, logger, contextAccessor)
         {
             _permissionManager = permissionManager;
@@ -187,7 +188,7 @@ namespace Verno.Identity.Roles
         {
             Role role = await FindByIdAsync(roleId.ToString());
             if (role == null)
-                throw new AbpException("There is no role with id: " + (object)roleId);
+                throw new AbpException("There is no role with id: " + (object) roleId);
             return role;
         }
 
@@ -208,19 +209,22 @@ namespace Verno.Identity.Roles
 
         private async Task<RolePermissionCacheItem> GetRolePermissionCacheItemAsync(int roleId)
         {
-            return await this._cacheManager.GetRolePermissionCache().GetAsync(roleId, async () =>
+            var cacheKey = roleId /*+ (GetCurrentTenantId() ?? 0)*/;
+            return await _cacheManager.GetRolePermissionCache().GetAsync(cacheKey, async () =>
             {
-                RolePermissionCacheItem newCacheItem = new RolePermissionCacheItem(roleId);
+                var newCacheItem = new RolePermissionCacheItem(roleId);
 
-                foreach (var permissionGrantInfo in await RolePermissionStore.GetPermissionsAsync(roleId))
+                foreach (var permissionInfo in await RolePermissionStore.GetPermissionsAsync(roleId))
                 {
-                    if (permissionGrantInfo.IsGranted)
-                        newCacheItem.GrantedPermissions.Add(permissionGrantInfo.Name);
-                    else
-                        newCacheItem.ProhibitedPermissions.Add(permissionGrantInfo.Name);
+                    if (permissionInfo.IsGranted)
+                    {
+                        newCacheItem.GrantedPermissions.Add(permissionInfo.Name);
+                    }
                 }
+
                 return newCacheItem;
             });
+        }
+
     }
-}
 }

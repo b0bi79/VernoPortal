@@ -9,17 +9,17 @@ namespace Verno.Identity.Data
     {
         public static ITypedCache<long, UserPermissionCacheItem> GetUserPermissionCache(this ICacheManager cacheManager)
         {
-            return cacheManager.GetCache<long, UserPermissionCacheItem>("VernoUserPermissions");
+            return cacheManager.GetCache<long, UserPermissionCacheItem>(UserPermissionCacheItem.CacheStoreName);
         }
 
         public static ITypedCache<int, RolePermissionCacheItem> GetRolePermissionCache(this ICacheManager cacheManager)
         {
-            return cacheManager.GetCache<int, RolePermissionCacheItem>("VernoRolePermissions");
+            return cacheManager.GetCache<int, RolePermissionCacheItem>(RolePermissionCacheItem.CacheStoreName);
         }
 
         public static ITypedCache<int, ClaimPermissionCacheItem> GetClaimPermissionCache(this ICacheManager cacheManager)
         {
-            return cacheManager.GetCache<int, ClaimPermissionCacheItem>("VernoClaimPermissions");
+            return cacheManager.GetCache<int, ClaimPermissionCacheItem>(ClaimPermissionCacheItem.CacheStoreName);
         }
     }
 }

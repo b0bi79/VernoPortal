@@ -37,11 +37,11 @@
                     <input class="form-control input-md name" [(ngModel)]="file.name" placeholder="Название документа" required/>
                 </td>
                 <td>
-                    <p class="name">
+                    <div class="name">
                         <file-downloader *ngIf="file.url && isGranted('Documents.Returns.GetFile') && !file.error"
                                          url="{{file.url}}" fileName="{{file.fileName}}"></file-downloader>
                         <span *ngIf="!file.url || !isGranted('Documents.Returns.GetFile')">{{file.fileName}}</span>
-                    </p>
+                    </div>
                     <div *ngIf="file.error"><span class="label label-danger">Ошибка</span> {{file.error}}
                     </div>
                 </td>
