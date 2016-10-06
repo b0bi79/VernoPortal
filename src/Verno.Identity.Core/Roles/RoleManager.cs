@@ -71,8 +71,11 @@ namespace Verno.Identity.Roles
         /// <returns>True, if the role has the permission</returns>
         public virtual async Task<bool> IsGrantedAsync(int roleId, Permission permission)
         {
-            RolePermissionCacheItem cacheItem = await GetRolePermissionCacheItemAsync(roleId);
-            return permission.IsGrantedByDefault ? !cacheItem.ProhibitedPermissions.Contains(permission.Name) : cacheItem.GrantedPermissions.Contains(permission.Name);
+            //Get cached role permissions
+            var cacheItem = await GetRolePermissionCacheItemAsync(roleId);
+
+            //Check the permission
+            return cacheItem.GrantedPermissions.Contains(permission.Name);
         }
 
         /// <summary>Gets granted permission names for a role.</summary>
@@ -139,10 +142,8 @@ namespace Verno.Identity.Roles
         {
             if (await IsGrantedAsync(role.Id, permission))
                 return;
-            if (permission.IsGrantedByDefault)
-                await RolePermissionStore.RemovePermissionAsync(role, new PermissionGrantInfo(permission.Name, false));
-            else
-                await RolePermissionStore.AddPermissionAsync(role, new PermissionGrantInfo(permission.Name, true));
+
+            await RolePermissionStore.AddPermissionAsync(role, new PermissionGrantInfo(permission.Name, true));
         }
 
         /// <summary>Prohibits a permission for a role.</summary>
@@ -152,10 +153,8 @@ namespace Verno.Identity.Roles
         {
             if (!await IsGrantedAsync(role.Id, permission))
                 return;
-            if (permission.IsGrantedByDefault)
-                await RolePermissionStore.AddPermissionAsync(role, new PermissionGrantInfo(permission.Name, false));
-            else
-                await RolePermissionStore.RemovePermissionAsync(role, new PermissionGrantInfo(permission.Name, true));
+
+            await RolePermissionStore.RemovePermissionAsync(role, new PermissionGrantInfo(permission.Name, true));
         }
 
         /// <summary>Prohibits all permissions for a role.</summary>

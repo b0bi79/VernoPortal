@@ -12,8 +12,8 @@ namespace Verno.Identity.Users
         Task UpdateRoles(int userId, string[] roleNames);
         Task PasswordReset(int userId, PasswordResetInput input);
 
-        ListResultOutput<UserDto> GetAll();
-        Task<ListResultOutput<string>> GetRoles(int userId);
+        Task<ListResultDto<UserDto>> GetAll();
+        Task<ListResultDto<string>> GetRoles(int userId);
 
         Task<UserDto> Create(UserDto input);
         Task<UserDto> Update(UserDto user);

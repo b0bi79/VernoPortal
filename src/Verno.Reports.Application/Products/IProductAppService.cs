@@ -7,6 +7,6 @@ namespace Verno.Reports.Products
 {
     public interface IProductAppService : IApplicationService
     {
-        Task<ListResultOutput<ProductDto>> GetAllProducts();
+        Task<ListResultDto<ProductDto>> GetAllProducts();
     }
 }

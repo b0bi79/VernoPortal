@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Shouldly;
+using Verno.Web;
 
 namespace Verno.Reports.Web.Tests
 {

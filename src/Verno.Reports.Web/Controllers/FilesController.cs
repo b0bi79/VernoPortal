@@ -19,7 +19,7 @@ namespace Verno.Reports.Web.Controllers
 
         [HttpPost]
         [Route("api/services/app/returns/{rasxod}/files")]
-        [AbpMvcAuthorize("Documents.Returns.UploadFile")]
+        [AbpMvcAuthorize(ReturnsPermissionNames.Documents_Returns_UploadFile)]
         public async Task<ReturnFileDto> ReturnForms(int rasxod, IFormFile file)
         {
             return await _returns.UploadFile(rasxod, file);

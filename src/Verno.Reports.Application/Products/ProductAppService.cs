@@ -17,10 +17,10 @@ namespace Verno.Reports.Products
         }
 
         [AbpAuthorize("Products.Read")]
-        public async Task<ListResultOutput<ProductDto>> GetAllProducts()
+        public async Task<ListResultDto<ProductDto>> GetAllProducts()
         {
             var products = await _productRepository.GetAllListAsync();
-            return new ListResultOutput<ProductDto>(
+            return new ListResultDto<ProductDto>(
                 ObjectMapper.Map<List<ProductDto>>(products)
             );
         }

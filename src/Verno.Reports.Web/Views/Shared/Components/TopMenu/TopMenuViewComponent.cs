@@ -12,8 +12,7 @@ namespace Verno.Reports.Web.Views.Shared.Components.TopMenu
 
         public TopMenuViewComponent(
             IUserNavigationManager userNavigationManager,
-            IAbpSession abpSession
-            )
+            IAbpSession abpSession)
         {
             _userNavigationManager = userNavigationManager;
             _abpSession = abpSession;
@@ -26,7 +25,7 @@ namespace Verno.Reports.Web.Views.Shared.Components.TopMenu
                 MainMenu = await _userNavigationManager.GetMenuAsync("MainMenu", _abpSession.ToUserIdentifier()),
                 ActiveMenuItemName = activeMenu
             };
-            
+
             return View(model);
         }
     }

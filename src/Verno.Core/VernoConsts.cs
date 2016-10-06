@@ -1,6 +1,6 @@
 ﻿namespace Verno
 {
-    public class ReportsConsts
+    public class VernoConsts
     {
         public const string LocalizationSourceName = "Verno";
     }

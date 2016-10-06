@@ -2,15 +2,12 @@
   "version": "1.0.0-*",
 
   "dependencies": {
-    "Abp.AspNetCore": "0.12.0",
-    "Abp.EntityFrameworkCore": "0.12.0",
+    "Abp": "1.0.0",
+    "Abp.AspNetCore": "1.0.0",
+    "Abp.EntityFrameworkCore": "1.0.0",
     "Microsoft.AspNetCore.Identity": "1.0.0",
     "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.0.0",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0",
-    "Microsoft.EntityFrameworkCore.SqlServer.Design": {
-      "version": "1.0.0",
-      "type": "build"
-    },
+    "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.0.1",
     "Microsoft.EntityFrameworkCore.Tools": {
       "version": "1.0.0-preview2-final",
       "type": "build"
@@ -22,7 +19,8 @@
       "include": [
         "Localization/SourceFiles/*.json"
       ]
-    }
+    },
+    "define": [ "FX_CORE" ]
   },
   "tools": {
     "Microsoft.EntityFrameworkCore.Tools": "1.0.0-preview2-final"

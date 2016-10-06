@@ -8,6 +8,6 @@ namespace Verno.Identity.Roles
     public interface IRoleAppService : IApplicationService
     {
         Task UpdateRolePermissions(UpdateRolePermissionsInput input);
-        ListResultOutput<RoleDto> GetAll();
+        ListResultDto<RoleDto> GetAll();
     }
 }

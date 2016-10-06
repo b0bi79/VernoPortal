@@ -5,13 +5,20 @@ using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
 using Abp.Extensions;
 using Abp.Timing;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Verno.Identity.Organizations;
 using Verno.Identity.Settings;
 
+#if FX_CORE
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+#endif
+#if NETFX_45
+using Microsoft.AspNet.Identity.EntityFramework;
+#endif
+
+
 namespace Verno.Identity.Users
 {
-    public class User : User<int>
+    public class User : User<int, UserClaim, UserRole, IdentityUserLogin<int>>
     {
         /// <inheritdoc />
         public User()
@@ -24,8 +31,22 @@ namespace Verno.Identity.Users
         }
     }
 
-    public abstract class User<TKey> : IdentityUser<TKey, UserClaim, UserRole, IdentityUserLogin<int>>, IPassivable, IEntity<TKey>,
-        ICreationAudited, IHasCreationTime where TKey : IEquatable<TKey>
+#if FX_CORE
+    public abstract class User<TKey, TClaim, TRole, TLogin> : IdentityUser<TKey, TClaim, TRole, TLogin>, IPassivable, IEntity<TKey>,
+        ICreationAudited, IHasCreationTime 
+        where TKey : IEquatable<TKey>
+        where TLogin : IdentityUserLogin<TKey>
+        where TRole : IdentityUserRole<TKey>
+        where TClaim : IdentityUserClaim<TKey>
+#endif
+#if NETFX_45
+    public abstract class User<TKey, TClaim, TRole, TLogin> : IdentityUser<TKey, TLogin, TRole, TClaim>, IPassivable, IEntity<TKey>,
+        ICreationAudited, IHasCreationTime 
+        where TKey : IEquatable<TKey>
+        where TLogin : IdentityUserLogin<TKey>
+        where TRole : IdentityUserRole<TKey>
+        where TClaim : IdentityUserClaim<TKey>
+#endif
     {
         public const int MinimumPasswordLength = 4;
         public const int MaximumPasswordLength = 30;
@@ -38,8 +59,16 @@ namespace Verno.Identity.Users
         }
 
         /// <inheritdoc />
-        protected User(string userName) : base(userName)
+        protected User(string userName) :
+#if FX_CORE
+            base(userName)
         {
+#endif
+#if NETFX_45
+            base()
+        {
+            UserName = userName;
+#endif
             CreationTime = Clock.Now;
         }
 
@@ -49,7 +78,7 @@ namespace Verno.Identity.Users
         }
 
         /// <inheritdoc />
-        public static bool operator ==(User<TKey> left, User<TKey> right)
+        public static bool operator ==(User<TKey, TClaim, TRole, TLogin> left, User<TKey, TClaim, TRole, TLogin> right)
         {
             if (Equals(left, null))
                 return Equals(right, null);
@@ -57,7 +86,7 @@ namespace Verno.Identity.Users
         }
 
         /// <inheritdoc />
-        public static bool operator !=(User<TKey> left, User<TKey> right)
+        public static bool operator !=(User<TKey, TClaim, TRole, TLogin> left, User<TKey, TClaim, TRole, TLogin> right)
         {
             return !(left == right);
         }
@@ -74,7 +103,7 @@ namespace Verno.Identity.Users
         /// <inheritdoc />
         public override bool Equals(object obj)
         {
-            var entity = obj as User<TKey>;
+            var entity = obj as User<TKey, TClaim, TRole, TLogin>;
             if (ReferenceEquals(entity, null))
                 return false;
             if (ReferenceEquals(entity, this))

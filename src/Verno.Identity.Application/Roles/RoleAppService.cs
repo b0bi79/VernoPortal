@@ -35,9 +35,9 @@ namespace Verno.Identity.Roles
         }
 
         /// <inheritdoc />
-        public ListResultOutput<RoleDto> GetAll()
+        public ListResultDto<RoleDto> GetAll()
         {
-            return new ListResultOutput<RoleDto>(
+            return new ListResultDto<RoleDto>(
                 _roleManager.Roles
                     .OrderBy(t => t.Name)
                     .ToList()

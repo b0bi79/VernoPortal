@@ -6,6 +6,6 @@ namespace Verno.Identity.OrgUnits
 
     public interface IOrgUnitAppService
     {
-        ListResultOutput<OrgUnitDto> GetAll();
+        ListResultDto<OrgUnitDto> GetAll();
     }
 }

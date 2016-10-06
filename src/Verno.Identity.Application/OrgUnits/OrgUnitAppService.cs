@@ -17,9 +17,9 @@ namespace Verno.Identity.OrgUnits
             _orgUnitManager = orgUnitManager;
         }
 
-        public ListResultOutput<OrgUnitDto> GetAll()
+        public ListResultDto<OrgUnitDto> GetAll()
         {
-            return new ListResultOutput<OrgUnitDto>(
+            return new ListResultDto<OrgUnitDto>(
                 _orgUnitManager.OrgUnits
                     .OrderBy(t => t.Name)
                     .ToList()

@@ -12,7 +12,7 @@ namespace Verno.Web
     {
         public static string CalculateContentRootFolder()
         {
-            var coreAssemblyDirectoryPath = Path.GetDirectoryName(typeof(ReportsCoreModule).Assembly.Location);
+            var coreAssemblyDirectoryPath = Path.GetDirectoryName(typeof(VernoCoreModule).Assembly.Location);
             if (coreAssemblyDirectoryPath == null)
             {
                 throw new ApplicationException("Could not find location of Verno.Reports.Core assembly!");

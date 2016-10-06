@@ -2,10 +2,34 @@
 using Abp.Domain.Entities.Auditing;
 using Abp.Timing;
 
+#if FX_CORE
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+#endif
+#if NETFX_45
+using System.Security.Claims;
+using Microsoft.AspNet.Identity.EntityFramework;
+#endif
+
 namespace Verno.Identity.Users
 {
-    public class UserClaim: Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserClaim<int>, ICreationAudited, IHasCreationTime
+    public class UserClaim : UserClaim<int>
     {
+    }
+
+#if FX_CORE
+    public class UserClaim<TKey>: Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserClaim<TKey>, ICreationAudited, IHasCreationTime
+        where TKey : IEquatable<TKey>
+    {
+#endif
+#if NETFX_45
+    public class UserClaim<TKey> : Microsoft.AspNet.Identity.EntityFramework.IdentityUserClaim<TKey>, ICreationAudited, IHasCreationTime
+        where TKey : IEquatable<TKey>
+    {
+        public Claim ToClaim()
+        {
+            return new Claim(ClaimType, ClaimValue);
+        }
+#endif
         public string Application { get; set; }
 
         /// <inheritdoc />
@@ -21,7 +45,7 @@ namespace Verno.Identity.Users
         }
 
         /// <inheritdoc />
-        public UserClaim(User user)
+        public UserClaim(User<TKey, UserClaim<TKey>, UserRole<TKey>, IdentityUserLogin<TKey>>  user)
         {
             UserId = user.Id;
             CreationTime = Clock.Now;

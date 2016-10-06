@@ -1,18 +1,12 @@
 using System.Reflection;
 using Abp.AspNetCore;
 using Abp.AspNetCore.Configuration;
-using Abp.Configuration;
 using Abp.Modules;
-using Abp.Net.Mail;
-using Abp.Net.Mail.Smtp;
-using Castle.MicroKernel.Registration;
 using Verno.Reports.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Verno.Configuration;
 using Verno.Identity;
-using Verno.Reports.Web.Configuration;
-using Verno.Reports.Web.Modules;
 using Verno.Reports.Web.Modules.Print;
 using Verno.Reports.Web.Modules.Returns;
 
@@ -44,7 +38,8 @@ namespace Verno.Reports.Web.Startup
             config.CreateControllersForAppServices(typeof(ReportsApplicationModule).Assembly, "reports");
             config.CreateControllersForAppServices(typeof(IdentityApplicationModule).Assembly, "identity");
             config.CreateControllersForAppServices(typeof(ReportsWebModule).Assembly, "app");
-            Configuration.Authorization.Providers.Add<VernoAuthorizationProvider>();
+            Configuration.Authorization.Providers.Add<PrintAuthorizationProvider>();
+            Configuration.Authorization.Providers.Add<ReturnsAuthorizationProvider>();
         }
 
         public override void Initialize()

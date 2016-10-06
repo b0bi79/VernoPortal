@@ -25,15 +25,15 @@ namespace Verno.Reports.Web.Modules.Returns
 {
     public interface IReturnsAppService
     {
-        Task<ListResultOutput<ReturnDto>> GetList(DateTime dfrom, DateTime dto, bool unreclaimedOnly);
-        Task<ListResultOutput<ReturnFileDto>> GetFilesList(int rasxod);
+        Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, bool unreclaimedOnly);
+        Task<ListResultDto<ReturnFileDto>> GetFilesList(int rasxod);
         Task<ActionResult> File(int fileId);
         //Task<ReturnFileDto> UploadFile(/*int rasxod, */IFormFile file);
         Task<ReturnFileDto> DeleteFile(int fileId);
     }
 
     [Route("api/services/app/returns")]
-    [AbpAuthorize("Documents.Returns")]
+    [AbpAuthorize(ReturnsPermissionNames.Documents_Returns)]
     public class ReturnsAppService : ApplicationService, IReturnsAppService
     {
         private readonly ReturnsDbContext _context;
@@ -53,7 +53,7 @@ namespace Verno.Reports.Web.Modules.Returns
 
         [HttpGet]
         [Route("{dfrom:datetime}!{dto:datetime}")]
-        public async Task<ListResultOutput<ReturnDto>> GetList(DateTime dfrom, DateTime dto, bool unreclaimedOnly)
+        public async Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, bool unreclaimedOnly)
         {
             int shopNum = await GetUserShopNum();
             var result = from d in _context.ReturnDatas
@@ -62,12 +62,12 @@ namespace Verno.Reports.Web.Modules.Returns
                          select d;
             if (unreclaimedOnly)
                 result = result.Where(r => r.Status == 0 /*ReturnStatus.None*/);
-            return new ListResultOutput<ReturnDto>((await result.Take(500).ToListAsync()).MapTo<List<ReturnDto>>());
+            return new ListResultDto<ReturnDto>((await result.Take(500).ToListAsync()).MapTo<List<ReturnDto>>());
         }
 
         [HttpGet]
         [Route("{rasxod}/files")]
-        public async Task<ListResultOutput<ReturnFileDto>> GetFilesList(int rasxod)
+        public async Task<ListResultDto<ReturnFileDto>> GetFilesList(int rasxod)
         {
             var fileEntities = await (from r in _context.ReturnFiles
                     where !r.Deleted && r.Return.Rasxod == rasxod
@@ -85,11 +85,11 @@ namespace Verno.Reports.Web.Modules.Returns
                     item.Error = "Файл был удалён с сервера.";
                 result.Add(item);
             }
-            return new ListResultOutput<ReturnFileDto>(result);
+            return new ListResultDto<ReturnFileDto>(result);
         }
 
         [HttpGet]
-        [AbpAuthorize("Documents.Returns.GetFile")]
+        [AbpAuthorize(ReturnsPermissionNames.Documents_Returns_GetFile)]
         [Route("files/{fileId}")]
         public async Task<ActionResult> File(int fileId)
         {
@@ -112,7 +112,7 @@ namespace Verno.Reports.Web.Modules.Returns
         }
 
         [HttpDelete]
-        [AbpAuthorize("Documents.Returns.DeleteFile")]
+        [AbpAuthorize(ReturnsPermissionNames.Documents_Returns_DeleteFile)]
         [Route("files/{fileId}")]
         public async Task<ReturnFileDto> DeleteFile(int fileId)
         {
@@ -120,6 +120,8 @@ namespace Verno.Reports.Web.Modules.Returns
             if (file==null)
                 throw new ApplicationException($"Файла с id={fileId} не существует.");
             file.Deleted = true;
+            var user = await GetCurrentUserAsync();
+            file.EditUser = user.UserName;
             await _context.SaveChangesAsync(true);
             return file.MapTo<ReturnFileDto>();
         }
@@ -148,7 +150,8 @@ namespace Verno.Reports.Web.Modules.Returns
                 await fs.FlushAsync();
             }
 
-            Return r = _context.Returns.FirstOrDefault(x => x.Rasxod == rasxod);
+            var user = await GetCurrentUserAsync();
+            Return r = await _context.Returns.FirstOrDefaultAsync(x => x.Rasxod == rasxod);
             if (r == null)
             {
                 r = new Return(rasxod);
@@ -156,6 +159,7 @@ namespace Verno.Reports.Web.Modules.Returns
                 await _context.SaveChangesAsync(true); //To get new user's id.
             }
             var fileEntity = r.AddFile(Path.GetFileNameWithoutExtension(fileName), fileName, savedName);
+            fileEntity.EditUser = user.UserName;
             _context.Add(fileEntity);
 
             await _context.SaveChangesAsync(true); //To get new user's id.

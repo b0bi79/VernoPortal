@@ -4,11 +4,11 @@
   "testRunner": "xunit",
 
   "dependencies": {
-    "Abp.AspNetCore.TestBase": "0.11.1",
     "Verno.Reports.Tests": "1.0.0.0-*",
     "Verno.Reports.Web": "1.0.0-*",
-    "Microsoft.AspNetCore.Mvc": "1.0.0",
-    "AngleSharp": "0.9.7"
+    "Abp.AspNetCore.TestBase": "1.0.0",
+    "AngleSharp": "0.9.8.1",
+    "Microsoft.AspNetCore.Mvc": "1.0.1"
   },
 
   "frameworks": {

@@ -1,28 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Abp.Localization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Verno.Reports.Web.Views.Shared.Components.LanguageSelection
 {
-    public class LanguageSelectionViewComponent: ViewComponent
+    public class LanguageSelectionViewComponent : ViewComponent
     {
-        private readonly ILocalizationManager _localizationManager;
+        private readonly ILanguageManager _languageManager;
 
-        public LanguageSelectionViewComponent(ILocalizationManager localizationManager)
+        public LanguageSelectionViewComponent(ILanguageManager languageManager)
         {
-            _localizationManager = localizationManager;
+            _languageManager = languageManager;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync()
+        public IViewComponentResult Invoke()
         {
             var model = new LanguageSelectionViewModel
             {
-                CurrentLanguage = _localizationManager.CurrentLanguage,
-                Languages = _localizationManager.GetAllLanguages(),
-                CurrentUrl = Request.Path
+                CurrentLanguage = _languageManager.CurrentLanguage,
+                Languages = _languageManager.GetLanguages()
             };
 
             return View(model);

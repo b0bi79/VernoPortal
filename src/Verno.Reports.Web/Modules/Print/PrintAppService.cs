@@ -9,12 +9,8 @@ using Abp.Authorization;
 using Abp.Runtime.Session;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Verno.Identity.Users;
 using Verno.Reports.Web.ActionResults;
 using Verno.Reports.Web.Utils;
@@ -23,11 +19,11 @@ namespace Verno.Reports.Web.Modules.Print
 {
     public interface IPrintAppService
     {
-        Task<ListResultOutput<PrintDto>> GetList(DateTime dfrom, DateTime dto);
+        Task<ListResultDto<PrintDto>> GetList(DateTime dfrom, DateTime dto);
         Task<ActionResult> File(int fileId);
     }
 
-    [AbpAuthorize("Documents.Print")]
+    [AbpAuthorize(PrintPermissionNames.Documents_Print)]
     public class PrintAppService : ApplicationService, IPrintAppService
     {
         private readonly PrintDbContext _context;
@@ -45,7 +41,7 @@ namespace Verno.Reports.Web.Modules.Print
 
         [HttpGet]
         [Route("api/services/app/print-forms/{dfrom:datetime}!{dto:datetime}")]
-        public async Task<ListResultOutput<PrintDto>> GetList(DateTime dfrom, DateTime dto)
+        public async Task<ListResultDto<PrintDto>> GetList(DateTime dfrom, DateTime dto)
         {
             int shopNum = await GetUserShopNum();
             var result =
@@ -56,7 +52,7 @@ namespace Verno.Reports.Web.Modules.Print
                       (d.MagPol == shopNum || shopNum == 0) && f.Deleted == null
                 select new PrintDto(d.Liniah, d.NomNakl, d.DataNakl, f.ImahDok, d.SklIst, s.Postavthik /*d.SkladSrc.Platelqthik*/,
                     _httpContext.CreateUrl("/api/services/app/Print/File?fileId=" + f.Id));
-            return new ListResultOutput<PrintDto>(await result.Take(500).ToListAsync());
+            return new ListResultDto<PrintDto>(await result.Take(500).ToListAsync());
             /*var result = new [] {
                 new PrintDto(6, "131/s1", DateTime.Today.AddDays(-2), "Акт инвентаризации", _root + "/api/services/app/Print/File?fileId=8"),
                 new PrintDto(5, "141/u3", DateTime.Today.AddDays(-1), "Акт списания", _root + "/api/services/app/Print/File?fileId=8"),
@@ -66,7 +62,7 @@ namespace Verno.Reports.Web.Modules.Print
         }
 
         [HttpGet]
-        [AbpAuthorize("Documents.Print.GetFile")]
+        [AbpAuthorize(PrintPermissionNames.Documents_Print_GetFile)]
         public async Task<ActionResult> File(int fileId)
         {
             var resultFile = await _context.PrintDocForms.FirstOrDefaultAsync(f => f.Id == fileId);

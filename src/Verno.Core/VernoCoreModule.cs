@@ -4,7 +4,7 @@ using Verno.Localization;
 
 namespace Verno
 {
-    public class ReportsCoreModule : AbpModule
+    public class VernoCoreModule : AbpModule
     {
         public override void PreInitialize()
         {

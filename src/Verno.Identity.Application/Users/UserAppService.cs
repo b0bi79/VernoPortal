@@ -16,13 +16,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Verno.Configuration;
+using Verno.Identity.Authorization;
 
 namespace Verno.Identity.Users
 {
-    [AbpAuthorize("Administration.UserManagement")]
+    [Route("api/services/identity/users")]
+    [AbpAuthorize(PermissionNames.Administration_UserManagement)]
     public class UserAppService : IdentityAppServiceBase, IUserAppService
     {
-        private const string ServiceUrl = "api/services/identity/users";
         private readonly IPermissionManager _permissionManager;
         private readonly IEmailSender _emailSender;
         private readonly string _rootUrl;
@@ -38,8 +39,8 @@ namespace Verno.Identity.Users
         }
 
         [HttpDelete]
-        [Route(ServiceUrl + "/{userId}/permissions/{permissionName}")]
-        [AbpAuthorize("Administration.UserManagement.EditPermissions")]
+        [Route("{userId}/permissions/{permissionName}")]
+        [AbpAuthorize(PermissionNames.Administration_UserManagement_EditPermissions)]
         public async Task ProhibitPermission(int userId, string permissionName)
         {
             var user = await UserManager.FindByIdAsync(userId);
@@ -50,8 +51,8 @@ namespace Verno.Identity.Users
 
         //Example for primitive method parameters.
         [HttpPut]
-        [Route(ServiceUrl+"/{userId}/roles")]
-        [AbpAuthorize("Administration.UserManagement.EditRoles")]
+        [Route("{userId}/roles")]
+        [AbpAuthorize(PermissionNames.Administration_UserManagement_EditRoles)]
         public async Task UpdateRoles(int userId, string[] roleNames)
         {
             var user = await UserManager.FindByIdAsync(userId);
@@ -60,32 +61,30 @@ namespace Verno.Identity.Users
 
         //Example for primitive method parameters.
         [HttpGet]
-        [Route(ServiceUrl + "/{userId}/roles")]
-        [AbpAuthorize("Administration.UserManagement.EditRoles")]
-        public async Task<ListResultOutput<string>> GetRoles(int userId)
+        [Route("{userId}/roles")]
+        [AbpAuthorize(PermissionNames.Administration_UserManagement_EditRoles)]
+        public async Task<ListResultDto<string>> GetRoles(int userId)
         {
             var user = await UserManager.FindByIdAsync(userId);
             var roles = await UserManager.GetRolesAsync(user);
-            return new ListResultOutput<string>(roles.ToList());
+            return new ListResultDto<string>(roles.ToList());
         }
 
         [HttpGet]
-        [Route(ServiceUrl)]
-        public ListResultOutput<UserDto> GetAll()
+        public async Task<ListResultDto<UserDto>> GetAll()
         {
-            return new ListResultOutput<UserDto>(
+            return new ListResultDto<UserDto>((await
                 UserManager.Users.GetAllActive()
                     .Include(x => x.Claims)
                     .Include(x => x.OrgUnit)
                     .OrderBy(t => t.Name)
-                    .ToList()
+                    .ToListAsync())
                     .MapTo<List<UserDto>>()
                 );
         }
 
         [HttpPost]
-        [Route(ServiceUrl)]
-        [AbpAuthorize("Administration.UserManagement.CreateUser")]
+        [AbpAuthorize(PermissionNames.Administration_UserManagement_CreateUser)]
         public async Task<UserDto> Create(UserDto input)
         {
             //Create user
@@ -118,8 +117,7 @@ namespace Verno.Identity.Users
         }
 
         [HttpPut]
-        [Route(ServiceUrl)]
-        [AbpAuthorize("Administration.UserManagement.UpdateUser")]
+        [AbpAuthorize(PermissionNames.Administration_UserManagement_UpdateUser)]
         public async Task<UserDto> Update(UserDto input)
         {
             var user = await UserManager.Users.Include(x => x.Claims).FirstOrDefaultAsync(x => x.Id == input.Id);
@@ -138,8 +136,7 @@ namespace Verno.Identity.Users
         }
 
         [HttpDelete]
-        [Route(ServiceUrl)]
-        [AbpAuthorize("Administration.UserManagement.DeleteUser")]
+        [AbpAuthorize(PermissionNames.Administration_UserManagement_DeleteUser)]
         public async Task<UserDto> Delete(int id)
         {
             var user = await UserManager.FindByIdAsync(id);
@@ -150,8 +147,8 @@ namespace Verno.Identity.Users
         }
 
         [HttpPost]
-        [Route(ServiceUrl + "/{userId:int:min(1)}/PasswordReset")]
-        [AbpAuthorize("Administration.UserManagement.ResetPassword")]
+        [Route("{userId:int:min(1)}/PasswordReset")]
+        [AbpAuthorize(PermissionNames.Administration_UserManagement_ResetPassword)]
         public async Task PasswordReset(int userId, PasswordResetInput input)
         {
             var user = await UserManager.FindByIdAsync(userId);

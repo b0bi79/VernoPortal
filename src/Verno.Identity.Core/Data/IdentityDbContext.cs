@@ -1,6 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿#if FX_CORE
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+#endif
+
+
+#if NETFX_45
+using System.Data.Entity;
+using Microsoft.AspNet.Identity.EntityFramework;
+#endif
+
 using Verno.Identity.Settings;
 
 namespace Verno.Identity.Data
@@ -13,15 +22,20 @@ namespace Verno.Identity.Data
     /// <summary>
     /// Base class for the Entity Framework database context used for identity.
     /// </summary>
+#if FX_CORE
     public class IdentityDbContext : IdentityDbContext<User, Role, int, UserClaim, UserRole, IdentityUserLogin<int>, IdentityRoleClaim<int>, IdentityUserToken<int>>
     {
         public IdentityDbContext(DbContextOptions options) : base(options)
         {
         }
-
-        protected IdentityDbContext()
+#endif
+#if NETFX_45
+    public class IdentityDbContext : IdentityDbContext<User, Role, int, IdentityUserLogin<int>, UserRole, UserClaim>
+    {
+        public IdentityDbContext() : base(IdentityConsts.ConnectionStringName)
         {
         }
+#endif
 
         public DbSet<OrgUnit> OrgUnits { get; set; }
         public DbSet<Setting> Settings { get; set; }
@@ -31,13 +45,18 @@ namespace Verno.Identity.Data
         public DbSet<UserPermissionSetting> UserPermissions { get; set; }
         public DbSet<ClaimPermissionSetting> ClaimPermissions { get; set; }
 
-         /// <summary>
+        /// <summary>
         /// Configures the schema needed for the identity framework.
         /// </summary>
         /// <param name="builder">
         /// The builder being used to construct the model for this context.
         /// </param>
+#if FX_CORE
         protected override void OnModelCreating(ModelBuilder builder)
+#endif
+#if NETFX_45
+        protected override void OnModelCreating(DbModelBuilder builder)
+#endif
         {
             base.OnModelCreating(builder); // This needs to go before the other rules!
 
@@ -45,14 +64,17 @@ namespace Verno.Identity.Data
             {
                 b.HasKey(u => u.Id);
                 b.ToTable("Users");
+
+                var orgUnitProp = b.HasOne(u => u.OrgUnit).WithMany(o => o.Users);
+#if FX_CORE
+                orgUnitProp.OnDelete(DeleteBehavior.Restrict);
                 b.Property(u => u.IsActive).HasDefaultValue(true);
                 b.Property(u => u.AccessFailedCount).HasDefaultValue(0);
                 b.Property(u => u.EmailConfirmed).HasDefaultValue(false);
                 b.Property(u => u.LockoutEnabled).HasDefaultValue(false);
                 b.Property(u => u.PhoneNumberConfirmed).HasDefaultValue(false);
                 b.Property(u => u.TwoFactorEnabled).HasDefaultValue(false);
-
-                b.HasOne(u => u.OrgUnit).WithMany(o => o.Users).OnDelete(DeleteBehavior.Restrict);
+#endif
             });
             builder.Entity<Role>(b =>
             {
@@ -72,8 +94,10 @@ namespace Verno.Identity.Data
             builder.Entity<Setting>(b =>
             {
                 b.HasKey(s => s.Id);
+#if FX_CORE
                 b.HasIndex(s => s.Name).HasName("NameIndex").IsUnique();
                 b.HasIndex(s => s.UserId).HasName("UserIdIndex");
+#endif
                 b.ToTable("Settings");
 
                 b.Property(s => s.Name).HasMaxLength(Setting.MaxNameLength);

@@ -2,7 +2,7 @@
   "version": "1.0.0.0-*",
 
   "dependencies": {
-    "Abp": "0.12.0",
+    "Abp": "1.0.0",
     "Microsoft.AspNetCore.Identity": "1.0.0",
     "Microsoft.Extensions.Configuration.Abstractions": "1.0.0",
     "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0",
