@@ -1,7 +1,7 @@
 ﻿<ba-card id="userRoles" title="{{title}}" baCardClass="container">
-    <select [ngModel]="userRoles" (ngModelChange)="onChange($event)" (change)="onChange($event)" multiple="" size="5" style="width: 100%;">
-        <option *ngFor="let role of roles" (mousedown)="onSelect($event)" [ngValue]="role.name">
-            {{role.application ? role.application+" - " : role.name}}
+    <select #select multiple="" size="5" style="width: 100%;">
+        <option *ngFor="let role of roles" (mousedown)="onSelect($event)" [value]="role.name">
+            {{role.application ? role.application+" - "+role.name : role.name}}
         </option>
     </select>
     <div class="modal-footer">

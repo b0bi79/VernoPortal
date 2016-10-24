@@ -1,6 +1,4 @@
 using System;
-using System.Net;
-using System.Threading.Tasks;
 using Abp.AspNetCore;
 using Abp.Castle.Logging.Log4Net;
 using Abp.Owin;
@@ -19,7 +17,6 @@ namespace Verno.Reports.Web.Startup
     using Identity;
     using Identity.Roles;
     using Identity.Users;
-    using EntityFrameworkCore;
     using Configuration;
     using Modules.Print;
     using Modules.Returns;
@@ -36,8 +33,11 @@ namespace Verno.Reports.Web.Startup
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ReportsDbContext>(
-                options => options.UseSqlServer(Configuration.GetConnectionString("Default"))
+            /*services.AddAbpDbContext<EntityFrameworkCore.ReportsDbContext>(options =>
+                EntityFrameworkCore.DbContextOptionsConfigurer.Configure(options.DbContextOptions, options.ConnectionString)
+            );*/
+            services.AddDbContext<EntityFrameworkCore.ReportsDbContext>(
+                options => options.UseSqlServer(Configuration.GetConnectionString("Reports"))
             );
 
             services.AddDbContext<PrintDbContext>(
@@ -51,6 +51,10 @@ namespace Verno.Reports.Web.Startup
             services.AddDbContext<Identity.Data.IdentityDbContext>(
                 options => options.UseSqlServer(Configuration.GetConnectionString("Identity"))
             );
+
+            /*services.AddAbpDbContext<Identity.Data.IdentityDbContext>(options =>
+                Identity.Data.DbContextOptionsConfigurer.Configure(options.DbContextOptions, options.ConnectionString)
+            );*/
 
             // добавление сервисов Idenity
             services.AddIdentity<User, Role>(options =>
@@ -83,8 +87,8 @@ namespace Verno.Reports.Web.Startup
 
                 //Configure Log4Net logging
                 options.IocManager.IocContainer.AddFacility<LoggingFacility>(
-                    f => f.UseAbpLog4Net().WithConfig("log4net.config")
-                );
+                f => f.UseAbpLog4Net().WithConfig("log4net.config")
+            );
             });
             return result;
         }
@@ -93,7 +97,7 @@ namespace Verno.Reports.Web.Startup
         {
             loggerFactory.AddProvider(new DbLoggerProvider());
 
-            app.Properties["host.AppMode"]="development";
+            app.Properties["host.AppMode"] = "development";
             app.UseDeveloperExceptionPage();
 
             app.UseAbp(); //Initializes ABP framework.

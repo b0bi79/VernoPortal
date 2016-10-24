@@ -12,7 +12,6 @@ namespace Verno.Identity.Users
 {
     public class UserRole : UserRole<int>
     {
-        
     }
 
     public class UserRole<TKey>: IdentityUserRole<TKey>, ICreationAudited, IHasCreationTime

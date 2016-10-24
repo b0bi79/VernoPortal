@@ -19,7 +19,7 @@ namespace Verno.Reports.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetAllProducts_Should_Return_Products()
+        public async Task GetAllReports_Should_Return_Reports()
 
         {
             //Act

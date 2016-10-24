@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Abp.AutoMapper;
 using Abp.Modules;
+using Verno.Reports.Authorization;
 
 namespace Verno.Reports
 {

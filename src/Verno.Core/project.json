@@ -1,25 +1,14 @@
 {
-  "version": "1.0.0.0-*",
+  "version": "1.0.0-*",
 
   "dependencies": {
-    "Abp": "1.0.0",
-    "Microsoft.AspNetCore.Identity": "1.0.0",
-    "Microsoft.Extensions.Configuration.Abstractions": "1.0.0",
-    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0",
-    "Microsoft.Extensions.Configuration.UserSecrets": "1.0.0"
+    "System.Linq.Dynamic": "1.0.6"
   },
 
   "frameworks": {
     "net461": {
-    }
-  },
-
-  "buildOptions": {
-    "embed": {
-      "include": [
-        "Localization/SourceFiles/*.json"
-      ]
+      "frameworkAssemblies": {
+      }
     }
   }
 }

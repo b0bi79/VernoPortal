@@ -13,6 +13,7 @@ using Verno.Identity.Permissions;
 using System.Linq;
 using Abp;
 using Abp.Runtime.Caching;
+using Castle.Core.Internal;
 using Verno.Identity.Data;
 using Verno.Identity.Roles;
 
@@ -199,15 +200,15 @@ namespace Verno.Identity.Users
             var newItems = roleNames.Except(roles);
             var deletedItems = roles.Except(roleNames);
 
-            var tasks = deletedItems.Select(item => RemoveFromRoleAsync(user, item))
-                .Concat(newItems.Select(item => AddToRoleAsync(user, item)));
-
             var db = ((UserStore) Store).Context.Database;
             using (var tran = await db.BeginTransactionAsync())
             {
-                var result = await Task.WhenAll(tasks);
+                var result = deletedItems.Select(item => RemoveFromRoleAsync(user, item).Result);
+                result = result.Concat(newItems.Select(item => AddToRoleAsync(user, item).Result));
+
+                //var result = await Task.WhenAll(tasks);
                 tran.Commit();
-                return result;
+                return result.ToArray();
             }
         }
     }

@@ -24,15 +24,15 @@
                 <!--<input [ngModel]="unreclaimed" (ngModelChange)="unreclaimedChanged($event)" type="checkbox" class="form-control"> Только необработанные-->
             </div>
         </div>
-        <table class="table table-striped" [mfData]="filteredDatas" #mf="mfDataTable" [mfRowsOnPage]="5">
+        <table class="table table-striped" [mfData]="filteredDatas" #mf="mfDataTable" [mfRowsOnPage]="15">
             <thead>
             <tr>
+                <th></th>
                 <th><mfDefaultSorter by="srcWhId">Дата накл</mfDefaultSorter></th>
                 <th><mfDefaultSorter by="liniah">№ накладной</mfDefaultSorter></th>
                 <th><mfDefaultSorter by="dataNakl">Поставщик</mfDefaultSorter></th>
                 <th><mfDefaultSorter by="nomNakl">Сумма</mfDefaultSorter></th>
                 <th><mfDefaultSorter by="imahDok">Линия</mfDefaultSorter></th>
-                <th></th>
             </tr>
             </thead>
             <!--<tbody *ngFor="let row of mf.data">
@@ -54,6 +54,7 @@
             <tbody>
                 <template ngFor let-row [ngForOf]="mf.data" let-even="even" let-odd="odd" let-rowIndex="index">
                     <tr [mfSelectable]="row">
+                        <td><a *ngIf="row.status == 10" [tooltip]="'К документу прикреплены файлы'"><i class="fa fa-file-text" aria-hidden="true"></i></a></td>
                         <td>{{row.docDate | date: 'dd.MM.yyyy'}}</td>
                         <td>{{row.docNum}}</td>
                         <td>{{row.supplierName}}</td>
@@ -61,7 +62,7 @@
                         <td>{{row.liniahTip}}</td>
                     </tr>
                     <tr *ngIf="mf.activeRow == row">
-                        <td colspan="5">
+                        <td colspan="6">
                             <returns-files [rasxod]="row.id"></returns-files>
                         </td>
                     </tr>
@@ -70,7 +71,7 @@
             <tfoot>
             <tr>
                 <td colspan="6">
-                    <mfBootstrapPaginator [rowsOnPageSet]="[5,10,25]"></mfBootstrapPaginator>
+                    <mfBootstrapPaginator [rowsOnPageSet]="[15,25,50]"></mfBootstrapPaginator>
                 </td>
             </tr>
             </tfoot>

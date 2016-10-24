@@ -4,6 +4,7 @@
   "testRunner": "xunit",
 
   "dependencies": {
+    "Effort.EF6": "1.1.5",
     "Verno.Reports.Application": "1.0.0.0-*",
     "Verno.Reports.EntityFrameworkCore": "1.0.0.0-*",
     "dotnet-test-xunit": "2.2.0-preview2-build1029",

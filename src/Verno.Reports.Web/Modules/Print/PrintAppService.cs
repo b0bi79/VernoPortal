@@ -6,6 +6,7 @@ using Abp.Application.Services.Dto;
 using System.Linq;
 using System.Net.Mime;
 using Abp.Authorization;
+using Abp.Domain.Uow;
 using Abp.Runtime.Session;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -40,6 +41,7 @@ namespace Verno.Reports.Web.Modules.Print
         #region Implementation of IPrintAppService
 
         [HttpGet]
+        [UnitOfWork(isTransactional: false)]
         [Route("api/services/app/print-forms/{dfrom:datetime}!{dto:datetime}")]
         public async Task<ListResultDto<PrintDto>> GetList(DateTime dfrom, DateTime dto)
         {
@@ -62,6 +64,7 @@ namespace Verno.Reports.Web.Modules.Print
         }
 
         [HttpGet]
+        [UnitOfWork(isTransactional: false)]
         [AbpAuthorize(PrintPermissionNames.Documents_Print_GetFile)]
         public async Task<ActionResult> File(int fileId)
         {

@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+using Abp.Dependency;
 using Abp.EntityFrameworkCore;
 using Abp.Modules;
+using Verno.Identity.Data;
 using Verno.Identity.Localization;
 
 namespace Verno.Identity
@@ -21,6 +23,7 @@ namespace Verno.Identity
         public override void Initialize()
         {
             IocManager.RegisterAssemblyByConvention(Assembly.GetExecutingAssembly());
+            //IocManager.Register<IdentityDbContext>(DependencyLifeStyle.Transient);
         }
     }
 }

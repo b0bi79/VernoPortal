@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Verno.Identity.Users;
 
 namespace Verno.Reports.Web.Models.AccountViewModels
 {
@@ -13,7 +14,7 @@ namespace Verno.Reports.Web.Models.AccountViewModels
         public string Email { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "{0} пароль не должен быть короче {2} и больше {1} символов.", MinimumLength = 4)]
+        [StringLength(100, ErrorMessage = "{0} пароль не должен быть короче {2} и больше {1} символов.", MinimumLength = User.MinimumPasswordLength)]
         [DataType(DataType.Password)]
         [Display(Name = "Пароль")]
         public string Password { get; set; }

@@ -25,7 +25,7 @@ namespace Verno.Identity.Data
 #if FX_CORE
     public class IdentityDbContext : IdentityDbContext<User, Role, int, UserClaim, UserRole, IdentityUserLogin<int>, IdentityRoleClaim<int>, IdentityUserToken<int>>
     {
-        public IdentityDbContext(DbContextOptions options) : base(options)
+        public IdentityDbContext(DbContextOptions<IdentityDbContext> options) : base(options)
         {
         }
 #endif
@@ -74,6 +74,9 @@ namespace Verno.Identity.Data
                 b.Property(u => u.LockoutEnabled).HasDefaultValue(false);
                 b.Property(u => u.PhoneNumberConfirmed).HasDefaultValue(false);
                 b.Property(u => u.TwoFactorEnabled).HasDefaultValue(false);
+                b.Property(u => u.CreationTime).HasColumnType("datetime");
+                b.Property(u => u.LastLoginTime).HasColumnType("datetime");
+                b.Property(u => u.LockoutEnd).HasColumnType("datetime");
 #endif
             });
             builder.Entity<Role>(b =>
@@ -85,9 +88,12 @@ namespace Verno.Identity.Data
             {
                 b.ToTable("UserClaims");
                 b.Property(c => c.Application).HasMaxLength(50);
+                b.Property(u => u.CreationTime).HasColumnType("datetime");
             });
             builder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
-            builder.Entity<UserRole>().ToTable("UserRoles");
+            builder.Entity<UserRole>()
+                .ToTable("UserRoles")
+                .Property(u => u.CreationTime).HasColumnType("datetime");
             builder.Entity<IdentityUserLogin<int>>().ToTable("UserLogins");
             builder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
 
@@ -108,8 +114,11 @@ namespace Verno.Identity.Data
             {
                 b.ToTable("UserLoginAttempts");
                 b.Property(c => c.Application).HasMaxLength(50);
+                b.Property(u => u.CreationTime).HasColumnType("datetime");
             });
 
+            builder.Entity<PermissionSetting>()
+                .Property(u => u.CreationTime).HasColumnType("datetime");
             builder.Entity<OrgUnit>(b =>
             {
                 b.HasKey(s => s.Id);

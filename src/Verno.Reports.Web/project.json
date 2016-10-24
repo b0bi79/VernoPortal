@@ -23,7 +23,6 @@
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0",
     "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0",
     "Verno.Identity.Application": "1.0.0-*",
-    "Verno.Core": "1.0.0.0-*",
     "System.Linq": "4.1.0",
     "Microsoft.AspNetCore.Mvc": "1.0.1",
     "Microsoft.EntityFrameworkCore.SqlServer": "1.0.1",
@@ -34,7 +33,8 @@
     "Abp.Castle.Log4Net": "1.0.0",
     "Abp.Owin": "1.0.0",
     "Abp.RedisCache": "1.0.0",
-    "Abp.Web.SignalR": "1.0.0"
+    "Abp.Web.SignalR": "1.0.0",
+    "Verno.Web": "1.0.0.0-*"
   },
 
   "tools": {

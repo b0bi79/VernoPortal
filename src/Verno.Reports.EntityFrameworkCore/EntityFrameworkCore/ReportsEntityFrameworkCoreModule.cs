@@ -11,7 +11,7 @@ namespace Verno.Reports.EntityFrameworkCore
     {
         public override void PreInitialize()
         {
-            Configuration.DefaultNameOrConnectionString = "Default";
+            Configuration.DefaultNameOrConnectionString = ReportsConsts.ConnectionStringName;
         }
 
         public override void Initialize()

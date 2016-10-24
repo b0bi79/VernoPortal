@@ -16,6 +16,7 @@ using Verno.Identity.Users;
 using Verno.Reports.Web.ActionResults;
 using Abp.AutoMapper;
 using Abp.Domain.Repositories;
+using Abp.Domain.Uow;
 using Abp.Runtime.Validation;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
@@ -58,6 +59,7 @@ namespace Verno.Reports.Web.Modules.Returns
         #region Implementation of IReturnAppService
 
         [HttpGet]
+        [UnitOfWork(isTransactional: false)]
         [Route("{dfrom:datetime}!{dto:datetime}")]
         public async Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, bool unreclaimedOnly)
         {
@@ -72,6 +74,7 @@ namespace Verno.Reports.Web.Modules.Returns
         }
 
         [HttpGet]
+        [UnitOfWork(isTransactional: false)]
         [Route("{rasxod}/files")]
         public async Task<ListResultDto<ReturnFileDto>> GetFilesList(int rasxod)
         {
@@ -92,8 +95,9 @@ namespace Verno.Reports.Web.Modules.Returns
         }
 
         [HttpGet]
-        [AbpAuthorize(ReturnsPermissionNames.Documents_Returns_GetFile)]
         [Route("files/{fileId}")]
+        [UnitOfWork(isTransactional: false)]
+        [AbpAuthorize(ReturnsPermissionNames.Documents_Returns_GetFile)]
         public async Task<ActionResult> File(int fileId)
         {
             var resultFile = await _filesRepository.GetAsync(fileId);

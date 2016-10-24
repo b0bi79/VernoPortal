@@ -9,7 +9,7 @@ namespace Verno.Reports.Web.Tests.Controllers
     public class HomeController_Tests : ReportsWebTestBase
     {
         [Fact]
-        public async Task Index_Should_Return_Products_List_View()
+        public async Task Index_Should_Return_Reports_List_View()
 
         {
             //Act

@@ -1,4 +1,4 @@
-﻿import { Component, ViewEncapsulation, OnInit, ElementRef } from '@angular/core';
+﻿import { Component, ViewEncapsulation, ViewChild, OnInit, ElementRef } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
 
@@ -13,6 +13,7 @@ import { UsersService, RolesService } from "../../index";
   providers: [UsersService, RolesService]
 })
 export class UserRolesEdit implements OnInit {
+  @ViewChild('select') selectElRef;
   public title: string;
   public roles: users.RoleDto[];
   private userRoles: string[];
@@ -46,10 +47,10 @@ export class UserRolesEdit implements OnInit {
   onSelect(event): void {
     event.target.selected = !event.target.selected;
     if (event.target.selected)
-      this.userRoles.push(event.target.text);
+      this.userRoles.push(event.target.value);
     else {
       //this.userRoles = this.userRoles.filter(x => (x !== event.target.value));
-      var index = this.userRoles.indexOf(event.target.text, 0);
+      var index = this.userRoles.indexOf(event.target.value, 0);
       if (index > -1) {
         this.userRoles.splice(index, 1);
       }
@@ -57,16 +58,21 @@ export class UserRolesEdit implements OnInit {
     event.preventDefault();
   }
 
-  onChange(newObj) {
-    this.userRoles = newObj;
-    console.log(newObj);
+  updateSelectList() {
+    let options = this.selectElRef.nativeElement.options;
+    for (let i = 0; i < options.length; i++) {
+      options[i].selected = this.userRoles.indexOf(options[i].value) > -1;
+    }
   }
 
   set user(value: users.User) {
     var self = this;
     this.title = "Роли для " + value.name;
     this._user = value;
-    this.setBusy(this.service.getRoles(self._user.id).then(result => self.userRoles = result.items));
+    this.setBusy(this.service.getRoles(self._user.id).then(result => {
+      self.userRoles = result.items;
+      this.updateSelectList();
+    }));
   }
   get user(): users.User { return this._user; }
 

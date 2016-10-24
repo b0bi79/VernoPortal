@@ -296,6 +296,10 @@ module.exports = function (options) {
           { from: 'bower_modules/abp-web-resources', to: 'assets/libs/abp-web-resources' },
           { from: 'node_modules/normalize.css/normalize.css', to: 'assets/libs/normalize.css/normalize.css' },
           { from: 'node_modules/bootstrap/dist', to: 'assets/libs/bootstrap' },
+          { from: 'node_modules/moment/min/moment.min.js', to: 'assets/libs/moment/moment.min.js' },
+          { from: 'node_modules/moment/locale/ru.js', to: 'assets/libs/moment/ru.js' },
+          { from: 'node_modules/bootstrap-daterangepicker/daterangepicker.js', to: 'assets/libs/bootstrap-daterangepicker/daterangepicker.js' },
+          { from: 'node_modules/bootstrap-daterangepicker/daterangepicker.css', to: 'assets/libs/bootstrap-daterangepicker/daterangepicker.css' },
       ]),
 
       /*

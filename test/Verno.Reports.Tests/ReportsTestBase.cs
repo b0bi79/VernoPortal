@@ -1,20 +1,65 @@
 ﻿using System;
+using System.Data.Common;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Abp.Configuration.Startup;
+using Abp.Runtime.Session;
 using Abp.TestBase;
+using Castle.MicroKernel.Registration;
+using Effort;
+using Verno.Identity.Data;
+using Verno.Identity.Users;
 using Verno.Reports.EntityFrameworkCore;
 using Verno.Reports.Tests.TestDatas;
 
 namespace Verno.Reports.Tests
 {
-    public class ReportsTestBase : AbpIntegratedTestBase<ReportsTestModule>
+    public abstract class ReportsTestBase : AbpIntegratedTestBase<ReportsTestModule>
     {
-        public ReportsTestBase()
+        private DbConnection _hostDb;
 
+        protected ReportsTestBase()
         {
+            //Seed initial data for host
+            UsingDbContext(TestIdentityBuilder.Build);
             UsingDbContext(context => new TestDataBuilder(context).Build());
+
+            LoginAsHostAdmin();
         }
 
-        protected virtual void UsingDbContext(Action<ReportsDbContext> action)
+        protected override void PreInitialize()
+        {
+            base.PreInitialize();
+
+            /* You can switch database architecture here: */
+            UseSingleDatabase();
+        }
+
+        /* Uses single database for host. */
+        private void UseSingleDatabase()
+        {
+            _hostDb = DbConnectionFactory.CreateTransient();
+
+            LocalIocManager.IocContainer.Register(
+                Component.For<DbConnection>()
+                    .UsingFactoryMethod(() => _hostDb)
+                    .LifestyleSingleton()
+                );
+        }
+
+        #region UsingDbContext
+
+        protected void UsingDbContext(Action<IdentityDbContext> action)
+        {
+            using (var context = LocalIocManager.Resolve<IdentityDbContext>())
+            {
+                action(context);
+                context.SaveChanges();
+            }
+        }
+
+        protected void UsingDbContext(Action<ReportsDbContext> action)
         {
             using (var context = LocalIocManager.Resolve<ReportsDbContext>())
             {
@@ -23,39 +68,76 @@ namespace Verno.Reports.Tests
             }
         }
 
-        protected virtual T UsingDbContext<T>(Func<ReportsDbContext, T> func)
+        protected async Task UsingDbContextAsync(Func<IdentityDbContext, Task> action)
+        {
+                using (var context = LocalIocManager.Resolve<IdentityDbContext>())
+                {
+                    await action(context);
+                    await context.SaveChangesAsync(true);
+                }
+        }
+
+        protected T UsingDbContext<T>(Func<IdentityDbContext, T> func)
         {
             T result;
 
-            using (var context = LocalIocManager.Resolve<ReportsDbContext>())
-            {
-                result = func(context);
-                context.SaveChanges();
-            }
+                using (var context = LocalIocManager.Resolve<IdentityDbContext>())
+                {
+                    result = func(context);
+                    context.SaveChanges();
+                }
 
             return result;
         }
 
-        protected virtual async Task UsingDbContextAsync(Func<ReportsDbContext, Task> action)
-        {
-            using (var context = LocalIocManager.Resolve<ReportsDbContext>())
-            {
-                await action(context);
-                await context.SaveChangesAsync(true);
-            }
-        }
-
-        protected virtual async Task<T> UsingDbContextAsync<T>(Func<ReportsDbContext, Task<T>> func)
+        protected async Task<T> UsingDbContextAsync<T>(Func<IdentityDbContext, Task<T>> func)
         {
             T result;
 
-            using (var context = LocalIocManager.Resolve<ReportsDbContext>())
-            {
-                result = await func(context);
-                context.SaveChanges();
-            }
+                using (var context = LocalIocManager.Resolve<IdentityDbContext>())
+                {
+                    result = await func(context);
+                    await context.SaveChangesAsync(true);
+                }
 
             return result;
+        }
+
+        #endregion
+
+        #region Login
+
+        protected void LoginAsHostAdmin()
+        {
+            LoginAsHost(User.AdminUserName);
+        }
+
+        protected void LoginAsHost(string userName)
+        {
+            Resolve<IMultiTenancyConfig>().IsEnabled = true;
+
+            var user =
+                UsingDbContext(
+                    context =>
+                        context.Users.FirstOrDefault(u => u.UserName == userName));
+            if (user == null)
+            {
+                throw new Exception("There is no user: " + userName + " for host.");
+            }
+
+            AbpSession.UserId = user.Id;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Gets current user if <see cref="IAbpSession.UserId"/> is not null.
+        /// Throws exception if it's null.
+        /// </summary>
+        protected async Task<User> GetCurrentUserAsync()
+        {
+            var userId = AbpSession.GetUserId();
+            return await UsingDbContext(context => context.Users.SingleAsync(u => u.Id == userId));
         }
     }
 }

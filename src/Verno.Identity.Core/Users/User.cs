@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
@@ -29,6 +30,24 @@ namespace Verno.Identity.Users
         public User(string userName) : base(userName)
         {
         }
+
+        /// <param name="userName"></param>
+        /// <param name="name"></param>
+        /// <param name="email"></param>
+        /// <inheritdoc />
+        public User(string userName, string name, string email)
+        {
+            UserName = userName;
+            Name = name;
+            NormalizedUserName = name.ToUpper();
+            Email = email;
+            NormalizedEmail = email.ToUpper();
+            AccessFailedCount = 0;
+            SecurityStamp = Guid.NewGuid().ToString();
+            CreationTime = DateTime.Now;
+        }
+
+        public const string AdminUserName = "Admin";
     }
 
 #if FX_CORE

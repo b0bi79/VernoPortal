@@ -37,12 +37,12 @@
     <link rel="stylesheet" href="~/assets/libs/normalize.css/normalize.css" />
     <link rel="stylesheet" href="~/assets/libs/sweetalert/sweetalert.css" />
 
-    <environment names="Development">
+    <environment names="Development,Staging,Production">
         <link rel="stylesheet" href="~/assets/libs/bootstrap/css/bootstrap.css"/>
         <link rel="stylesheet" href="~/assets/libs/toastr/toastr.css"/>
     </environment>
 
-    <environment names="Staging,Production">
+    <environment names="ExternalSources">
         @* TODO: BUNDLE / Get from CDN ? *@
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
