@@ -1,4 +1,4 @@
-import "reflect-metadata";
+///<reference path="..\..\..\node_modules\reflect-metadata\reflect-metadata.d.ts"/>"
 
 export function getClazz(target: any, propertyKey: string): any {
   return Reflect.getMetadata("design:type", target, propertyKey)

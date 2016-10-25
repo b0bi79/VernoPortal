@@ -1,7 +1,7 @@
 ﻿import { Component, ViewEncapsulation, Input, OnInit, NgZone, ViewChild, TemplateRef, ViewContainerRef, ElementRef } from '@angular/core';
 import { FilesModal } from './components/files/files.component';
 import { Return } from './returns.model';
-//import { MapUtils } from '../../../../app/utils/mapping-json'; 
+import { MapUtils } from 'app/utils/mapping-json'; 
 
 import * as moment from 'moment';
 import app = abp.services.app;
@@ -44,7 +44,7 @@ export class Returns implements OnInit {
       blockUI: true,
       promise: app.returns.getList(dfrom.format("YYYY-MM-DD"), dto.format("YYYY-MM-DD"), unreclaimed)
         .done(result => {
-          self.datas = result.items.map(x => null /*MapUtils.deserialize(Return, x)*/);
+          self.datas = result.items.map(x => MapUtils.deserialize(Return, x));
           this.filterData(this.filter);
         })
     });
@@ -71,11 +71,4 @@ export class Returns implements OnInit {
       this.filteredDatas = this.datas;
     }
   }
-
-  /*onFilesChanged(e, row) {
-    if (e.length)
-      row.status = 10;
-    else
-      row.status = 0;
-  }*/
 }

@@ -1,6 +1,6 @@
 <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
 <div class="row fileupload-buttonbar">
-    <div class="row toolbar" *ngIf="isGranted('Documents.Returns.UploadFile')">
+    <div class="row toolbar" *ngIf="isGranted('Documents.Returns.UploadFile') && !rasxod.isReadonly()">
         <div class="btn-group col-lg-7">
             <!-- The fileinput-button span is used to style the file input field as button -->
             <span class="btn btn-success btn-sm fileinput-button">
@@ -25,7 +25,7 @@
 
     <div ng2FileDrop
          class="col-lg-12"
-         [ngClass]="{'file-over': hasDropZoneOver && isGranted('Documents.Returns.UploadFile')}"
+         [ngClass]="{'file-over': hasDropZoneOver && isGranted('Documents.Returns.UploadFile') && !rasxod.isReadonly()}"
          (fileOver)="fileOver($event)"
          (onFileDrop)="fileDroped($event)"
          [uploader]="uploader">
@@ -49,14 +49,14 @@
                     <span class="size">{{file.fileSize | filesize }}</span>
                 </td>
                 <td>
-                    <button class="btn btn-danger btn-sm delete" (click)="fileDelete(file)" *ngIf="isGranted('Documents.Returns.DeleteFile')">
+                    <button class="btn btn-danger btn-sm delete" (click)="fileDelete(file)" *ngIf="isGranted('Documents.Returns.DeleteFile') && !rasxod.isReadonly()">
                         <i class="glyphicon glyphicon-trash"></i>
                         <span>Удалить</span>
                     </button>
                 </td>
             </tr>
                 
-                <div *ngIf="isGranted('Documents.Returns.UploadFile')">
+                <div *ngIf="isGranted('Documents.Returns.UploadFile') && !rasxod.isReadonly()">
                     <tr class="template-upload" *ngFor="let item of uploader.queue">
                         <td><strong>{{ item?.file?.name }}</strong></td>
                         <td>
@@ -90,7 +90,7 @@
             <div class="card-block">
                 <p>Не загружено ни одного документа.</p>
                 <blockquote class="card-blockquote">
-                    <p *ngIf="isGranted('Documents.Returns.UploadFile')">Для добавления документов нажмите кнопку <strong>Добавить документы</strong> или перетащите сюда файлы из проводника.</p>
+                    <p *ngIf="isGranted('Documents.Returns.UploadFile') && !rasxod.isReadonly()">Для добавления документов нажмите кнопку <strong>Добавить документы</strong> или перетащите сюда файлы из проводника.</p>
                 </blockquote>
             </div>
         </div>

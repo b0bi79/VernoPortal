@@ -20,10 +20,8 @@ export class FilesModal {
   public uploader: FileUploader;
   public hasDropZoneOver: boolean = false;
   public files: app.IReturnFileDto[] = [];
-  @Output() filesChanged = new EventEmitter<app.IReturnFileDto[]>();
 
   constructor(private element: ElementRef) {
-    var self = this;
     this.uploader = new FileUploader({
       allowedMimeType: [...FileType.mime_doc, ...FileType.mime_xsl, "application/pdf", "application/image"],
       autoUpload: false,
@@ -33,7 +31,7 @@ export class FilesModal {
       //url: abp.appPath + 'api/services/app/returns/' + this.rasxod + '/files',
     });
     this.uploader.onCompleteAll = () => {
-      this.refresh(() => this.filesChanged.emit(self.files));
+      this.refresh();
       this.uploader.clearQueue();
     };
   }
@@ -63,7 +61,7 @@ export class FilesModal {
         if (isConfirmed) {
           app.returns.deleteFile(file.id).done(file => {
             self.files = self.files.filter(x => x.id !== file.id);
-            this.filesChanged.emit(self.files);
+            this._return.files = this.files;
           });
         }
       }
@@ -75,13 +73,14 @@ export class FilesModal {
     this._return = value;
     if (this.isGranted('Documents.Returns.UploadFile'))
       this.uploader.setOptions({ url: abp.appPath + 'api/services/app/returns/' + this._return.id + '/files' });
-    this.refresh();
+    if (!this._return.files)
+      this.refresh();
   };
   public get rasxod(): Return {
     return this._return;
   };
 
-  private refresh(afterRefresh: () => void = null): void {
+  private refresh(): void {
     abp.ui.setBusy(jQuery('.fileupload-buttonbar', this.element.nativeElement),
       {
         blockUI: true,
@@ -89,8 +88,6 @@ export class FilesModal {
           .done(list => {
             this.files = list.items;
             this._return.files = this.files;
-            if (afterRefresh)
-              afterRefresh();
           })
       });
   }

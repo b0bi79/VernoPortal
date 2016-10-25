@@ -1,18 +1,19 @@
-﻿import * as moment from 'moment';
+﻿import * as moment from 'moment';import { JsonProperty } from "app/utils/mapping-json";
 
-export class Return implements abp.services.app.IReturnDto {
-  id: number;
-  shopNum: number;
-  docDate: Date;
-  docNum: string;
-  supplierId: number;
-  supplierName: string;
-  summ: number;
-  liniah: number;
-  liniahTip: string;
-  returnId: number;
+export class Return implements abp.services.app.IReturnDto {
+  id: number = undefined;
+  shopNum: number = undefined;
+  docDate: Date = undefined;
+  docNum: string = undefined;
+  supplierId: number = undefined;
+  supplierName: string = undefined;
+  summ: number = undefined;
+  liniah: number = undefined;
+  liniahTip: string = undefined;
+  returnId: number = undefined;
 
-  private _status: number;
+  @JsonProperty('status')
+  private _status: number = undefined;
   public get status(): number {
     if (this.files == undefined)
       return this._status;
@@ -27,6 +28,6 @@ export class Return implements abp.services.app.IReturnDto {
   isReadonly(): boolean {
     var docDate = moment(this.docDate);
     var today = moment();
-    return docDate.year() !== today.year() || (docDate.month() !== today.month() && (docDate.month() !== today.month() - 1 || today.day() >= 4));
+    return docDate.year() !== today.year() || (docDate.month() !== today.month() && (docDate.month() !== today.month() - 1 || today.date() >= 4));
   }
 }
