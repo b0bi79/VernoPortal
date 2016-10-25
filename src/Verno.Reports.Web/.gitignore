@@ -53,6 +53,8 @@ npm-debug.log
 /src/*/dist/
 /wwwroot/**
 .webpack.json
+/build
+/build/**
 
 # Doc #
 /doc/

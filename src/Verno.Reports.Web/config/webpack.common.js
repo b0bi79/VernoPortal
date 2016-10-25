@@ -78,11 +78,8 @@ module.exports = function (options) {
        */
       extensions: ['', '.ts', '.js', '.css', '.scss', '.json'],
 
-      // Make sure root is src
-      root: helpers.root('src'),
-
-      // remove other default values
-      modulesDirectories: ['node_modules'],
+      // An array of directory names to be resolved to the current directory
+      modules: [helpers.root('src'), 'node_modules'],
 
     },
 
@@ -347,6 +344,24 @@ module.exports = function (options) {
        */
       new HtmlElementsPlugin({
         headTags: require('./head-config.common')
+      }),
+      new webpack.ProvidePlugin({
+        $: "jquery",
+        jQuery: "jquery",
+        "window.jQuery": "jquery",
+        Tether: "tether",
+        "window.Tether": "tether",
+        Tooltip: "exports?Tooltip!bootstrap/js/dist/tooltip",
+        Alert: "exports?Alert!bootstrap/js/dist/alert",
+        Button: "exports?Button!bootstrap/js/dist/button",
+        Carousel: "exports?Carousel!bootstrap/js/dist/carousel",
+        Collapse: "exports?Collapse!bootstrap/js/dist/collapse",
+        Dropdown: "exports?Dropdown!bootstrap/js/dist/dropdown",
+        Modal: "exports?Modal!bootstrap/js/dist/modal",
+        Popover: "exports?Popover!bootstrap/js/dist/popover",
+        Scrollspy: "exports?Scrollspy!bootstrap/js/dist/scrollspy",
+        Tab: "exports?Tab!bootstrap/js/dist/tab",
+        Util: "exports?Util!bootstrap/js/dist/util"
       })
 
     ],

@@ -1,4 +1,4 @@
-import { NgModule }      from '@angular/core';
+import { NgModule, ModuleWithProviders  }      from '@angular/core';
 import { CommonModule }  from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -141,12 +141,6 @@ const THIRD_PARTY_MODULES = [
     ReactiveFormsModule,
     ...THIRD_PARTY_MODULES
   ],
-  providers: [
-    BaThemeConfigProvider,
-    BaThemeConfig,
-    ...NGA_VALIDATORS,
-    ...NGA_SERVICES
-  ],
   exports: [
     ...NGA_PIPES,
     ...NGA_DIRECTIVES,
@@ -154,4 +148,15 @@ const THIRD_PARTY_MODULES = [
   ]
 })
 export class NgaModule {
+  static forRoot(): ModuleWithProviders {
+    return <ModuleWithProviders> {
+      ngModule: NgaModule,
+      providers: [
+        BaThemeConfigProvider,
+        BaThemeConfig,
+        ...NGA_VALIDATORS,
+        ...NGA_SERVICES
+      ],
+    };
+  }
 }

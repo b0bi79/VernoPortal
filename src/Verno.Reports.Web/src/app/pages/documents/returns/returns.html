@@ -63,7 +63,8 @@
                     </tr>
                     <tr *ngIf="mf.activeRow == row">
                         <td colspan="6">
-                            <returns-files [rasxod]="row.id"></returns-files>
+                            <!--<returns-files [rasxod]="row" (filesChanged)="onFilesChanged($event, row)"></returns-files>-->
+                            <returns-files [rasxod]="row"></returns-files>
                         </td>
                     </tr>
                 </template>

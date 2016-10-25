@@ -1,6 +1,7 @@
 ﻿import { Component, ViewEncapsulation, Input, OnInit, NgZone, ViewChild, TemplateRef, ViewContainerRef, ElementRef } from '@angular/core';
-
-import { FilesModal } from './components/files/files.component'
+import { FilesModal } from './components/files/files.component';
+import { Return } from './returns.model';
+//import { MapUtils } from '../../../../app/utils/mapping-json'; 
 
 import * as moment from 'moment';
 import app = abp.services.app;
@@ -16,9 +17,9 @@ export class Returns implements OnInit {
   private filter: string;
   private unreclaimed: boolean = false;
   private periodFilter: any = { start: moment(), end: moment() };
-  private datas: app.IReturnDto[];
-  private filteredDatas: app.IReturnDto[] = [];
-  private selectedRow: app.IReturnDto;
+  private datas: Return[];
+  private filteredDatas: Return[] = [];
+  private selectedRow: Return;
 
   pickerOptions: Object = {
     'showDropdowns': true,
@@ -43,7 +44,7 @@ export class Returns implements OnInit {
       blockUI: true,
       promise: app.returns.getList(dfrom.format("YYYY-MM-DD"), dto.format("YYYY-MM-DD"), unreclaimed)
         .done(result => {
-          self.datas = result.items;
+          self.datas = result.items.map(x => null /*MapUtils.deserialize(Return, x)*/);
           this.filterData(this.filter);
         })
     });
@@ -64,16 +65,17 @@ export class Returns implements OnInit {
     if (this.filter) {
       query = query.toLowerCase();
       this.filteredDatas = _.filter(this.datas,
-        (doc: app.IReturnDto) => doc.docNum.toLowerCase().indexOf(query) >= 0 ||
+        (doc: Return) => doc.docNum.toLowerCase().indexOf(query) >= 0 ||
           doc.supplierName.toLowerCase().indexOf(query) >= 0);
     } else {
       this.filteredDatas = this.datas;
     }
   }
 
-  onRowClick(e) {
-    this.selectedRow = e.row;
-    jQuery(e.event.currentTarget).siblings().removeClass("active");
-    jQuery(e.event.currentTarget).addClass("active");
-  }
+  /*onFilesChanged(e, row) {
+    if (e.length)
+      row.status = 10;
+    else
+      row.status = 0;
+  }*/
 }

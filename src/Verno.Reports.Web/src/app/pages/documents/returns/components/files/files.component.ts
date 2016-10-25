@@ -1,7 +1,8 @@
-﻿import { Component, ViewEncapsulation, Input, ElementRef } from '@angular/core';
+﻿import { Component, ViewEncapsulation, Input, Output, EventEmitter, ElementRef } from '@angular/core';
 
 import { FileUploader } from 'ng2-file-upload';
 import { FileType } from 'ng2-file-upload/components/file-upload/file-type.class';
+import { Return } from './../../returns.model'
 
 import app = abp.services.app;
 
@@ -15,12 +16,14 @@ import app = abp.services.app;
   template: require('./files.html')
 })
 export class FilesModal {
-  private _rasxod: number;
+  private _return: Return;
   public uploader: FileUploader;
   public hasDropZoneOver: boolean = false;
   public files: app.IReturnFileDto[] = [];
+  @Output() filesChanged = new EventEmitter<app.IReturnFileDto[]>();
 
   constructor(private element: ElementRef) {
+    var self = this;
     this.uploader = new FileUploader({
       allowedMimeType: [...FileType.mime_doc, ...FileType.mime_xsl, "application/pdf", "application/image"],
       autoUpload: false,
@@ -30,7 +33,7 @@ export class FilesModal {
       //url: abp.appPath + 'api/services/app/returns/' + this.rasxod + '/files',
     });
     this.uploader.onCompleteAll = () => {
-      this.refresh();
+      this.refresh(() => this.filesChanged.emit(self.files));
       this.uploader.clearQueue();
     };
   }
@@ -60,6 +63,7 @@ export class FilesModal {
         if (isConfirmed) {
           app.returns.deleteFile(file.id).done(file => {
             self.files = self.files.filter(x => x.id !== file.id);
+            this.filesChanged.emit(self.files);
           });
         }
       }
@@ -67,23 +71,26 @@ export class FilesModal {
   }
 
   @Input()
-  public set rasxod(value: number) {
-    this._rasxod = value;
+  public set rasxod(value: Return) {
+    this._return = value;
     if (this.isGranted('Documents.Returns.UploadFile'))
-      this.uploader.setOptions({ url: abp.appPath + 'api/services/app/returns/' + this._rasxod + '/files' });
+      this.uploader.setOptions({ url: abp.appPath + 'api/services/app/returns/' + this._return.id + '/files' });
     this.refresh();
   };
-  public get rasxod(): number {
-    return this._rasxod;
+  public get rasxod(): Return {
+    return this._return;
   };
 
-  private refresh(): void {
+  private refresh(afterRefresh: () => void = null): void {
     abp.ui.setBusy(jQuery('.fileupload-buttonbar', this.element.nativeElement),
       {
         blockUI: true,
-        promise: app.returns.getFilesList(this._rasxod)
+        promise: app.returns.getFilesList(this._return.id)
           .done(list => {
             this.files = list.items;
+            this._return.files = this.files;
+            if (afterRefresh)
+              afterRefresh();
           })
       });
   }

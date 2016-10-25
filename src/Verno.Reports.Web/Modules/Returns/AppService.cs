@@ -124,9 +124,18 @@ namespace Verno.Reports.Web.Modules.Returns
         public async Task<ReturnFileDto> DeleteFile(int fileId)
         {
             var file = await _filesRepository.GetAsync(fileId);
+
             if (file==null)
                 throw new ApplicationException($"Файла с id={fileId} не существует.");
+
             await _filesRepository.DeleteAsync(file);
+
+            await CurrentUnitOfWork.SaveChangesAsync(); //To get admin user's id
+
+            var files = await _filesRepository.GetAllListAsync(x => x.ReturnId == file.ReturnId);
+            if (files.Count == 0)
+                _returnsRepository.Update(file.ReturnId, r => r.Status = 0);
+
             return file.MapTo<ReturnFileDto>();
         }
 

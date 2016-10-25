@@ -10,13 +10,13 @@ let saver = require("file-saver");
     //styles: [require('./downloader.scss')],
     template: `
         <button
-           class="btn btn-info-outline btn-sm "
+           class="btn btn-outline-info btn-sm "
           (click)="download()">
             <span class="fa fa-download" *ngIf="!pending"></span>
             <span class="fa fa-refresh fa-spin" *ngIf="pending"></span>
         </button>
         <button
-           class="btn btn-info-outline btn-sm "
+           class="btn btn-outline-info btn-sm "
           (click)="view()">
             <span class="fa fa-eye" *ngIf="!pending"></span>
             <span class="fa fa-refresh fa-spin" *ngIf="pending"></span>
