@@ -7,7 +7,7 @@
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-filter fa-fw"></i></span>
-                    <input [ngModel]="filter" (ngModelChange)="filterData($event)" type="text" class="form-control" placeholder="Поиск по поставщику или номеру документа...">
+                    <input [ngModel]="filter" (ngModelChange)="filterData($event)" type="text" class="form-control" placeholder="Поиск по поставщику, магазину или номеру документа...">
                 </div>
             </div>
             <div class="form-group">
@@ -28,6 +28,7 @@
             <thead>
             <tr>
                 <th></th>
+                <th *ngIf="needShowShops">Магазин</th>
                 <th><mfDefaultSorter by="srcWhId">Дата накл</mfDefaultSorter></th>
                 <th><mfDefaultSorter by="liniah">№ накладной</mfDefaultSorter></th>
                 <th><mfDefaultSorter by="dataNakl">Поставщик</mfDefaultSorter></th>
@@ -55,6 +56,7 @@
                 <template ngFor let-row [ngForOf]="mf.data" let-even="even" let-odd="odd" let-rowIndex="index">
                     <tr [mfSelectable]="row">
                         <td><a *ngIf="row.status == 10" [tooltip]="'К документу прикреплены файлы'"><i class="fa fa-file-text" aria-hidden="true"></i></a></td>
+                        <td *ngIf="needShowShops">{{row.shopNum}}</td>
                         <td>{{row.docDate | date: 'dd.MM.yyyy'}}</td>
                         <td>{{row.docNum}}</td>
                         <td>{{row.supplierName}}</td>
@@ -62,7 +64,7 @@
                         <td>{{row.liniahTip}}</td>
                     </tr>
                     <tr *ngIf="mf.activeRow == row">
-                        <td colspan="6">
+                        <td colspan="7">
                             <!--<returns-files [rasxod]="row" (filesChanged)="onFilesChanged($event, row)"></returns-files>-->
                             <returns-files [rasxod]="row"></returns-files>
                         </td>
@@ -71,7 +73,7 @@
             </tbody>
             <tfoot>
             <tr>
-                <td colspan="6">
+                <td colspan="7">
                     <mfBootstrapPaginator [rowsOnPageSet]="[15,25,50]"></mfBootstrapPaginator>
                 </td>
             </tr>

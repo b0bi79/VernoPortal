@@ -39,7 +39,7 @@
                 <td>
                     <div class="name">
                         <file-downloader *ngIf="file.url && isGranted('Documents.Returns.GetFile') && !file.error"
-                                         url="{{file.url}}" fileName="{{file.fileName}}"></file-downloader>
+                                         url="{{file.url}}"></file-downloader>
                         <span *ngIf="!file.url || !isGranted('Documents.Returns.GetFile')">{{file.fileName}}</span>
                     </div>
                     <div *ngIf="file.error"><span class="label label-danger">Ошибка</span> {{file.error}}

@@ -123,7 +123,7 @@ namespace Verno.Reports.Web.Modules.Returns
         [Route("files/{fileId}")]
         public async Task<ReturnFileDto> DeleteFile(int fileId)
         {
-            var file = await _filesRepository.GetAsync(fileId);
+            var file = await _filesRepository.GetAllIncluding(x => x.Return).SingleOrDefaultAsync(x => x.Id == fileId); //.GetAsync(fileId);
 
             if (file==null)
                 throw new ApplicationException($"Файла с id={fileId} не существует.");
@@ -165,6 +165,7 @@ namespace Verno.Reports.Web.Modules.Returns
 
             var r = await _returnsRepository.GetByRasxod(rasxod) 
                 ?? await _returnsRepository.InsertAsync(new Return(rasxod));
+            r.Status = ReturnStatus.Processed;
             var fileEntity = r.AddFile(Path.GetFileNameWithoutExtension(fileName), fileName, savedName);
 
             await CurrentUnitOfWork.SaveChangesAsync(); //To get admin user's id

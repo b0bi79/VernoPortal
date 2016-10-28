@@ -36,7 +36,6 @@ namespace Verno.Reports.Web.Modules.Returns
         public Return(int rasxod)
         {
             Rasxod = rasxod;
-            Status = ReturnStatus.Processed;
         }
 
         public int Rasxod { get; set; }

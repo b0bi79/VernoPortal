@@ -18,6 +18,10 @@ export class GlobalState {
     });
   }
 
+  public userInRole(name: string): boolean {
+    return this.user.roles.indexOf(name) >= 0;
+  }
+
   notifyDataChanged(event, value) {
 
     let current = this._data[event];

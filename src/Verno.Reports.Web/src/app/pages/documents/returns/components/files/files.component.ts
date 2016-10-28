@@ -73,7 +73,9 @@ export class FilesModal {
     this._return = value;
     if (this.isGranted('Documents.Returns.UploadFile'))
       this.uploader.setOptions({ url: abp.appPath + 'api/services/app/returns/' + this._return.id + '/files' });
-    if (!this._return.files)
+    if (this._return.files)
+      this.files = this._return.files;
+    else
       this.refresh();
   };
   public get rasxod(): Return {

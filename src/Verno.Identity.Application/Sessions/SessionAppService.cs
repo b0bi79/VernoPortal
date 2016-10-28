@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Abp.Auditing;
 using Abp.Authorization;
 using Abp.AutoMapper;
@@ -12,11 +13,13 @@ namespace Verno.Identity.Sessions
         [DisableAuditing]
         public async Task<GetCurrentLoginInformationsOutput> GetCurrentLoginInformations()
         {
+            var user = await GetCurrentUserAsync();
             var output = new GetCurrentLoginInformationsOutput
             {
-                User = (await GetCurrentUserAsync()).MapTo<UserLoginInfoDto>()
+                User = user.MapTo<UserLoginInfoDto>()
             };
 
+            output.User.Roles = (await UserManager.GetRolesAsync(user)).ToArray();
             return output;
         }
     }

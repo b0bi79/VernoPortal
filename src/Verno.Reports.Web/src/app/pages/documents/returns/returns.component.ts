@@ -1,5 +1,6 @@
 ﻿import { Component, ViewEncapsulation, Input, OnInit, NgZone, ViewChild, TemplateRef, ViewContainerRef, ElementRef } from '@angular/core';
-import { FilesModal } from './components/files/files.component';
+import { GlobalState } from 'app/global.state';
+import { FilesModal } from './components/files/files.component';
 import { Return } from './returns.model';
 import { MapUtils } from 'app/utils/mapping-json'; 
 
@@ -20,6 +21,7 @@ export class Returns implements OnInit {
   private datas: Return[];
   private filteredDatas: Return[] = [];
   private selectedRow: Return;
+  private needShowShops: boolean;
 
   pickerOptions: Object = {
     'showDropdowns': true,
@@ -30,7 +32,7 @@ export class Returns implements OnInit {
     'endDate': this.periodFilter.end
   };
 
-  constructor(private element: ElementRef) {
+  constructor(private element: ElementRef, private _state: GlobalState) {
   }
 
   ngOnInit() {
@@ -45,6 +47,10 @@ export class Returns implements OnInit {
       promise: app.returns.getList(dfrom.format("YYYY-MM-DD"), dto.format("YYYY-MM-DD"), unreclaimed)
         .done(result => {
           self.datas = result.items.map(x => MapUtils.deserialize(Return, x));
+          if (self.datas.length) {
+            var firstShop = self.datas[0].shopNum;
+            self.needShowShops = self.datas.some(x => x.shopNum !== firstShop);
+          }
           this.filterData(this.filter);
         })
     });
@@ -65,10 +71,20 @@ export class Returns implements OnInit {
     if (this.filter) {
       query = query.toLowerCase();
       this.filteredDatas = _.filter(this.datas,
-        (doc: Return) => doc.docNum.toLowerCase().indexOf(query) >= 0 ||
-          doc.supplierName.toLowerCase().indexOf(query) >= 0);
+        (doc: Return) =>
+          doc.docNum.toLowerCase().indexOf(query) >= 0 ||
+          doc.shopNum.toString() === query ||
+          doc.supplierName.toLowerCase().indexOf(query) >= 0
+      );
     } else {
       this.filteredDatas = this.datas;
     }
+  }
+
+  public isInRole(name: string): boolean {
+    return this._state.userInRole(name);  }
+
+  public isGranted(name: string): boolean {
+    return abp.auth.isGranted(name);
   }
 }

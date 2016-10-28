@@ -71,10 +71,14 @@ var abp = abp || {};
                 options.promise['finally'](function () {
                     abp.ui.clearBusy(elm);
                 });
-            } else if (options.promise.then){
-                options.promise.then(function () {
-                    abp.ui.clearBusy(elm);
-                });
+            } else if (options.promise.then) {
+                options.promise
+                    .then(function() {
+                        abp.ui.clearBusy(elm);
+                    })
+                    .catch(function() {
+                        abp.ui.clearBusy(elm);
+                    });
             }
         }
     };

@@ -10,13 +10,13 @@ namespace Verno.Identity.Users
             {"Role",  new ClaimType("Role")},
             {"ShopNum",  new ClaimType("ShopNum")},
             {"BossId",  new ClaimType("BossId")},
-            {"Position",  new ClaimType("EmployeePosition", true)}
+            {"EmployeePosition",  new ClaimType("EmployeePosition", true)}
         };
 
         public static readonly ClaimType Role = ClaimTypes["Role"];
         public static readonly ClaimType ShopNum = ClaimTypes["ShopNum"];
         public static readonly ClaimType BossId = ClaimTypes["BossId"];
-        public static readonly ClaimType Position = ClaimTypes["Position"];
+        public static readonly ClaimType Position = ClaimTypes["EmployeePosition"];
 
         public static bool IsGlobal(string claimType)
         {

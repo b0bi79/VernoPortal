@@ -87,6 +87,7 @@ declare module abp.services.identity {
     email?: string;
     id?: number;
     orgUnitId?: number;
+    roles: string[];
   }
 
 

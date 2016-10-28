@@ -14,5 +14,7 @@ namespace Verno.Identity.Sessions.Dto
         public string Email { get; set; }
 
         public int OrgUnitId { get; set; }
+
+        public string[] Roles { get; set; }
     }
 }
