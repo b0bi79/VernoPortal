@@ -43,7 +43,7 @@ export class FileDownloader {
         });
     }
 
-    private xhrdownload(callback) {
+    private xhrdownload(callback: (blob: Blob, fileName: string) => void): void {
 
         // Xhr creates new context so we need to create reference to this
         let self = this;

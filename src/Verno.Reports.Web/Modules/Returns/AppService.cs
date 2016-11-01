@@ -27,7 +27,7 @@ namespace Verno.Reports.Web.Modules.Returns
 {
     public interface IReturnsAppService
     {
-        Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, bool unreclaimedOnly);
+        Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, string filter, bool unreclaimedOnly);
         Task<ListResultDto<ReturnFileDto>> GetFilesList(int rasxod);
         Task<ActionResult> File(int fileId);
         //Task<ReturnFileDto> UploadFile(/*int rasxod, */IFormFile file);
@@ -61,13 +61,28 @@ namespace Verno.Reports.Web.Modules.Returns
         [HttpGet]
         [UnitOfWork(isTransactional: false)]
         [Route("{dfrom:datetime}!{dto:datetime}")]
-        public async Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, bool unreclaimedOnly)
+        public async Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, string filter, bool unreclaimedOnly)
         {
             int shopNum = await GetUserShopNum();
             var result = from d in _context.ReturnDatas
-                         where d.DocDate >= dfrom && d.DocDate <= dto &&
-                               (d.ShopNum == shopNum || shopNum == 0)
-                         select d;
+                where d.DocDate >= dfrom && d.DocDate <= dto && d.ShopNum > 0
+                select d;
+
+            if (shopNum > 0)
+                result = result.Where(d => d.ShopNum == shopNum);
+
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                var num = filter.AsInt(0);
+                if (num > 0)
+                    result = result.Where(r => r.DocNum.Contains(filter) ||
+                                               r.ShopNum == num ||
+                                               r.SupplierName.Contains(filter));
+                else
+                    result = result.Where(r => r.DocNum.Contains(filter) ||
+                                               r.SupplierName.Contains(filter));
+            }
+
             if (unreclaimedOnly)
                 result = result.Where(r => r.Status == 0 /*ReturnStatus.None*/);
             return new ListResultDto<ReturnDto>((await result.Take(500).ToListAsync()).MapTo<List<ReturnDto>>());

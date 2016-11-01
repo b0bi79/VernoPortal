@@ -3,37 +3,46 @@
         <!--<data-filter>
             <period></period>
         </data-filter>-->
-        <div class="form-inline">
-            <div class="form-group">
-                <div class="input-group">
-                    <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-filter fa-fw"></i></span>
-                    <input [ngModel]="filter" (ngModelChange)="filterData($event)" type="text" class="form-control" placeholder="Поиск по поставщику, магазину или номеру документа...">
+        <div class="row">
+            <div class="form-inline col-xl-10 col-lg-8 col-md-6 col-xs-12">
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-filter fa-fw"></i></span>
+                        <input [ngModel]="filter" (ngModelChange)="filterData($event)" type="text" class="form-control" placeholder="Поиск...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-calendar fa-fw"></i></span>
+                        <input daterangepicker
+                               (selected)="dateSelected($event)"
+                               [options]="pickerOptions" type="submit"
+                               class="form-control btn btn-success" />
+                    </div>
+                </div>
+                <div class="form-group" style="margin: 0 16px 16px;">
+                    <ba-checkbox [ngModel]="unreclaimed" (ngModelChange)="unreclaimedChanged($event)" [baCheckboxClass]="'checkbox'" [label]="'Только необработанные'"></ba-checkbox>
+                    <!--<input [ngModel]="unreclaimed" (ngModelChange)="unreclaimedChanged($event)" type="checkbox" class="form-control"> Только необработанные-->
                 </div>
             </div>
-            <div class="form-group">
-                <div class="input-group">
-                    <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-calendar fa-fw"></i></span>
-                    <input daterangepicker
-                           (selected)="dateSelected($event)"
-                           [options]="pickerOptions" type="submit"
-                           class="form-control btn btn-success" />
+            <div class="col-xl-2 col-lg-4 col-md-6 col-xs-12">
+                <div class="pull-right">
+                    <!--<export-table class="col-xs-1" [table]="mf"></export-table>-->
+                    <button type="button" class="btn btn-primary" (click)="exportExcel()"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Экспорт</button>
+                    <!--<button type="button" class="btn btn-primary" (click)="packDownload()"><i class="fa fa-download" aria-hidden="true"></i>Скачать</button>-->
                 </div>
-            </div>
-            <div class="form-group" style="margin: 0 16px 16px;">
-                <ba-checkbox [ngModel]="unreclaimed" (ngModelChange)="unreclaimedChanged($event)" [baCheckboxClass]="'checkbox'" [label]="'Только необработанные'"></ba-checkbox>
-                <!--<input [ngModel]="unreclaimed" (ngModelChange)="unreclaimedChanged($event)" type="checkbox" class="form-control"> Только необработанные-->
             </div>
         </div>
-        <table class="table table-striped" [mfData]="filteredDatas" #mf="mfDataTable" [mfRowsOnPage]="15">
+        <table class="table table-striped" [mfData]="datas" #mf="mfDataTable" [mfRowsOnPage]="15">
             <thead>
             <tr>
                 <th></th>
-                <th *ngIf="needShowShops">Магазин</th>
-                <th><mfDefaultSorter by="srcWhId">Дата накл</mfDefaultSorter></th>
-                <th><mfDefaultSorter by="liniah">№ накладной</mfDefaultSorter></th>
-                <th><mfDefaultSorter by="dataNakl">Поставщик</mfDefaultSorter></th>
-                <th><mfDefaultSorter by="nomNakl">Сумма</mfDefaultSorter></th>
-                <th><mfDefaultSorter by="imahDok">Линия</mfDefaultSorter></th>
+                <th *ngIf="needShowShops"><mfDefaultSorter by="shopNum">Магазин</mfDefaultSorter></th>
+                <th><mfDefaultSorter by="docDate">Дата накл</mfDefaultSorter></th>
+                <th><mfDefaultSorter by="docNum">№ накладной</mfDefaultSorter></th>
+                <th><mfDefaultSorter by="supplierName">Поставщик</mfDefaultSorter></th>
+                <th><mfDefaultSorter by="summ">Сумма</mfDefaultSorter></th>
+                <th><mfDefaultSorter by="liniahTip">Линия</mfDefaultSorter></th>
             </tr>
             </thead>
             <!--<tbody *ngFor="let row of mf.data">

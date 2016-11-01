@@ -16,3 +16,4 @@ export * from './Downloader';
 export * from './searchableDropdown';
 export * from './modal';
 export * from './datatable';
+export * from './exportTable';

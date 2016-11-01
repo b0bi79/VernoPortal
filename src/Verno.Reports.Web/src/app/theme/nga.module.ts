@@ -32,6 +32,7 @@ import {
   ModalDialog,
   HtmlForm,
   FileDownloader,
+  ExportTable,
   SearchableDropdownComponent,
   BootstrapPaginator, 
   DataTable,
@@ -60,7 +61,8 @@ import {
 import {
   BaImageLoaderService,
   BaThemePreloader,
-  BaThemeSpinner
+  BaThemeSpinner,
+  ExportToExcelService
 } from './services';
 
 import {
@@ -87,6 +89,7 @@ const NGA_COMPONENTS = [
   ModalDialog,
   HtmlForm,
   FileDownloader,
+  ExportTable,
   SearchableDropdownComponent,
   BootstrapPaginator, 
   DataTable,
@@ -116,7 +119,8 @@ const NGA_PIPES = [
 const NGA_SERVICES = [
   BaImageLoaderService,
   BaThemePreloader,
-  BaThemeSpinner
+  BaThemeSpinner,
+  ExportToExcelService
 ];
 
 const NGA_VALIDATORS = [

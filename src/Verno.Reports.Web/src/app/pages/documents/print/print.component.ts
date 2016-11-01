@@ -12,52 +12,54 @@ import app = abp.services.app;
   template: require('./print.html')
 })
 export class Print implements OnInit {
+  private periodFilter: any = { start: moment(), end: moment() };
+  private filter: string;
+  private datas: app.IPrintDocument[];
+  private filterDelay: number = 0;
+
   pickerOptions: Object = {
     'showDropdowns': true,
     'showWeekNumbers': true,
     'alwaysShowCalendars': true,
     'autoApply': true,
-    'startDate': moment(),
-    'endDate': moment()
+    'startDate': this.periodFilter.start,
+    'endDate': this.periodFilter.end
   };
-  filter: string;
-  private datas: app.IPrintDocument[];
-  private filteredDatas: app.IPrintDocument[];
 
   constructor(private element: ElementRef) { }
 
   ngOnInit() {
-    this.getDatas(this.pickerOptions['startDate'], this.pickerOptions['endDate']);
+    this.getDatas(this.periodFilter.start, this.periodFilter.end, "");
   }
 
-  getDatas(dfrom: moment.Moment, dto: moment.Moment) {
+  getDatas(dfrom: moment.Moment, dto: moment.Moment, filter: string) {
     var self = this;
     abp.ui.setBusy(jQuery('.card', this.element.nativeElement),
       {
         blockUI: true,
-        promise: app.print.getList(dfrom.format("YYYY-MM-DD"), dto.format("YYYY-MM-DD"))
+        promise: app.print.getList(dfrom.format("YYYY-MM-DD"), dto.format("YYYY-MM-DD"), filter)
           .done(result => {
             self.datas = result.items;
-            this.filterData(this.filter);
+            //this.filterData(this.filter);
           })
       });
   }
 
   public filterData(query: string) {
-    console.log(query);
-    if (query) {
-      query = query.toLowerCase();
-      this.filteredDatas = _.filter(this.datas,
-        doc => doc.imahDok.toLowerCase().indexOf(query) >= 0 ||
-          doc.srcWhId.toString() === query ||
-          doc.nomNakl.endsWith(query));
-    } else {
-      this.filteredDatas = this.datas;
-    }
+    var self = this;
+    this.filter = query;
+    this.filterDelay++;
+    setTimeout(() => {
+      if (self.filterDelay == 1) {
+        this.getDatas(this.periodFilter.start, this.periodFilter.end, this.filter);
+      }
+      self.filterDelay--;
+    }, 1000);
   }
 
   dateSelected(period) {
-    this.getDatas(period.start, period.end);
+    this.periodFilter = period;
+    this.getDatas(period.start, period.end, this.filter);
   }
 
   public isGranted(name: string): boolean {

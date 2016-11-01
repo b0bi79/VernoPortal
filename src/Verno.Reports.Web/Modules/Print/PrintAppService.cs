@@ -20,7 +20,7 @@ namespace Verno.Reports.Web.Modules.Print
 {
     public interface IPrintAppService
     {
-        Task<ListResultDto<PrintDto>> GetList(DateTime dfrom, DateTime dto);
+        Task<ListResultDto<PrintDto>> GetList(DateTime dfrom, DateTime dto, string filter);
         Task<ActionResult> File(int fileId);
     }
 
@@ -43,24 +43,33 @@ namespace Verno.Reports.Web.Modules.Print
         [HttpGet]
         [UnitOfWork(isTransactional: false)]
         [Route("api/services/app/print-forms/{dfrom:datetime}!{dto:datetime}")]
-        public async Task<ListResultDto<PrintDto>> GetList(DateTime dfrom, DateTime dto)
+        public async Task<ListResultDto<PrintDto>> GetList(DateTime dfrom, DateTime dto, string filter)
         {
             int shopNum = await GetUserShopNum();
             var result =
                 from d in _context.PrintDocs
                 join f in _context.PrintDocForms on d.Id equals f.DokId
                 join s in _context.Sklads on d.SklIst equals s.NomerSklada
-                where d.DataNakl >= dfrom && d.DataNakl <= dto &&
-                      (d.MagPol == shopNum || shopNum == 0) && f.Deleted == null
-                select new PrintDto(d.Liniah, d.NomNakl, d.DataNakl, f.ImahDok, d.SklIst, s.Postavthik /*d.SkladSrc.Platelqthik*/,
+                where d.DataNakl >= dfrom && d.DataNakl <= dto && f.Deleted == null
+                select new PrintDto(d.Liniah, d.NomNakl, d.MagPol, d.DataNakl, f.ImahDok, d.SklIst, s.Postavthik /*d.SkladSrc.Platelqthik*/,
                     _httpContext.CreateUrl("/api/services/app/Print/File?fileId=" + f.Id));
+
+            if (shopNum > 0)
+                result = result.Where(d => d.ShopNum == shopNum);
+
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                var num = filter.AsInt(0);
+                if (num > 0)
+                    result = result.Where(doc => doc.ImahDok.Contains(filter) ||
+                                                 doc.NomNakl.EndsWith(filter) ||
+                                                 doc.SrcWhId == num ||
+                                                 doc.ShopNum == num);
+                else
+                    result = result.Where(doc => doc.ImahDok.Contains(filter) ||
+                                                 doc.NomNakl.EndsWith(filter));
+            }
             return new ListResultDto<PrintDto>(await result.Take(500).ToListAsync());
-            /*var result = new [] {
-                new PrintDto(6, "131/s1", DateTime.Today.AddDays(-2), "Акт инвентаризации", _root + "/api/services/app/Print/File?fileId=8"),
-                new PrintDto(5, "141/u3", DateTime.Today.AddDays(-1), "Акт списания", _root + "/api/services/app/Print/File?fileId=8"),
-                new PrintDto(5, "185/u12", DateTime.Today, "Акт списания", _root + "/api/services/app/Print/File?fileId=8"),
-            }.Where(d=> d.DataNakl >= dfrom && d.DataNakl <= dto);
-            return new ListResultOutput<PrintDto>(result.ToList());*/
         }
 
         [HttpGet]

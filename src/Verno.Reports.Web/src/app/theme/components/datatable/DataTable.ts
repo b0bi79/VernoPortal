@@ -74,6 +74,7 @@ export class DataTable implements OnChanges, DoCheck {
     public ngOnChanges(changes:{[key:string]:SimpleChange}):any {
         if (changes["inputData"]) {
             this.inputData = this.inputData || [];
+            this.activePage = 1;
             this.onPageChange.emit({
                 activePage: this.activePage,
                 rowsOnPage: this.rowsOnPage,

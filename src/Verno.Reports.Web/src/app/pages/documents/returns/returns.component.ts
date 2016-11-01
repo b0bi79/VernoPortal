@@ -1,8 +1,10 @@
 ﻿import { Component, ViewEncapsulation, Input, OnInit, NgZone, ViewChild, TemplateRef, ViewContainerRef, ElementRef } from '@angular/core';
-import { GlobalState } from 'app/global.state';
+
 import { FilesModal } from './components/files/files.component';
 import { Return } from './returns.model';
-import { MapUtils } from 'app/utils/mapping-json'; 
+import { MapUtils } from 'app/utils/mapping-json';
+import { ExportToExcelService, Workbook, Worksheet, Column } from "app/theme/services";
+import { DataTable } from "app/theme/components"
 
 import * as moment from 'moment';
 import app = abp.services.app;
@@ -11,17 +13,19 @@ import app = abp.services.app;
   selector: 'returns',
   encapsulation: ViewEncapsulation.None,
   template: require('./returns.html'),
+  providers: [ExportToExcelService]
 })
 export class Returns implements OnInit {
   @ViewChild('editFilesTmpl') editTmpl: TemplateRef<any>;
+  @ViewChild('mf') table: DataTable;
 
   private filter: string;
   private unreclaimed: boolean = false;
   private periodFilter: any = { start: moment(), end: moment() };
-  private datas: Return[];
-  private filteredDatas: Return[] = [];
+  private datas: Return[] = [];
   private selectedRow: Return;
   private needShowShops: boolean;
+  private filterDelay: number = 0;
 
   pickerOptions: Object = {
     'showDropdowns': true,
@@ -32,57 +36,72 @@ export class Returns implements OnInit {
     'endDate': this.periodFilter.end
   };
 
-  constructor(private element: ElementRef, private _state: GlobalState) {
+  constructor(private element: ElementRef, private exporter: ExportToExcelService) {
   }
 
   ngOnInit() {
-    this.getDatas(this.periodFilter.start, this.periodFilter.end, this.unreclaimed);
+    this.getDatas(this.periodFilter.start, this.periodFilter.end, "", this.unreclaimed);
   }
 
-  getDatas(dfrom: moment.Moment, dto: moment.Moment, unreclaimed: boolean): void {
+  getDatas(dfrom: moment.Moment, dto: moment.Moment, filter: string, unreclaimed: boolean): void {
     var self = this;
     abp.ui.setBusy(jQuery('.card', this.element.nativeElement),
     {
       blockUI: true,
-      promise: app.returns.getList(dfrom.format("YYYY-MM-DD"), dto.format("YYYY-MM-DD"), unreclaimed)
+      promise: app.returns.getList(dfrom.format("YYYY-MM-DD"), dto.format("YYYY-MM-DD"), filter, unreclaimed)
         .done(result => {
           self.datas = result.items.map(x => MapUtils.deserialize(Return, x));
           if (self.datas.length) {
             var firstShop = self.datas[0].shopNum;
             self.needShowShops = self.datas.some(x => x.shopNum !== firstShop);
           }
-          this.filterData(this.filter);
+          //this.doFilterData(this.filter);
         })
     });
   }
 
   dateSelected(period): void {
     this.periodFilter = period;
-    this.getDatas(period.start, period.end, this.unreclaimed);
+    this.getDatas(period.start, period.end, this.filter, this.unreclaimed);
   }
 
   unreclaimedChanged(value: boolean): void {
     this.unreclaimed = value;
-    this.getDatas(this.periodFilter.start, this.periodFilter.end, this.unreclaimed);
+    this.getDatas(this.periodFilter.start, this.periodFilter.end, this.filter, this.unreclaimed);
   }
 
   filterData(query: string): void {
+    var self = this;
     this.filter = query;
-    if (this.filter) {
-      query = query.toLowerCase();
-      this.filteredDatas = _.filter(this.datas,
-        (doc: Return) =>
-          doc.docNum.toLowerCase().indexOf(query) >= 0 ||
-          doc.shopNum.toString() === query ||
-          doc.supplierName.toLowerCase().indexOf(query) >= 0
-      );
-    } else {
-      this.filteredDatas = this.datas;
-    }
+    this.filterDelay++;
+    setTimeout(() => {
+      if (self.filterDelay == 1) {
+        this.getDatas(this.periodFilter.start, this.periodFilter.end, this.filter, this.unreclaimed);
+        //this.doFilterData(query);
+      }
+      self.filterDelay--;
+    }, 1000);
   }
 
-  public isInRole(name: string): boolean {
-    return this._state.userInRole(name);  }
+  exportExcel(): void {
+    var wb = <Workbook>{
+      sheets: [
+        <Worksheet>{
+          name: "Возвраты",
+          data: this.datas,
+          columns: [
+            <Column>{ header: "Магазин", eval: r => r.shopNum, width: 10 },
+            <Column>{ header: "Дата накл", eval: r => new Date(r.docDate), width: 13 },
+            <Column>{ header: "№ накладной", eval: r => r.docNum, width: 13 },
+            <Column>{ header: "Поставщик", eval: r => r.supplierName, width: 40 },
+            <Column>{ header: "Сумма", eval: r => r.summ, width: 15 },
+            <Column>{ header: "Линия", eval: r => r.liniahTip, width: 20 },
+          ]
+        }
+      ]
+    };
+    this.exporter.export(wb, "returns.xlsx");
+  }
 
   public isGranted(name: string): boolean {
     return abp.auth.isGranted(name);

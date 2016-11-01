@@ -11,13 +11,15 @@ namespace Verno.Reports.Web.Modules.Print
         public string Url { get; set; }
         public string SrcWarehouse { get; set; }
         public int? SrcWhId { get; set; }
+        public int ShopNum { get; set; }
 
-        public PrintDto(int? liniah, string nomNakl, DateTime? dataNakl, string imahDok, int? srcWhId, string srcWarehouse, string url)
+        public PrintDto(int? liniah, string nomNakl, int? shopNum, DateTime? dataNakl, string imahDok, int? srcWhId, string srcWarehouse, string url)
         {
             DataNakl = dataNakl;
             ImahDok = imahDok;
             Liniah = liniah;
             NomNakl = nomNakl;
+            ShopNum = shopNum ?? 0;
             Url = url;
             SrcWhId = srcWhId;
             SrcWarehouse = srcWarehouse;
