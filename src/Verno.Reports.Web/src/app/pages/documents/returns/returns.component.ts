@@ -1,10 +1,13 @@
 ﻿import { Component, ViewEncapsulation, Input, OnInit, NgZone, ViewChild, TemplateRef, ViewContainerRef, ElementRef } from '@angular/core';
+//import { WindowViewOutletComponent, WindowViewService, WindowViewLayerService } from 'ng2-window-view';
 
 import { FilesModal } from './components/files/files.component';
 import { Return } from './returns.model';
 import { MapUtils } from 'app/utils/mapping-json';
 import { ExportToExcelService, Workbook, Worksheet, Column } from "app/theme/services";
 import { DataTable } from "app/theme/components"
+
+import { PackDownload } from './components/packDownload';
 
 import * as moment from 'moment';
 import app = abp.services.app;
@@ -13,7 +16,7 @@ import app = abp.services.app;
   selector: 'returns',
   encapsulation: ViewEncapsulation.None,
   template: require('./returns.html'),
-  providers: [ExportToExcelService]
+  providers: [ExportToExcelService/*, WindowViewService, WindowViewLayerService*/]
 })
 export class Returns implements OnInit {
   @ViewChild('editFilesTmpl') editTmpl: TemplateRef<any>;
@@ -36,7 +39,11 @@ export class Returns implements OnInit {
     'endDate': this.periodFilter.end
   };
 
-  constructor(private element: ElementRef, private exporter: ExportToExcelService) {
+  constructor(
+    private element: ElementRef,
+    private exporter: ExportToExcelService/*,
+    private windowView: WindowViewService*/
+  ) {
   }
 
   ngOnInit() {
@@ -101,6 +108,13 @@ export class Returns implements OnInit {
       ]
     };
     this.exporter.export(wb, "returns.xlsx");
+  }
+
+  public packDownload(): void {
+    //this.windowView.pushWindow(PackDownload);
+    /*this.windowView.pushBareDynamicWindow(PackDownload).then(window => {
+      window.position = { x: 600, y: 400 };
+    });*/
   }
 
   public isGranted(name: string): boolean {

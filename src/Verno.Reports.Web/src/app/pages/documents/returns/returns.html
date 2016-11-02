@@ -1,8 +1,10 @@
+<window-view-outlet></window-view-outlet>
 <div class="widgets">
     <ba-card baCardClass="with-scroll table-panel">
         <!--<data-filter>
             <period></period>
         </data-filter>-->
+
         <div class="row">
             <div class="form-inline col-xl-10 col-lg-8 col-md-6 col-xs-12">
                 <div class="form-group">
@@ -29,7 +31,7 @@
                 <div class="pull-right">
                     <!--<export-table class="col-xs-1" [table]="mf"></export-table>-->
                     <button type="button" class="btn btn-primary" (click)="exportExcel()"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Экспорт</button>
-                    <!--<button type="button" class="btn btn-primary" (click)="packDownload()"><i class="fa fa-download" aria-hidden="true"></i>Скачать</button>-->
+                    <button type="button" class="btn btn-primary" (click)="packDownload()"><i class="fa fa-download" aria-hidden="true"></i> Скачать</button>
                 </div>
             </div>
         </div>
@@ -62,23 +64,23 @@
             </tr>
             </tbody>-->
             <tbody>
-                <template ngFor let-row [ngForOf]="mf.data" let-even="even" let-odd="odd" let-rowIndex="index">
-                    <tr [mfSelectable]="row">
-                        <td><a *ngIf="row.status == 10" [tooltip]="'К документу прикреплены файлы'"><i class="fa fa-file-text" aria-hidden="true"></i></a></td>
-                        <td *ngIf="needShowShops">{{row.shopNum}}</td>
-                        <td>{{row.docDate | date: 'dd.MM.yyyy'}}</td>
-                        <td>{{row.docNum}}</td>
-                        <td>{{row.supplierName}}</td>
-                        <td>{{row.summ | number:'.2'}}</td>
-                        <td>{{row.liniahTip}}</td>
-                    </tr>
-                    <tr *ngIf="mf.activeRow == row">
-                        <td colspan="7">
-                            <!--<returns-files [rasxod]="row" (filesChanged)="onFilesChanged($event, row)"></returns-files>-->
-                            <returns-files [rasxod]="row"></returns-files>
-                        </td>
-                    </tr>
-                </template>
+            <template ngFor let-row [ngForOf]="mf.data" let-even="even" let-odd="odd" let-rowIndex="index">
+                <tr [mfSelectable]="row">
+                    <td><a *ngIf="row.status == 10" [tooltip]="'К документу прикреплены файлы'"><i class="fa fa-file-text" aria-hidden="true"></i></a></td>
+                    <td *ngIf="needShowShops">{{row.shopNum}}</td>
+                    <td>{{row.docDate | date: 'dd.MM.yyyy'}}</td>
+                    <td>{{row.docNum}}</td>
+                    <td>{{row.supplierName}}</td>
+                    <td>{{row.summ | number:'.2'}}</td>
+                    <td>{{row.liniahTip}}</td>
+                </tr>
+                <tr *ngIf="mf.activeRow == row">
+                    <td colspan="7">
+                        <!--<returns-files [rasxod]="row" (filesChanged)="onFilesChanged($event, row)"></returns-files>-->
+                        <returns-files [rasxod]="row"></returns-files>
+                    </td>
+                </tr>
+            </template>
             </tbody>
             <tfoot>
             <tr>
@@ -89,9 +91,9 @@
             </tfoot>
         </table>
         <!--<datatable class="table table-striped"
-                   [rows]="filteredDatas"
-                   [options]="options"
-                   (onRowClick)="onRowClick($event)">
+                       [rows]="filteredDatas"
+                       [options]="options"
+                       (onRowClick)="onRowClick($event)">
         </datatable>
         
         <template #editFilesTmpl let-row="row" let-value="value" let-i="index">
