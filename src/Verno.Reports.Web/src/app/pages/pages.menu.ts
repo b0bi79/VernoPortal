@@ -93,28 +93,28 @@ export const PAGES_MENU = [
           }
         ]
       },
-      {
-        path: 'components',
-        data: {
-          menu: {
-            title: 'Components',
-            icon: 'ion-gear-a',
-            selected: false,
-            expanded: false,
-            order: 250,
-          }
-        },
-        children: [
-          {
-            path: 'treeview',
-            data: {
-              menu: {
-                title: 'Tree View',
-              }
-            }
-          }
-        ]
-      },
+      //{
+      //  path: 'components',
+      //  data: {
+      //    menu: {
+      //      title: 'Components',
+      //      icon: 'ion-gear-a',
+      //      selected: false,
+      //      expanded: false,
+      //      order: 250,
+      //    }
+      //  },
+      //  children: [
+      //    {
+      //      path: 'treeview',
+      //      data: {
+      //        menu: {
+      //          title: 'Tree View',
+      //        }
+      //      }
+      //    }
+      //  ]
+      //},
       {
         path: 'charts',
         data: {
@@ -170,6 +170,14 @@ export const PAGES_MENU = [
             data: {
               menu: {
                 title: 'Icons',
+              }
+            }
+          },
+          {
+            path: 'modals',
+            data: {
+              menu: {
+                title: 'Modals',
               }
             }
           },
@@ -302,20 +310,18 @@ export const PAGES_MENU = [
         },
         children: [
           {
-            path: '',
+            path: ['/login'],
             data: {
               menu: {
-                title: 'Login',
-                url: '#/login'
+                title: 'Login'
               }
             }
           },
           {
-            path: '',
+            path: ['/register'],
             data: {
               menu: {
-                title: 'Register',
-                url: '#/register'
+                title: 'Register'
               }
             }
           }

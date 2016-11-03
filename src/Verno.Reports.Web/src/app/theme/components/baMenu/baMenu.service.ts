@@ -85,7 +85,7 @@ export class BaMenuService {
       item.route.paths = item.route.path;
     } else {
       item.route.paths = parent && parent.route && parent.route.paths ? parent.route.paths.slice(0) : ['/'];
-      item.route.paths.push(item.route.path);
+      if (!!item.route.path) item.route.paths.push(item.route.path);
     }
 
     if (object.children && object.children.length > 0) {
@@ -104,17 +104,16 @@ export class BaMenuService {
 
   protected _prepareItem(object:any):any {
     if (!object.skip) {
-
       object.target = object.target || '';
-      object.pathMatch = object.pathMatch || 'full';
+      object.pathMatch = object.pathMatch  || 'full';
       return this._selectItem(object);
     }
 
     return object;
   }
 
-  protected _selectItem(object: any): any {
-    object.selected = this._router.isActive(this._router.createUrlTree(object.route.paths), object.pathMatch !== 'full');
+  protected _selectItem(object:any):any {
+    object.selected = this._router.isActive(this._router.createUrlTree(object.route.paths), object.pathMatch === 'full');
     return object;
   }
 }

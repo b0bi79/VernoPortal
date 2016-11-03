@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule as AngularFormsModule } from '@angular/forms';
 import { NgaModule } from '../../theme/nga.module';
 import { FileUploadModule } from 'ng2-file-upload';
-import { WindowViewModule } from 'ng2-window-view';
+//import { WindowViewModule } from 'ng2-window-view';
 
 import { TooltipModule } from 'ng2-bootstrap/components/tooltip';
 import { routing } from './documents.routing';
@@ -21,7 +21,7 @@ import { FilesModal } from './returns/components/files';
     NgaModule,
     FileUploadModule,
     TooltipModule,
-    WindowViewModule,
+    //WindowViewModule,
     routing
   ],
   declarations: [

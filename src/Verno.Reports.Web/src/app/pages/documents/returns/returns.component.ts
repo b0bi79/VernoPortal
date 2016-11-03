@@ -7,7 +7,7 @@ import { MapUtils } from 'app/utils/mapping-json';
 import { ExportToExcelService, Workbook, Worksheet, Column } from "app/theme/services";
 import { DataTable } from "app/theme/components"
 
-import { PackDownload } from './components/packDownload';
+//import { PackDownload } from './components/packDownload';
 
 import * as moment from 'moment';
 import app = abp.services.app;

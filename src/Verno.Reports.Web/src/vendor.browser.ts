@@ -21,12 +21,13 @@ import 'rxjs/add/operator/mergeMap';
 
 // Web dependencies
 import 'jquery';
+import 'bootstrap-daterangepicker';
 import 'bootstrap-loader';
 import 'font-awesome-sass-loader';
 import 'lodash';
 import 'file-saver';
+import 'moment';
 
-import 'abp';
 if ('production' === ENV) {
   // Production
 } else {
