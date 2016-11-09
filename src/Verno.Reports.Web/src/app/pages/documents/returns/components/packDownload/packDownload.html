@@ -1,7 +1,22 @@
-<window-view-container [heading]="windowTitle" 
+﻿<window-view-container heading="Документы для скачивания" 
                        size="s"
-                       [floating]="true"
-                       [showBackground]="true"
-                       (close)="closeWindow()">
-    It's a window!!
+                       floating="true"
+                       showBackground="true"
+                       panelClass="card-inverse card-primary"
+                       (close)="deny()">
+    <ul>
+        <li *ngFor="let item of items" [value]="item.returnId">
+            {{item.docNum}} <i class="fa fa-times pull-right remove-item" aria-hidden="true" (click)="removeItem(item)"></i>
+        </li>
+    </ul>
+
+    <div panel-footer class="confirm-dialog-button-set" *ngIf="!progress">
+        <button class="btn btn-primary" (click)="confirm()">Скачать</button>
+        <button class="btn btn-default" (click)="deny()">Отмена</button>
+    </div>
+    
+    <div *ngIf="progress">
+        <div class="text-xs-center" id="example-caption-2">Скачивание&hellip;</div>
+        <progress class="progress progress-striped progress-info progress-animated" value="100" max="100"></progress>
+    </div>
 </window-view-container>

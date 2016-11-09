@@ -1,4 +1,4 @@
-<!--<window-view-outlet></window-view-outlet>-->
+<window-view-outlet></window-view-outlet>
 <div class="widgets">
     <ba-card baCardClass="with-scroll table-panel">
         <!--<data-filter>
@@ -6,7 +6,7 @@
         </data-filter>-->
 
         <div class="row">
-            <div class="form-inline col-xl-10 col-lg-8 col-md-6 col-xs-12">
+            <div class="form-inline col-xl-9 col-lg-8 col-md-6 col-xs-12">
                 <div class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-filter fa-fw"></i></span>
@@ -27,15 +27,19 @@
                     <!--<input [ngModel]="unreclaimed" (ngModelChange)="unreclaimedChanged($event)" type="checkbox" class="form-control"> Только необработанные-->
                 </div>
             </div>
-            <div class="col-xl-2 col-lg-4 col-md-6 col-xs-12">
+            <div class="col-xl-3 col-lg-4 col-md-6 col-xs-12">
                 <div class="pull-right">
                     <!--<export-table class="col-xs-1" [table]="mf"></export-table>-->
                     <button type="button" class="btn btn-primary" (click)="exportExcel()"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Экспорт</button>
-                    <button type="button" class="btn btn-primary" (click)="packDownload()"><i class="fa fa-download" aria-hidden="true"></i> Скачать</button>
+                    <button type="button" class="btn btn-primary" [attr.disabled]="isDownloadMode ? true : null" 
+                            *ngIf="isGranted('Documents.Returns.GetFile')"
+                            (click)="packDownload($event)">
+                        <i class="fa fa-download" aria-hidden="true"></i> Скачать
+                    </button>
                 </div>
             </div>
         </div>
-        <table class="table table-striped" [mfData]="datas" #mf="mfDataTable" [mfRowsOnPage]="15">
+        <table class="table table-striped" [mfData]="datas" #mf="mfDataTable" [mfRowsOnPage]="25">
             <thead>
             <tr>
                 <th></th>
@@ -47,25 +51,9 @@
                 <th><mfDefaultSorter by="liniahTip">Линия</mfDefaultSorter></th>
             </tr>
             </thead>
-            <!--<tbody *ngFor="let row of mf.data">
-            $1$<tr *ngFor="let row of mf.data | printFilter:filter">#1#
-            <tr [mfSelectable]="row" >
-                <td>{{row.docDate | date: 'dd.MM.yyyy'}}</td>
-                <td>{{row.docNum}}</td>
-                <td>{{row.supplierName}}</td>
-                <td>{{row.summ | number:'.2'}}</td>
-                <td>{{row.liniahTip}}</td>
-                <td><button (click)="showFiles(row)" class="btn btn-default">Файлы</button></td>
-            </tr>
-            <tr *ngIf="mf.activeRow == row">
-                <td colspan="6">
-                    <returns-files ></returns-files>
-                </td>
-            </tr>
-            </tbody>-->
             <tbody>
             <template ngFor let-row [ngForOf]="mf.data" let-even="even" let-odd="odd" let-rowIndex="index">
-                <tr [mfSelectable]="row">
+                <tr [mfSelectable]="row" (click)="onRowClick(row)" [class.to-download]="isInDownloadItems(row)">
                     <td><a *ngIf="row.status == 10" [tooltip]="'К документу прикреплены файлы'"><i class="fa fa-file-text" aria-hidden="true"></i></a></td>
                     <td *ngIf="needShowShops">{{row.shopNum}}</td>
                     <td>{{row.docDate | date: 'dd.MM.yyyy'}}</td>
@@ -74,9 +62,8 @@
                     <td>{{row.summ | number:'.2'}}</td>
                     <td>{{row.liniahTip}}</td>
                 </tr>
-                <tr *ngIf="mf.activeRow == row">
+                <tr *ngIf="mf.activeRow == row && !isDownloadMode">
                     <td colspan="7">
-                        <!--<returns-files [rasxod]="row" (filesChanged)="onFilesChanged($event, row)"></returns-files>-->
                         <returns-files [rasxod]="row"></returns-files>
                     </td>
                 </tr>
@@ -90,14 +77,5 @@
             </tr>
             </tfoot>
         </table>
-        <!--<datatable class="table table-striped"
-                       [rows]="filteredDatas"
-                       [options]="options"
-                       (onRowClick)="onRowClick($event)">
-        </datatable>
-        
-        <template #editFilesTmpl let-row="row" let-value="value" let-i="index">
-            <button (click)="showFiles(row)" class="btn btn-default">Файлы</button>
-        </template>-->
     </ba-card>
 </div>

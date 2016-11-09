@@ -34,7 +34,8 @@
     "Abp.Owin": "1.0.0",
     "Abp.RedisCache": "1.0.0",
     "Abp.Web.SignalR": "1.0.0",
-    "Verno.Web": "1.0.0.0-*"
+    "Verno.Web": "1.0.0.0-*",
+    "System.IO.Compression.ZipFile": "4.0.1"
   },
 
   "tools": {

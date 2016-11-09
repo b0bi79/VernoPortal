@@ -1,28 +1,57 @@
 ﻿import { Component, ViewEncapsulation, ViewChild } from '@angular/core';
+import { Subject } from 'rxjs/Subject';
+import { Observable } from 'rxjs/Observable';
+
 import { WindowViewContainerComponent, WindowViewService } from 'ng2-window-view';
+
+import { Return } from '../../returns.model';
 
 @Component({
   selector: 'pack-download',
   encapsulation: ViewEncapsulation.None,
-  template: require('./packDownload.html')
+  template: require('./packDownload.html'),
+  styles: [`
+pack-download .card { background: rgb(0, 126, 195); }
+.remove-item { cursor: pointer; }
+pack-download li { list-style-type: none; }
+`]
 })
 export class PackDownload {
-  windowTitle: string = 'Title here!';
   @ViewChild(WindowViewContainerComponent)
   windowViewContainer: WindowViewContainerComponent;
+  private progress: boolean;
+
+  public items: Return[];
+
+  private _result$: Subject<boolean> = new Subject<boolean>();
+  get result$(): Observable<boolean> { return this._result$.asObservable(); }
 
   constructor(private windowView: WindowViewService) {
-    
   }
 
   get position(): { x: number, y: number } { return this.windowViewContainer.position; }
   set position(value: { x: number, y: number }) { this.windowViewContainer.position = value; }
 
-  closeWindow() {
-    /**
-     * Because order of closing window no longer stable.
-     * We have remove window with specific target.
-     */
+  confirm() {
+    this._result$.next(true);
+  }
+
+  deny() {
+    this._result$.next(false);
+  }
+
+  close() {
     this.windowView.removeByInstance(this);
+    this._result$.complete();
+  }
+
+  showProgress() {
+    this.progress = true;
+  }
+
+  private removeItem(item: Return): void {
+    var idx = this.items.indexOf(item);
+    if (idx >= 0)
+      this.items.splice(idx, 1);
   }
 }

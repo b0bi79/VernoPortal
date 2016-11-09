@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Application.Services.Dto;
@@ -18,6 +19,7 @@ using Abp.AutoMapper;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.Runtime.Validation;
+using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Verno.Configuration;
@@ -131,6 +133,37 @@ namespace Verno.Reports.Web.Modules.Returns
                 }
             }
             return new NotFoundResult();
+        }
+
+        [HttpGet]
+        [Route("files/pack")]
+        [UnitOfWork(isTransactional: false)]
+        [AbpAuthorize(ReturnsPermissionNames.Documents_Returns_GetFile)]
+        public async Task<FileStreamResult> ReturnFiles(int[] returnIds)
+        {
+            var stream = new MemoryStream();
+            try
+            {
+                var zip = new ZipArchive(stream, ZipArchiveMode.Create, true);
+                foreach (var returnId in returnIds)
+                {
+                    var rfiles = await _filesRepository.GetAll().Where(x => !x.Deleted && x.ReturnId == returnId).ToListAsync();
+                    foreach (var file in rfiles)
+                    {
+                        var filepath = Path.Combine(ServPath, file.SavedName);
+                        if (System.IO.File.Exists(filepath))
+                            zip.CreateEntryFromFile(filepath, file.FileName);
+                    }
+                }
+                await stream.FlushAsync();
+                stream.Position = 0;
+                return new FileStreamResult(stream, "application/zip") {FileDownloadName = "Документы возврат.zip"};
+            }
+            catch
+            {
+                stream.Dispose();
+                throw;
+            }
         }
 
         [HttpDelete]

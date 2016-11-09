@@ -1,6 +1,10 @@
 ﻿import * as moment from 'moment';import { JsonProperty } from "app/utils/mapping-json";
 
-export class Return implements abp.services.app.IReturnDto {
+export interface ReturnDto extends abp.services.app.IReturnDto {
+}
+export interface ReturnFileDto extends abp.services.app.IReturnFileDto {
+}
+export class Return implements ReturnDto {
   id: number = undefined;
   shopNum: number = undefined;
   docDate: Date = undefined;

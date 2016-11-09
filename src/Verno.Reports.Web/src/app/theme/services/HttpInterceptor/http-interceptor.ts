@@ -1,18 +1,20 @@
-import { Http, Request, RequestOptionsArgs, Response, ResponseOptions, XHRBackend, RequestOptions, ConnectionBackend, Headers } from '@angular/http';
+import { Http, Request, RequestOptionsArgs, Response, RequestOptions, ConnectionBackend, Headers } from '@angular/http';
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { LocationStrategy, HashLocationStrategy } from '@angular/common';
-import { Observable, Subscribable } from 'rxjs/Observable';
-import * as _ from 'lodash'
-
-import { MyApp } from './app/my-app';
-import "app/utils"
+import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class AbpHttp extends Http {
+  public userOptions: {
+    abpHandleError: boolean,
+    error?: (sender: AbpHttp, args: any) => any,
+    success?: (result, data, response: Response) => any,
+  };
 
-  constructor(backend: ConnectionBackend, defaultOptions: RequestOptions, private _router: Router) {
+  constructor(backend: ConnectionBackend, defaultOptions: RequestOptions) {
     super(backend, defaultOptions);
+    this.userOptions = {
+      abpHandleError: true
+    }
   }
 
   request(url: string | Request, options?: RequestOptionsArgs): Observable<Response> {
@@ -46,56 +48,42 @@ export class AbpHttp extends Http {
     return options;
   }
 
-  intercept(observable: Observable<Response>): Observable<Response> {
+  intercept(observable: Observable<Response>): Observable<any> {
     return observable
-        .do((x: Response) => {
-            var data = x.json();
-            if (!data || !data.__abp) {
-              //Non ABP related return value
-              return x;
-            }
-            return this.handleResponse(x);
-          },
-          err => {
+      .flatMap(response => {
+          var data = response.json();
+          if (data && data.__abp) {
+            return Observable.fromPromise(this.handleResponse(data, response));
+          } else {
+            return Observable.fromPromise(new Promise((resolve) => resolve((<any>response)._body)));
+          }
+        })
+        /*.catch((err) => {
             if (!err.data || !err.data.__abp) {
-              this.handleNonAbpErrorResponse(err);
+              return Observable.fromPromise(this.raiseErrorResponse(err));
             } else {
-              this.handleResponse(err);
+              return Observable.fromPromise(this.handleResponse(err));
             }
           }
-        )
-      /*.catch<Response>((err, source) => {
-        if (!err.data || !err.data.__abp) {
-          return this.handleNonAbpErrorResponse(err, source);
-        } else {
-          return this.handleResponse(err, source);
-        }
-
-        /*if (err.status == 401 && !_.endsWith(err.url, 'api/auth/login')) {
-          this._router.navigate(['/login']);
-          return Observable.empty();
-        } else {
-          return Observable.throw(err);
-        }#1#
-      })*/;
+        )*/;
   }
 
   defaultError: {
-    message: 'An error has occurred!',
-    details: 'Error detail not sent by server.';
-  };
+    message: 'Произошла ошибка!',
+    details: 'Информация об ошибке сервером не была предоставлена.',
+  }
   defaultError401: {
-    message: 'You are not authenticated!',
-    details: 'You should be authenticated (sign in) in order to perform this operation.';
-  };
+    message: 'Вы не авторизованы!',
+    details: 'Вы должны пройти проверку подлинности (войти) для того, чтобы выполнить эту операцию.'
+  }
   defaultError403: {
-    message: 'You are not authorized!',
-    details: 'You are not allowed to perform this operation.';
-  };
+    message: 'Вы не авторизованы!',
+    details: 'Вы не можете выполнить эту операцию.'
+  }
   defaultError404: {
-    message: 'Resource not found!',
-    details: 'The resource requested could not found on the server.';
-  };
+    message: 'Ресурсы не найдены!',
+    details: 'Запрошенный ресурс не найден на сервере.'
+  }
 
   logError(error: string): void {
     abp.log.error(error);
@@ -105,7 +93,7 @@ export class AbpHttp extends Http {
     if (error.details) {
       return this.toPromise(abp.message.error(error.details, error.message || this.defaultError.message));
     } else {
-      return this.toPromise(abp.message.error(error.message || this.defaultError.message, ""));
+      return this.toPromise(abp.message.error("", error.message || this.defaultError.message));
     }
   }
 
@@ -123,76 +111,76 @@ export class AbpHttp extends Http {
     }
   }
 
-  handleNonAbpErrorResponse(response: any): void {
-    if (response.config.abpHandleError !== false) {
-      switch (response.status) {
-        case 401:
-          this.handleUnAuthorizedRequest(
-            this.showError(this.defaultError401),
-            abp.appPath
-          );
-          break;
-        case 403:
-          this.showError(this.defaultError403);
-          break;
-        case 404:
-          this.showError(this.defaultError404);
-          break;
-        default:
-          this.showError(this.defaultError);
-          break;
+  raiseErrorResponse(response: Response): Promise<any> {
+    return new Promise((resolve, reject) => {
+      if (this.userOptions.abpHandleError !== false) {
+        switch (response.status) {
+          case 401:
+            this.handleUnAuthorizedRequest(this.showError(this.defaultError401), abp.appPath);
+            break;
+          case 403:
+            this.showError(this.defaultError403);
+            break;
+          case 404:
+            this.showError(this.defaultError404);
+            break;
+          default:
+            this.showError(this.defaultError);
+            break;
+        }
       }
-    }
+      reject.apply(this, response);
+      this.userOptions.error && this.userOptions.error(this, response);
+    });
   }
 
   handleUnAuthorizedRequest(messagePromise: Promise<void>, targetUrl: string): void {
     if (messagePromise) {
       messagePromise.then(() => {
-        this.handleTargetUrl(targetUrl || abp.appPath);
+        this.handleTargetUrl(targetUrl);
       });
     } else {
-      this.handleTargetUrl(targetUrl || abp.appPath);
+      this.handleTargetUrl(targetUrl);
     }
   }
 
-  handleResponse(response: Response): void {
-/*    var originalData = response.json();
+  handleResponse(data: any, response: Response): Promise<any> {
+    return new Promise((resolve, reject) => {
+      if (data) {
+        if (data.success === true) {
+          resolve(data.result);
+          this.userOptions.success && this.userOptions.success(data.result, data, response);
 
-    if (originalData.success === true) {
-      var r = new Response(new ResponseOptions({
-        body: originalData.result,
-        status: response.status,
-        statusText: response.statusText,
-        headers: response.headers,
-        type: response.type,
-        url: response.url
-      }));
-      Observable.resolve(response);
+          if (data.targetUrl) {
+            this.handleTargetUrl(data.targetUrl);
+          }
+        } else if (data.success === false) {
+          var messagePromise = null;
 
-      if (originalData.targetUrl) {
-        this.handleTargetUrl(originalData.targetUrl);
-      }
-    } else if (originalData.success === false) {
-      var messagePromise = null;
+          if (data.error) {
+            if (this.userOptions.abpHandleError !== false) {
+              messagePromise = this.showError(data.error);
+            }
+          } else {
+            data.error = this.defaultError;
+          }
 
-      if (originalData.error) {
-        if (response.config.abpHandleError !== false) {
-          messagePromise = this.showError(originalData.error);
+          this.logError(data.error);
+
+          reject(data.error);
+          this.userOptions.error && this.userOptions.error(this, data.error);
+
+          if (response.status === 401 && this.userOptions.abpHandleError !== false) {
+            this.handleUnAuthorizedRequest(messagePromise, data.targetUrl);
+          }
+        } else { //not wrapped result
+          resolve(data);
+          this.userOptions.success && this.userOptions.success(data, null, response);
         }
-      } else {
-        originalData.error = this.defaultError;
+      } else { //no data sent to back
+        resolve(response);
+        this.userOptions.success && this.userOptions.success(null, null, response);
       }
-
-      this.logError(originalData.error);
-
-      response.data = originalData.error;
-      Observable.throw(response);
-
-      if (response.status == 401 && response.config.abpHandleError !== false) {
-        this.handleUnAuthorizedRequest(messagePromise, originalData.targetUrl);
-      }
-    } else { //not wrapped result
-      defer.resolve(response);
-    }*/
+    });
   }
 }

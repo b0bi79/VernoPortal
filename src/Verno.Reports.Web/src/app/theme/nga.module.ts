@@ -1,5 +1,6 @@
-import { NgModule, ModuleWithProviders  }      from '@angular/core';
-import { CommonModule }  from '@angular/common';
+import { NgModule, ModuleWithProviders } from '@angular/core';
+//import { RequestOptions, XHRBackend } from '@angular/http';
+import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
@@ -34,7 +35,7 @@ import {
   FileDownloader,
   ExportTable,
   SearchableDropdownComponent,
-  BootstrapPaginator, 
+  BootstrapPaginator,
   DataTable,
   DefaultSorter,
   Paginator,
@@ -62,7 +63,8 @@ import {
   BaImageLoaderService,
   BaThemePreloader,
   BaThemeSpinner,
-  ExportToExcelService
+  ExportToExcelService,
+//  AbpHttp
 } from './services';
 
 import {
@@ -91,7 +93,7 @@ const NGA_COMPONENTS = [
   FileDownloader,
   ExportTable,
   SearchableDropdownComponent,
-  BootstrapPaginator, 
+  BootstrapPaginator,
   DataTable,
   DefaultSorter,
   Paginator,
@@ -120,7 +122,14 @@ const NGA_SERVICES = [
   BaImageLoaderService,
   BaThemePreloader,
   BaThemeSpinner,
-  ExportToExcelService
+  ExportToExcelService,
+  /*{
+    provide: AbpHttp,
+    useFactory: (backend: XHRBackend, options: RequestOptions) => {
+      return new AbpHttp(backend, options);
+    },
+    deps: [XHRBackend, RequestOptions]
+  }*/
 ];
 
 const NGA_VALIDATORS = [
@@ -128,8 +137,8 @@ const NGA_VALIDATORS = [
 ];
 
 const THIRD_PARTY_MODULES = [
-    ModalModule,
-    DropdownModule,
+  ModalModule,
+  DropdownModule,
 ];
 
 @NgModule({
@@ -143,7 +152,7 @@ const THIRD_PARTY_MODULES = [
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
-    ...THIRD_PARTY_MODULES
+  ...THIRD_PARTY_MODULES
   ],
   exports: [
     ...NGA_PIPES,
@@ -153,7 +162,7 @@ const THIRD_PARTY_MODULES = [
 })
 export class NgaModule {
   static forRoot(): ModuleWithProviders {
-    return <ModuleWithProviders> {
+    return <ModuleWithProviders>{
       ngModule: NgaModule,
       providers: [
         BaThemeConfigProvider,

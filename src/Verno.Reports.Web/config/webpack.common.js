@@ -294,9 +294,9 @@ module.exports = function (options) {
        *
        * See: https://github.com/numical/script-ext-html-webpack-plugin
        */
-      new ScriptExtHtmlWebpackPlugin({
+      /*new ScriptExtHtmlWebpackPlugin({
         defaultAttribute: 'defer'
-      }),
+      }),*/
 
       /*
        * Plugin: HtmlHeadConfigPlugin

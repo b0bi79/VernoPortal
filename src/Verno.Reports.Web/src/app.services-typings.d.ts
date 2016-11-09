@@ -19,6 +19,7 @@
     static getFilesList(rasxod: number, httpParams?: any): abp.IGenericPromise<List<IReturnFileDto>>;
     static uploadFile(rasxod: number, file: any, httpParams?: any): abp.IGenericPromise<IReturnFileDto>;
     static deleteFile(fileId: number, httpParams?: any): abp.IGenericPromise<IReturnFileDto>;
+    static returnFiles(returnIds: number[], httpParams?: any): abp.IGenericPromise<Blob>;
   }
 
   interface IReturnDto {
@@ -159,18 +160,54 @@ declare module abp {
     static getBoolean(name: string): boolean;
     static getInt(name: string): number;
   }
+  class utils {
+    /* Find and replaces a string (search) to another string (replacement) in
+    *  given string (str).
+    *  Example:
+    *  replaceAll('This is a test string', 'is', 'X') = 'ThX X a test string'
+    ************************************************************/
+    static replaceAll(str: string, search: string, replacement: string): string;
+
+    /* Formats a string just like string.format in C#.
+    *  Example:
+    *  formatString('Hello {0}','Tuana') = 'Hello Tuana'
+    ************************************************************/
+    static formatString(format: string, ...args: any[]): string;
+    
+    /**
+     * parameterInfos should be an array of { name, value } objects
+     * where name is query string parameter name and value is it's value.
+     * includeQuestionMark is true by default.
+     */
+    static buildQueryString(parameterInfos: {name:string, value: any}[], includeQuestionMark?: boolean): string;
+
+    /**
+     * Sets a cookie value for given key.
+     * @param {string} key
+     * @param {string} value 
+     * @param {Date} expireDate Optional expire date (default: 30 days).
+     */
+    static setCookieValue(key: string, value: string, expireDate?: Date): void;
+
+    /**
+     * Gets a cookie with given key.
+     * @param {string} key
+     * @returns {string} Cookie value
+     */
+    static getCookieValue(key: string): string;
+  }
   class message {
-    static info(message: string, title: string);
-    static success(message: string, title: string);
-    static warn(message: string, title: string);
-    static error(message: string, title: string);
-    static confirm(message: string, title: string, callback: (isConfirmed: number) => any);
+    static info(message: string, title: string): IPromise;
+    static success(message: string, title: string): IPromise;
+    static warn(message: string, title: string): IPromise;
+    static error(message: string, title: string): IPromise;
+    static confirm(message: string, title: string, callback: (isConfirmed: number) => any): IGenericPromise<number>;
   }
   class notify {
-    static info(message: string, title?: string);
-    static success(message: string, title?: string);
-    static warn(message: string, title?: string);
-    static error(message: string, title?: string);
+    static info(message: string, title?: string): void;
+    static success(message: string, title?: string): void;
+    static warn(message: string, title?: string): void;
+    static error(message: string, title?: string): void;
   }
   class localization {
     static languages: any;

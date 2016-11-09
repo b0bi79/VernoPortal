@@ -2,9 +2,8 @@
 
 import { FileUploader } from 'ng2-file-upload';
 import { FileType } from 'ng2-file-upload/components/file-upload/file-type.class';
-import { Return } from './../../returns.model'
-
-import app = abp.services.app;
+import { Return, ReturnFileDto } from '../../returns.model'
+import { ReturnsService } from '../../returns.service';
 
 /**
  * A Sample of how simple it is to create a new window, with its own injects.
@@ -13,15 +12,16 @@ import app = abp.services.app;
   selector: 'returns-files',
   encapsulation: ViewEncapsulation.None,
   styles: [require('./files.scss')],
+  providers: [ReturnsService],
   template: require('./files.html')
 })
 export class FilesModal {
   private _return: Return;
   public uploader: FileUploader;
   public hasDropZoneOver: boolean = false;
-  public files: app.IReturnFileDto[] = [];
+  public files: ReturnFileDto[] = [];
 
-  constructor(private element: ElementRef) {
+  constructor(private element: ElementRef, private returnsSvc: ReturnsService) {
     this.uploader = new FileUploader({
       allowedMimeType: [...FileType.mime_doc, ...FileType.mime_xsl, "application/pdf", "application/image"],
       autoUpload: false,
@@ -54,12 +54,12 @@ export class FilesModal {
     this.uploader.uploadAll();
   }
 
-  private fileDelete(file: app.IReturnFileDto): void {
+  private fileDelete(file: ReturnFileDto): void {
     var self = this;
     abp.message.confirm('Файл будет удалён.', 'Вы уверены?',
       isConfirmed => {
         if (isConfirmed) {
-          app.returns.deleteFile(file.id).done(file => {
+          this.returnsSvc.deleteFile(file.id).then(file => {
             self.files = self.files.filter(x => x.id !== file.id);
             this._return.files = this.files;
           });
@@ -86,8 +86,8 @@ export class FilesModal {
     abp.ui.setBusy(jQuery('.fileupload-buttonbar', this.element.nativeElement),
       {
         blockUI: true,
-        promise: app.returns.getFilesList(this._return.id)
-          .done(list => {
+        promise: this.returnsSvc.getFilesList(this._return.id)
+          .then(list => {
             this.files = list.items;
             this._return.files = this.files;
           })

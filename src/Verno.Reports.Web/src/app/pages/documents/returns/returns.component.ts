@@ -1,5 +1,7 @@
 ﻿import { Component, ViewEncapsulation, Input, OnInit, NgZone, ViewChild, TemplateRef, ViewContainerRef, ElementRef } from '@angular/core';
-//import { WindowViewOutletComponent, WindowViewService, WindowViewLayerService } from 'ng2-window-view';
+import { CommonModule } from '@angular/common';
+import { WindowViewOutletComponent, WindowViewService, WindowViewLayerService } from 'ng2-window-view';
+import { Subscription } from 'rxjs/Subscription';
 
 import { FilesModal } from './components/files/files.component';
 import { Return } from './returns.model';
@@ -7,16 +9,23 @@ import { MapUtils } from 'app/utils/mapping-json';
 import { ExportToExcelService, Workbook, Worksheet, Column } from "app/theme/services";
 import { DataTable } from "app/theme/components"
 
-//import { PackDownload } from './components/packDownload';
+import { PackDownload } from './components/packDownload';
+import { ReturnsService } from './returns.service';
 
 import * as moment from 'moment';
-import app = abp.services.app;
+let saver = require("file-saver");
 
 @Component({
   selector: 'returns',
   encapsulation: ViewEncapsulation.None,
   template: require('./returns.html'),
-  providers: [ExportToExcelService/*, WindowViewService, WindowViewLayerService*/]
+  styles: [`
+    .table > tbody > tr.to-download{
+      border: 1px dashed brown;
+      background-color: #FFC107 !important;
+    }
+  `],
+  providers: [ReturnsService, ExportToExcelService, WindowViewService, WindowViewLayerService]
 })
 export class Returns implements OnInit {
   @ViewChild('editFilesTmpl') editTmpl: TemplateRef<any>;
@@ -29,6 +38,7 @@ export class Returns implements OnInit {
   private selectedRow: Return;
   private needShowShops: boolean;
   private filterDelay: number = 0;
+  private downloadItems: Return[];
 
   pickerOptions: Object = {
     'showDropdowns': true,
@@ -41,8 +51,9 @@ export class Returns implements OnInit {
 
   constructor(
     private element: ElementRef,
-    private exporter: ExportToExcelService/*,
-    private windowView: WindowViewService*/
+    private exporter: ExportToExcelService,
+    private returnsSvc: ReturnsService,
+    private windowView: WindowViewService
   ) {
   }
 
@@ -55,8 +66,8 @@ export class Returns implements OnInit {
     abp.ui.setBusy(jQuery('.card', this.element.nativeElement),
     {
       blockUI: true,
-      promise: app.returns.getList(dfrom.format("YYYY-MM-DD"), dto.format("YYYY-MM-DD"), filter, unreclaimed)
-        .done(result => {
+      promise: this.returnsSvc.getList(dfrom.format("YYYY-MM-DD"), dto.format("YYYY-MM-DD"), filter, unreclaimed)
+        .then(result => {
           self.datas = result.items.map(x => MapUtils.deserialize(Return, x));
           if (self.datas.length) {
             var firstShop = self.datas[0].shopNum;
@@ -110,11 +121,54 @@ export class Returns implements OnInit {
     this.exporter.export(wb, "returns.xlsx");
   }
 
-  public packDownload(): void {
-    //this.windowView.pushWindow(PackDownload);
-    /*this.windowView.pushBareDynamicWindow(PackDownload).then(window => {
-      window.position = { x: 600, y: 400 };
-    });*/
+  public packDownload(e): void {
+    var self = this;
+    this.downloadItems = [];
+    this.windowView.pushBareDynamicWindow(PackDownload, { imports: [CommonModule] }).then(window => {
+      window.position = { x: e.x-300, y: e.y+50 };
+      window.items = self.downloadItems;
+      let waitResult: Subscription = window.result$.subscribe(
+        ok => { // result
+          if (ok) {
+            window.showProgress();
+            self.returnsSvc.downloadPack(self.downloadItems.map(x => x.returnId))
+              .then(blob => {
+                saver.saveAs(blob, 'returnspack.zip');
+                window.close();
+              })
+              .catch(error => { window.close(); });
+          } else
+            window.close();
+        }, 
+        () => {}, // error
+        () => { //complete
+          self.downloadItems = undefined;
+          waitResult.unsubscribe();
+        }
+      );
+    });
+  }
+
+  private get isDownloadMode(): boolean {
+    return !!this.downloadItems;
+  }
+
+  private onRowClick(row: Return): void {
+    if (this.isDownloadMode) {
+      var idx = this.downloadItems.indexOf(row);
+      if (idx >= 0)
+        this.downloadItems.splice(idx, 1);
+      else {
+        if (row.status < 10)
+          abp.message.warn("К возврату не прикреплено ни одного файла.", "Нет файлов");
+        else
+          this.downloadItems.push(row);
+      }
+    }
+  }
+
+  private isInDownloadItems(row): boolean {
+    return this.isDownloadMode && this.downloadItems.indexOf(row) >= 0;
   }
 
   public isGranted(name: string): boolean {
