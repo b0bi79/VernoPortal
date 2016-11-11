@@ -20,16 +20,16 @@ const WebpackMd5Hash = require('webpack-md5-hash');
 const ENV = process.env.NODE_ENV = process.env.ENV = 'production';
 const HOST = process.env.HOST || 'localhost';
 const PORT = process.env.PORT || 8080;
-const METADATA = webpackMerge(commonConfig({env: ENV}).metadata, {
+const METADATA = {
   host: HOST,
   port: PORT,
   ENV: ENV,
   HMR: false,
   baseUrl: '/VernoPortal/'
-});
+};
 
 module.exports = function (env) {
-  return webpackMerge(commonConfig({env: ENV}), {
+  return webpackMerge(commonConfig({env: ENV, metadata: METADATA}), {
 
     /**
      * Developer tool to enhance debugging

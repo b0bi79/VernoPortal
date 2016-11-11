@@ -7,19 +7,25 @@
 
         <div class="row">
             <div class="form-inline col-xl-9 col-lg-8 col-md-6 col-xs-12">
-                <div class="form-group">
+                <div id="shopNum-filter" class="form-group" *ngIf="needShowShops">
                     <div class="input-group">
-                        <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-filter fa-fw"></i></span>
-                        <input [ngModel]="filter" (ngModelChange)="filterData($event)" type="text" class="form-control" placeholder="Поиск...">
+                        <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-hashtag fa-fw"></i></span>
+                        <input [ngModel]="shopNum" (ngModelChange)="filterShopNum($event)" type="text" class="form-control" placeholder="Магазин ...">
                     </div>
                 </div>
-                <div class="form-group">
+                <div id="date-range-filter" class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-calendar fa-fw"></i></span>
                         <input daterangepicker
                                (selected)="dateSelected($event)"
                                [options]="pickerOptions" type="submit"
                                class="form-control btn btn-success" />
+                    </div>
+                </div>
+                <div id="text-filter" class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-filter fa-fw"></i></span>
+                        <input [ngModel]="filter" (ngModelChange)="filterData($event)" type="text" class="form-control" placeholder="Поставщик или № накладной ...">
                     </div>
                 </div>
                 <div class="form-group" style="margin: 0 16px 16px;">

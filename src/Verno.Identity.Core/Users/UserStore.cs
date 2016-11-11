@@ -17,16 +17,13 @@ namespace Verno.Identity.Users
     public class UserStore : UserStore<User, Role, Data.IdentityDbContext, int, UserClaim, UserRole, 
         IdentityUserLogin<int>, IdentityUserToken<int>>, ITransientDependency, IDisposable, IUserPermissionStore
     {
-        private readonly string _currApplication;
-
         private DbSet<UserClaim> UserClaims => Context.UserClaims;
         private DbSet<UserRole> UserRoles => Context.UserRoles;
         private DbSet<Role> Roles => Context.Roles;
         private DbSet<UserPermissionSetting> UserPermissionSettings => Context.UserPermissions;
 
-        public UserStore(string application, Data.IdentityDbContext context, IdentityErrorDescriber describer = null) : base(context, describer)
+        public UserStore(Data.IdentityDbContext context, IdentityErrorDescriber describer = null) : base(context, describer)
         {
-            _currApplication = application;
         }
 
         protected override UserRole CreateUserRole(User user, Role role)
@@ -44,7 +41,7 @@ namespace Verno.Identity.Users
             var userClaim = new UserClaim
             {
                 UserId = user.Id,
-                Application = isGlobal ? null : _currApplication,
+                Application = isGlobal ? null : IdentityModule.ApplicationName,
             };
             userClaim.InitializeFromClaim(claim);
             return userClaim;
@@ -79,7 +76,7 @@ namespace Verno.Identity.Users
                 throw new ArgumentNullException(nameof(user));
 
             return await UserClaims
-                .Where(uc => uc.UserId == user.Id && (uc.Application == _currApplication || uc.Application == null))
+                .Where(uc => uc.UserId == user.Id && (uc.Application == IdentityModule.ApplicationName || uc.Application == null))
                 .Select(c => c.ToClaim())
                 .ToListAsync(cancellationToken);
         }
@@ -128,13 +125,13 @@ namespace Verno.Identity.Users
         private Expression<Func<UserClaim, bool>> GetClaimPredicate(User user, Claim claim)
         {
             return uc => uc.UserId.Equals(user.Id) && uc.ClaimValue == claim.Value && uc.ClaimType == claim.Type
-                         && (uc.Application == _currApplication || uc.Application == null);
+                         && (uc.Application == IdentityModule.ApplicationName || uc.Application == null);
         }
 
         private async Task<Role> GetRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
         {
             return await Roles.SingleOrDefaultAsync(r => r.NormalizedName == normalizedRoleName
-                                                         && (r.Application == _currApplication || r.Application == null), cancellationToken);
+                                                         && (r.Application == IdentityModule.ApplicationName || r.Application == null), cancellationToken);
         }
 
         public async Task<IList<string>> GetRolesAsync(int userId, CancellationToken cancellationToken = default(CancellationToken))
@@ -144,7 +141,7 @@ namespace Verno.Identity.Users
 
             var query = from userRole in UserRoles
                         join role in Roles on userRole.RoleId equals role.Id
-                        where userRole.UserId == userId && (role.Application == _currApplication || role.Application == null)
+                        where userRole.UserId == userId && (role.Application == IdentityModule.ApplicationName || role.Application == null)
                         select role.Name;
             return await query.ToListAsync(cancellationToken);
         }

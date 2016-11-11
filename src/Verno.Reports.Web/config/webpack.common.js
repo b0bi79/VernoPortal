@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
+const webpackMerge = require('webpack-merge'); // used to merge webpack configs
 const helpers = require('./helpers');
 
 /*
@@ -22,8 +23,9 @@ const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
  */
 const HMR = helpers.hasProcessFlag('hot');
 const METADATA = {
-    title: 'Верный',
-    isDevServer: helpers.isWebpackDevServer()
+  title: 'Верный',
+  isDevServer: helpers.isWebpackDevServer(),
+  baseUrl: ''
 };
 
 var InitialCssPlugin = new ExtractTextPlugin({ filename: 'initial.css', allChunks: true });
@@ -36,6 +38,7 @@ var LoginCssPlugin = new ExtractTextPlugin({ filename: 'login.css', allChunks: t
  */
 module.exports = function (options) {
   isProd = options.env === 'production';
+  var metadata = webpackMerge(METADATA, options.metadata);
   return {
 
     /*
@@ -281,9 +284,9 @@ module.exports = function (options) {
        */
       new HtmlWebpackPlugin({
         template: 'src/index.html',
-        title: METADATA.title,
+        title: metadata.title,
         chunksSortMode: 'dependency',
-        metadata: METADATA,
+        metadata: metadata,
         inject: 'head'
       }),
 

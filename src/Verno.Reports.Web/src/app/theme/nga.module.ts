@@ -1,5 +1,5 @@
 import { NgModule, ModuleWithProviders } from '@angular/core';
-//import { RequestOptions, XHRBackend } from '@angular/http';
+import { RequestOptions, XHRBackend } from '@angular/http';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -64,7 +64,7 @@ import {
   BaThemePreloader,
   BaThemeSpinner,
   ExportToExcelService,
-//  AbpHttp
+  AbpHttp
 } from './services';
 
 import {
@@ -123,13 +123,13 @@ const NGA_SERVICES = [
   BaThemePreloader,
   BaThemeSpinner,
   ExportToExcelService,
-  /*{
+  {
     provide: AbpHttp,
     useFactory: (backend: XHRBackend, options: RequestOptions) => {
       return new AbpHttp(backend, options);
     },
     deps: [XHRBackend, RequestOptions]
-  }*/
+  }
 ];
 
 const NGA_VALIDATORS = [

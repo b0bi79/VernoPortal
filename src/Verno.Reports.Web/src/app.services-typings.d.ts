@@ -15,7 +15,7 @@
   }
 
   class returns {
-    static getList(dfrom: string, dto: string, filter: string, unreclaimedOnly: boolean, httpParams?: any): abp.IGenericPromise<List<IReturnDto>>;
+    static getList(dfrom: string, dto: string, filter: string, unreclaimedOnly: boolean, shopNum: number, httpParams?: any): abp.IGenericPromise<List<IReturnDto>>;
     static getFilesList(rasxod: number, httpParams?: any): abp.IGenericPromise<List<IReturnFileDto>>;
     static uploadFile(rasxod: number, file: any, httpParams?: any): abp.IGenericPromise<IReturnFileDto>;
     static deleteFile(fileId: number, httpParams?: any): abp.IGenericPromise<IReturnFileDto>;

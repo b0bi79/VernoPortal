@@ -29,7 +29,7 @@ namespace Verno.Reports.Web.Modules.Returns
 {
     public interface IReturnsAppService
     {
-        Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, string filter, bool unreclaimedOnly);
+        Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, string filter, bool unreclaimedOnly, int shopNum);
         Task<ListResultDto<ReturnFileDto>> GetFilesList(int rasxod);
         Task<ActionResult> File(int fileId);
         //Task<ReturnFileDto> UploadFile(/*int rasxod, */IFormFile file);
@@ -63,9 +63,9 @@ namespace Verno.Reports.Web.Modules.Returns
         [HttpGet]
         [UnitOfWork(isTransactional: false)]
         [Route("{dfrom:datetime}!{dto:datetime}")]
-        public async Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, string filter, bool unreclaimedOnly)
+        public async Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, string filter, bool unreclaimedOnly, int shopNum = 0)
         {
-            int shopNum = await GetUserShopNum();
+            shopNum = await GetUserShopNum() ?? shopNum;
             var result = from d in _context.ReturnDatas
                 where d.DocDate >= dfrom && d.DocDate <= dto && d.ShopNum > 0
                 select d;
@@ -75,14 +75,8 @@ namespace Verno.Reports.Web.Modules.Returns
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
-                var num = filter.AsInt(0);
-                if (num > 0)
-                    result = result.Where(r => r.DocNum.Contains(filter) ||
-                                               r.ShopNum == num ||
-                                               r.SupplierName.Contains(filter));
-                else
-                    result = result.Where(r => r.DocNum.Contains(filter) ||
-                                               r.SupplierName.Contains(filter));
+                result = result.Where(r => r.DocNum.Contains(filter) ||
+                                           r.SupplierName.Contains(filter));
             }
 
             if (unreclaimedOnly)
@@ -141,20 +135,28 @@ namespace Verno.Reports.Web.Modules.Returns
         [AbpAuthorize(ReturnsPermissionNames.Documents_Returns_GetFile)]
         public async Task<FileStreamResult> ReturnFiles(int[] returnIds)
         {
+            char[] invalidChars = Path.GetInvalidFileNameChars();
             var stream = new MemoryStream();
             try
             {
-                var zip = new ZipArchive(stream, ZipArchiveMode.Create, true);
-                foreach (var returnId in returnIds)
-                {
-                    var rfiles = await _filesRepository.GetAll().Where(x => !x.Deleted && x.ReturnId == returnId).ToListAsync();
-                    foreach (var file in rfiles)
+                using (var zip = new ZipArchive(stream, ZipArchiveMode.Create, true))
+                    foreach (var returnId in returnIds)
                     {
-                        var filepath = Path.Combine(ServPath, file.SavedName);
-                        if (System.IO.File.Exists(filepath))
-                            zip.CreateEntryFromFile(filepath, file.FileName);
+                        var rfiles = await _filesRepository.GetAllIncluding(x => x.Return.ReturnData)
+                            .Where(x => x.ReturnId == returnId).ToListAsync();
+
+                        foreach (var file in rfiles)
+                        {
+                            var filepath = Path.Combine(ServPath, file.SavedName);
+                            if (System.IO.File.Exists(filepath))
+                            {
+                                var data = file.Return.ReturnData;
+                                var entryName = $"{data.DocNum}_{data.DocDate:yyyyMMdd}_{file.FileName}";
+                                entryName = invalidChars.Aggregate(entryName, (c1, c2) => c1.Replace(c2, '-'));
+                                zip.CreateEntryFromFile(filepath, entryName);
+                            }
+                        }
                     }
-                }
                 await stream.FlushAsync();
                 stream.Position = 0;
                 return new FileStreamResult(stream, "application/zip") {FileDownloadName = "Документы возврат.zip"};
@@ -229,12 +231,12 @@ namespace Verno.Reports.Web.Modules.Returns
 
         #endregion
 
-        private async Task<int> GetUserShopNum()
+        private async Task<int?> GetUserShopNum()
         {
             var user = await GetCurrentUserAsync();
             var claims = await UserManager.GetClaimAsync(user, UserClaimTypes.ShopNum);
             if (claims == null)
-                return 0;
+                return null;
             return int.Parse(claims.Value);
         }
 

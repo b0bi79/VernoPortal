@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Verno.Identity.Permissions;
 using System.Linq;
+using System.Threading;
 using Abp.Runtime.Caching;
 using Verno.Identity.Data;
 
@@ -18,6 +19,7 @@ namespace Verno.Identity.Roles
     {
         private readonly IPermissionManager _permissionManager;
         private readonly ICacheManager _cacheManager;
+        private readonly HttpContext _context;
 
         /// <inheritdoc />
         public RoleManager(IRoleStore<Role> store, IEnumerable<IRoleValidator<Role>> roleValidators, ILookupNormalizer keyNormalizer,
@@ -27,6 +29,7 @@ namespace Verno.Identity.Roles
         {
             _permissionManager = permissionManager;
             _cacheManager = cacheManager;
+            _context = contextAccessor?.HttpContext;
         }
 
         private IRolePermissionStore RolePermissionStore
@@ -39,6 +42,16 @@ namespace Verno.Identity.Roles
             }
         }
 
+        private CancellationToken CancellationToken
+        {
+            get
+            {
+                HttpContext httpContext = this._context;
+                if (httpContext == null)
+                    return CancellationToken.None;
+                return httpContext.RequestAborted;
+            }
+        }
         /// <summary>Checks if a role is granted for a permission.</summary>
         /// <param name="roleName">The role's name to check it's permission</param>
         /// <param name="permissionName">Name of the permission</param>
@@ -205,6 +218,47 @@ namespace Verno.Identity.Roles
             if (role == null)
                 throw new AbpException("There is no role with name: " + roleName);
             return role;
+        }
+
+        /// <inheritdoc />
+        public override async Task UpdateNormalizedRoleNameAsync(Role role)
+        {
+            string roleNameAsync = await GetRoleNameAsync(role);
+            await Store.SetNormalizedRoleNameAsync(role, NormalizeKey(role.Application, roleNameAsync), CancellationToken);
+        }
+
+        /// <inheritdoc />
+        public override Task<Role> FindByNameAsync(string roleName)
+        {
+            return FindByNameAsync(IdentityModule.ApplicationName, roleName);
+        }
+
+        public virtual Task<Role> FindByNameAsync(string application, string roleName)
+        {
+            ThrowIfDisposed();
+            if (roleName == null)
+                throw new ArgumentNullException(nameof(roleName));
+            return Store.FindByNameAsync(NormalizeKey(application, roleName), CancellationToken);
+        }
+
+        /// <inheritdoc />
+        public override Task<bool> RoleExistsAsync(string roleName)
+        {
+            return RoleExistsAsync(IdentityModule.ApplicationName, roleName);
+        }
+
+        public virtual async Task<bool> RoleExistsAsync(string application, string roleName)
+        {
+            ThrowIfDisposed();
+            if (roleName == null)
+                throw new ArgumentNullException(nameof(roleName));
+            return await FindByNameAsync(NormalizeKey(application, roleName)) != null;
+        }
+
+        /// <inheritdoc />
+        public virtual string NormalizeKey(string application, string key)
+        {
+            return base.NormalizeKey(application) + "_" + base.NormalizeKey(key);
         }
 
         private async Task<RolePermissionCacheItem> GetRolePermissionCacheItemAsync(int roleId)

@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Abp.Domain.Entities;
 using Abp.EntityFrameworkCore;
@@ -51,6 +53,12 @@ namespace Verno.Reports.Web.Modules.Returns
         public override IQueryable<ReturnFile> GetAll()
         {
             return base.GetAll().Where(r => !r.Deleted);
+        }
+        
+        /// <inheritdoc />
+        public override IQueryable<ReturnFile> GetAllIncluding(params Expression<Func<ReturnFile, object>>[] propertySelectors)
+        {
+            return base.GetAllIncluding(propertySelectors).Where(r => !r.Deleted);
         }
 
         public override void Delete(ReturnFile entity)

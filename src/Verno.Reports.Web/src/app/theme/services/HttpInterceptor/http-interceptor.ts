@@ -2,6 +2,11 @@ import { Http, Request, RequestOptionsArgs, Response, RequestOptions, Connection
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
+import 'rxjs/add/operator/toPromise';
+import 'rxjs/add/operator/map'
+import 'rxjs/add/operator/catch'
+import 'rxjs/add/observable/throw';
+
 @Injectable()
 export class AbpHttp extends Http {
   public userOptions: {
@@ -18,23 +23,37 @@ export class AbpHttp extends Http {
   }
 
   request(url: string | Request, options?: RequestOptionsArgs): Observable<Response> {
-    return this.intercept(super.request(url, options));
-  }
-
-  get(url: string, options?: RequestOptionsArgs): Observable<Response> {
-    return this.intercept(super.get(url, options));
+    return super.request(url, options)
+      .flatMap(response => {
+        var data = response.json();
+        if (data && data.__abp) {
+          return this.handleResponse(data, response);
+        } else {
+          return Promise.resolve(response);
+        }
+      })
+      .catch((err) => {
+          if (err.message) {
+            this.showError({ message: "Неизвестная ошибка", details: err.message });
+          } else {
+            var data = err.json();
+            if (!data || !data.__abp) {
+              this.handleNonAbpErrorResponse(err);
+            } else {
+              this.handleResponse(data, err);
+            }
+          }
+          return Observable.throw(err.message || err);
+        }
+    );
   }
 
   post(url: string, body: string, options?: RequestOptionsArgs): Observable<Response> {
-    return this.intercept(super.post(url, body, this.getRequestOptionArgs(options)));
+    return super.post(url, body, this.getRequestOptionArgs(options));
   }
 
   put(url: string, body: string, options?: RequestOptionsArgs): Observable<Response> {
-    return this.intercept(super.put(url, body, this.getRequestOptionArgs(options)));
-  }
-
-  delete(url: string, options?: RequestOptionsArgs): Observable<Response> {
-    return this.intercept(super.delete(url, options));
+    return super.put(url, body, this.getRequestOptionArgs(options));
   }
 
   getRequestOptionArgs(options?: RequestOptionsArgs): RequestOptionsArgs {
@@ -44,28 +63,14 @@ export class AbpHttp extends Http {
     if (options.headers == null) {
       options.headers = new Headers();
     }
+
+    var security = (<any>abp).security;
+    if (!options.headers || options.headers[security.antiForgery.tokenHeaderName] === undefined) {
+      options.headers.append(security.antiForgery.tokenHeaderName, security.antiForgery.getToken());
+    }
+
     options.headers.append('Content-Type', 'application/json');
     return options;
-  }
-
-  intercept(observable: Observable<Response>): Observable<any> {
-    return observable
-      .flatMap(response => {
-          var data = response.json();
-          if (data && data.__abp) {
-            return Observable.fromPromise(this.handleResponse(data, response));
-          } else {
-            return Observable.fromPromise(new Promise((resolve) => resolve((<any>response)._body)));
-          }
-        })
-        /*.catch((err) => {
-            if (!err.data || !err.data.__abp) {
-              return Observable.fromPromise(this.raiseErrorResponse(err));
-            } else {
-              return Observable.fromPromise(this.handleResponse(err));
-            }
-          }
-        )*/;
   }
 
   defaultError: {
@@ -111,7 +116,7 @@ export class AbpHttp extends Http {
     }
   }
 
-  raiseErrorResponse(response: Response): Promise<any> {
+  handleNonAbpErrorResponse(response: Response): Promise<any> {
     return new Promise((resolve, reject) => {
       if (this.userOptions.abpHandleError !== false) {
         switch (response.status) {
@@ -129,7 +134,7 @@ export class AbpHttp extends Http {
             break;
         }
       }
-      reject.apply(this, response);
+      reject(response);
       this.userOptions.error && this.userOptions.error(this, response);
     });
   }

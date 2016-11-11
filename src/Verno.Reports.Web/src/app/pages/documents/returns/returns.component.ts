@@ -24,6 +24,9 @@ let saver = require("file-saver");
       border: 1px dashed brown;
       background-color: #FFC107 !important;
     }
+    #shopNum-filter {
+      width: 150px;
+    }
   `],
   providers: [ReturnsService, ExportToExcelService, WindowViewService, WindowViewLayerService]
 })
@@ -33,6 +36,7 @@ export class Returns implements OnInit {
 
   private filter: string;
   private unreclaimed: boolean = false;
+  private shopNum: number = null;
   private periodFilter: any = { start: moment(), end: moment() };
   private datas: Return[] = [];
   private selectedRow: Return;
@@ -58,50 +62,57 @@ export class Returns implements OnInit {
   }
 
   ngOnInit() {
-    this.getDatas(this.periodFilter.start, this.periodFilter.end, "", this.unreclaimed);
+    this.getDatas(this.periodFilter.start, this.periodFilter.end, "", this.unreclaimed, this.shopNum);
   }
 
-  getDatas(dfrom: moment.Moment, dto: moment.Moment, filter: string, unreclaimed: boolean): void {
+  private getDatas(dfrom: moment.Moment, dto: moment.Moment, filter: string, unreclaimed: boolean, shopNum: number): void {
     var self = this;
     abp.ui.setBusy(jQuery('.card', this.element.nativeElement),
     {
       blockUI: true,
-      promise: this.returnsSvc.getList(dfrom.format("YYYY-MM-DD"), dto.format("YYYY-MM-DD"), filter, unreclaimed)
+      promise: this.returnsSvc.getList(dfrom.format("YYYY-MM-DD"), dto.format("YYYY-MM-DD"), filter, unreclaimed, Number(shopNum))
         .then(result => {
           self.datas = result.items.map(x => MapUtils.deserialize(Return, x));
           if (self.datas.length) {
             var firstShop = self.datas[0].shopNum;
-            self.needShowShops = self.datas.some(x => x.shopNum !== firstShop);
+            self.needShowShops = self.needShowShops || self.datas.some(x => x.shopNum !== firstShop);
           }
-          //this.doFilterData(this.filter);
         })
     });
   }
 
-  dateSelected(period): void {
+  private dateSelected(period): void {
     this.periodFilter = period;
-    this.getDatas(period.start, period.end, this.filter, this.unreclaimed);
+    this.getDatas(period.start, period.end, this.filter, this.unreclaimed, this.shopNum);
   }
 
-  unreclaimedChanged(value: boolean): void {
+  private unreclaimedChanged(value: boolean): void {
     this.unreclaimed = value;
-    this.getDatas(this.periodFilter.start, this.periodFilter.end, this.filter, this.unreclaimed);
+    this.getDatas(this.periodFilter.start, this.periodFilter.end, this.filter, this.unreclaimed, this.shopNum);
   }
 
-  filterData(query: string): void {
-    var self = this;
+  private filterData(query: string): void {
     this.filter = query;
+    this.filterWithDelay();
+  }
+
+  private filterShopNum(shopNum: number): void {
+    this.shopNum = shopNum;
+    this.filterWithDelay();
+  }
+
+  private filterWithDelay(): void {
+    var self = this;
     this.filterDelay++;
     setTimeout(() => {
-      if (self.filterDelay == 1) {
-        this.getDatas(this.periodFilter.start, this.periodFilter.end, this.filter, this.unreclaimed);
-        //this.doFilterData(query);
+      if (self.filterDelay === 1) {
+        this.getDatas(this.periodFilter.start, this.periodFilter.end, this.filter, this.unreclaimed, this.shopNum);
       }
       self.filterDelay--;
     }, 1000);
   }
 
-  exportExcel(): void {
+  private exportExcel(): void {
     var wb = <Workbook>{
       sheets: [
         <Worksheet>{
@@ -121,7 +132,7 @@ export class Returns implements OnInit {
     this.exporter.export(wb, "returns.xlsx");
   }
 
-  public packDownload(e): void {
+  private packDownload(e): void {
     var self = this;
     this.downloadItems = [];
     this.windowView.pushBareDynamicWindow(PackDownload, { imports: [CommonModule] }).then(window => {
@@ -171,7 +182,7 @@ export class Returns implements OnInit {
     return this.isDownloadMode && this.downloadItems.indexOf(row) >= 0;
   }
 
-  public isGranted(name: string): boolean {
+  private isGranted(name: string): boolean {
     return abp.auth.isGranted(name);
   }
 }

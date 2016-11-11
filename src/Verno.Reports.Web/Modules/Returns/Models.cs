@@ -39,6 +39,10 @@ namespace Verno.Reports.Web.Modules.Returns
         }
 
         public int Rasxod { get; set; }
+
+        [ForeignKey("Rasxod")]
+        public ReturnData ReturnData { get; set; }
+
         public ReturnStatus Status { get; set; }
 
         public virtual ICollection<ReturnFile> Files { get; set; } =  new List<ReturnFile>();
