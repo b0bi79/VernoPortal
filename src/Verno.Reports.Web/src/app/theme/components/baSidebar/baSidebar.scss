@@ -89,7 +89,7 @@ a.al-sidebar-list-link {
     }
   }
   i {
-    margin-right: 18px;
+    margin-right: 10px;
     width: 16px;
     display: inline-block;
   }
@@ -147,7 +147,7 @@ a.al-sidebar-list-link {
       font-size: 13px;
       text-decoration: none;
       color: $sidebar-text;
-      padding-left: 52px;
+      padding-left: 44px;
       height: auto;
       line-height: 29px;
       &:hover {
@@ -188,7 +188,7 @@ a.al-sidebar-list-link {
 
 @mixin sidebar-collapsed() {
   .al-sidebar {
-    width: 52px;
+    width: 44px;
 
     .fa-angle-down, .fa-angle-up {
       opacity: 0;
@@ -197,7 +197,7 @@ a.al-sidebar-list-link {
     .al-sidebar-sublist {
       position: absolute;
       top: -1px;
-      left: 52px;
+      left: 44px;
       @include bg-translucent-dark(0.8);
       width: 0;
       display: block;

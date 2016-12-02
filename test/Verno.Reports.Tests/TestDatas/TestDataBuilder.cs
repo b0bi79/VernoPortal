@@ -17,14 +17,29 @@ namespace Verno.Reports.Tests.TestDatas
 
         public void Build()
         {
+            CreateConnections();
             CreateFormats();
             CreateReports();
+        }
+
+        private void CreateConnections()
+        {
+            CreateConnection("INFOR_SPB", "SqlServer", "Server=10.53.2.21;Database=SCPRD;Uid=wmwhse1;Pwd=WMwhSql1;");
+            CreateConnection("ION10MAIN_Eff", "SqlServer", "Server=.;Database=shEffSQL;user=sa;password=44");
+            CreateConnection("ION10MAIN_Mig", "SqlServer", "Server=.;Database=shMigSQL;user=sa;password=44");
+        }
+
+        private void CreateConnection(string id, string providerName, string connStr)
+        {
+            _context.ReportConnections.Add(new ReportConnection(id, connStr, providerName));
         }
 
         private void CreateFormats()
         {
             CreateFormat("HTML_TPL", "В Html", "XslTransform", null, "HTML", null);
             CreateFormat("XLS_AUTO", "В Excel", "ImportFromSql", null, "XLS", null);
+            CreateFormat("JSON", "Выполнить", "JsonTransform", null, null, null);
+            CreateFormat("TEST", "Выполнить", "TestTransform", null, "XLS", null);
         }
 
         private void CreateFormat(string id, string displayText, string generateUtil, string mimeType, string arguments, string description)
@@ -73,7 +88,7 @@ namespace Verno.Reports.Tests.TestDatas
                     new RepParameter("username", "Пользователь", TypeCode.String, DisplayType.TextBox),
                     new RepParameter("d", "", "period", DisplayType.PeriodDate, value: "wb|we"),
                 });
-            CreateReport("Загрузка", "Примеры параметров", "ION10MAIN_Mig", "ParametersTest.sql", null,
+            var report = CreateReport("Загрузка", "Примеры параметров", "ION10MAIN_Mig", "ParametersTest.sql", null,
                 new[]
                 {
                     new ReportColumn("username", "username"),
@@ -86,6 +101,7 @@ namespace Verno.Reports.Tests.TestDatas
                 {
                     new ReportOutFormat("HTML_TPL", "ParamsDemonstration_html.xsl"),
                     new ReportOutFormat("XLS_AUTO", displayText: "Показать в Эксель"),
+                    new ReportOutFormat("TEST", displayText: "Test"),
                 },
                 new[]
                 {
@@ -96,28 +112,34 @@ namespace Verno.Reports.Tests.TestDatas
                     new RepParameter("dtime", "ДатаВремя", TypeCode.DateTime, DisplayType.DateTime, true, "dd.MM HH:mm", "n-2h"),
                     new RepParameter("period", "Период", "period", DisplayType.PeriodDate, value: "mb|me"),
                     new RepParameter("truefalse", "Логическое", TypeCode.Boolean, DisplayType.CheckBox, value: "Да"),
-                    new RepParameter("ComboBox", "С выпадающим списком", TypeCode.Int32, DisplayType.ComboBox, true, null, "3", "{SELECT ID, Name FROM Regions}"),
+                    new RepParameter("ComboBox", "С выпадающим списком", TypeCode.Int32, DisplayType.ComboBox, true, null, "3", "LAZY{SELECT ID, Name FROM Regions}"),
                     new RepParameter("ListBox", "Множественный выбор", TypeCode.Int32, DisplayType.ListBox, true, null, "2,4", "[1:'Один', 2:'Два', 3:'Три', 4:'Четыре']"),
                     new RepParameter("RadioButton", "Выбор", TypeCode.String, DisplayType.RadioButton, true, null, "Третий", "['Первый', 'Второй', 'Третий']"),
                 });
+
+            _context.SaveChanges();
+            _context.UserPermissions.Add(new UserPermission(report.Id, TestIdentityBuilder.User1.Id));
+            _context.SaveChanges();
         }
 
-        private void CreateReport(string category, string name, string connectionId, string sqlFile, string sqlProc,
+        private Report CreateReport(string category, string name, string connectionId, string sqlFile, string sqlProc,
             IEnumerable<ReportColumn> columns, IEnumerable<ReportOutFormat> formats, IEnumerable<RepParameter> parameters)
         {
-            var report = _context.Reports.Add(new Report(category, name, connectionId, sqlFile, sqlProc)).Entity;
+            var result = new Report(category, name, connectionId, sqlFile, sqlProc);
+            var report = _context.Reports.Add(result).Entity;
             foreach (var column in columns)
             {
                 report.Columns.Add(column);
             }
             foreach (var format in formats)
             {
-                report.OutFormats.Add(format);
+                report.ReportOutFormats.Add(format);
             }
             foreach (var parameter in parameters)
             {
                 report.Parameters.Add(parameter);
             }
+            return result;
         }
     }
 }

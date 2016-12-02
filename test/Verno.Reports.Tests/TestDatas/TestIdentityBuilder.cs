@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Identity;
+using Verno.Identity;
 using Verno.Identity.Data;
 using Verno.Identity.Migrations.SeedData;
 using Verno.Identity.Permissions;
@@ -10,22 +11,32 @@ using Verno.Reports.Authorization;
 
 namespace Verno.Reports.Tests.TestDatas
 {
-    public static class TestIdentityBuilder
+    public class TestIdentityBuilder
     {
-        public static void Build(this IdentityDbContext context)
-        {
-            InitialHostDbBuilder.Build(context);
+        private readonly IdentityDbContext _context;
+        private readonly InitialHostDbBuilder _hostBuilder;
+        public static User User1 { get; private set; }
 
-            var role1 = CreateRole(context, "role1", new [] { PermissionNames.Reports });
-            CreateUser(context, "user1", "User 1", "user1@ivoin.ru", role1);
+        public TestIdentityBuilder(IdentityDbContext context, InitialHostDbBuilder hostBuilder)
+        {
+            _context = context;
+            _hostBuilder = hostBuilder;
         }
 
-        private static Role CreateRole(IdentityDbContext context, string name, IEnumerable<string> permissions)
+        public void Build()
+        {
+            _hostBuilder.Build();
+
+            var role1 = CreateRole(_context, "role1", new[] {PermissionNames.Reports});
+            User1 = CreateUser(_context, "user1", "User 1", "user1@ivoin.ru", role1);
+        }
+
+        private Role CreateRole(IdentityDbContext context, string name, IEnumerable<string> permissions)
         {
             var result = context.Roles.FirstOrDefault(r => r.Name == name);
             if (result == null)
             {
-                result = context.Roles.Add(new Role { Name = name, }).Entity;
+                result = context.Roles.Add(new Role { Name = name, NormalizedName = IdentityModule.ApplicationName+"_"+name.ToUpper()}).Entity;
                 context.SaveChanges();
 
                 foreach (var permission in permissions)
@@ -44,7 +55,7 @@ namespace Verno.Reports.Tests.TestDatas
             return result;
         }
 
-        private static void CreateUser(IdentityDbContext context, string userName, string name, string email, Role role)
+        private static User CreateUser(IdentityDbContext context, string userName, string name, string email, Role role)
         {
             var result = context.Users.FirstOrDefault(u => u.UserName == userName);
             if (result == null)
@@ -63,6 +74,7 @@ namespace Verno.Reports.Tests.TestDatas
 
                 context.SaveChanges();
             }
+            return result;
         }
     }
 }

@@ -9,6 +9,7 @@ namespace Verno.Reports.Executing
     {
         private static readonly Dictionary<string, FormatMapping> Bindings = new Dictionary<string, FormatMapping>
         {
+            {"JSON", new FormatMapping(OutputFormat.JSON, ".json")},
             {"XLS", new FormatMapping(OutputFormat.XLS, ".xls")},
             {"HTML", new FormatMapping(OutputFormat.XML, ".html")},
             {"PDF", new FormatMapping(OutputFormat.XML, ".pdf")},
@@ -19,10 +20,11 @@ namespace Verno.Reports.Executing
         {
             if (format == null) throw new ArgumentNullException(nameof(format));
             FormatMapping mapping;
-            if (Bindings.TryGetValue(format.Arguments, out mapping))
+            var filefrmt = format.Arguments ?? format.Id;
+            if (Bindings.TryGetValue(filefrmt, out mapping))
                 return mapping;
 
-            return new FormatMapping(OutputFormat.XML, '.' + format.Arguments);
+            return new FormatMapping(OutputFormat.XML, '.' + filefrmt);
         }
 
         private FormatMapping(OutputFormat outputFormat, string fileExtension)

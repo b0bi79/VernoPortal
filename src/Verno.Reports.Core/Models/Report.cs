@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 using Abp.Domain.Entities;
+using System.Linq;
 
 namespace Verno.Reports.Models
 {
@@ -27,6 +28,7 @@ namespace Verno.Reports.Models
 
         protected string NormalizeName(string name)
         {
+            name = Transliteration.CyrillicToLatin(name.ToLower());
             name = NormalizeRegex.Replace(name, "_");
             int len;
             do
@@ -35,7 +37,7 @@ namespace Verno.Reports.Models
                 name = name.Replace("__", "_");
             } while (name.Length != len);
             name = name.Trim('_');
-            return Transliteration.CyrillicToLatin(name.ToLower());
+            return name;
         }
 
 
@@ -56,16 +58,22 @@ namespace Verno.Reports.Models
         public string SqlFile { get; set; }
         public string SqlProc { get; set; }
 
-        public ICollection<ReportFavorite> Favorites { get; set; }
+        public ICollection<ReportFavorite> Favorites { get; set; } = new List<ReportFavorite>();
 
-        public ICollection<RepParameter> Parameters { get; set; }
+        public ICollection<RepParameter> Parameters { get; set; } = new List<RepParameter>();
 
         public ReportConnection Connection { get; set; }
 
-        public ICollection<ReportOutFormat> OutFormats { get; set; }
+        public ICollection<ReportOutFormat> ReportOutFormats { get; set; } = new List<ReportOutFormat>();
 
-        public ICollection<ReportColumn> Columns { get; set; }
+        public ICollection<ReportColumn> Columns { get; set; } = new List<ReportColumn>();
 
-        public ICollection<ReportResult> Results { get; set; }
+        public IList<ReportResult> Results { get; set; } = new List<ReportResult>();
+
+        public string GetTableName(int idx)
+        {
+            var res = Results.FirstOrDefault(x => x.TableNo == idx);
+            return res != null ? res.Title : Name;
+        }
     }
 }

@@ -7,6 +7,7 @@ using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using System.Linq;
 using System.Net.Mime;
+using System.Text;
 using Abp.Authorization;
 using Abp.Runtime.Session;
 using Microsoft.AspNetCore.Http;
@@ -139,7 +140,8 @@ namespace Verno.Reports.Web.Modules.Returns
             var stream = new MemoryStream();
             try
             {
-                using (var zip = new ZipArchive(stream, ZipArchiveMode.Create, true))
+                var enc1521 = Encoding.GetEncoding(1251);
+                using (var zip = new ZipArchive(stream, ZipArchiveMode.Create, true, enc1521))
                     foreach (var returnId in returnIds)
                     {
                         var rfiles = await _filesRepository.GetAllIncluding(x => x.Return.ReturnData)
@@ -153,6 +155,7 @@ namespace Verno.Reports.Web.Modules.Returns
                                 var data = file.Return.ReturnData;
                                 var entryName = $"{data.DocNum}_{data.DocDate:yyyyMMdd}_{file.FileName}";
                                 entryName = invalidChars.Aggregate(entryName, (c1, c2) => c1.Replace(c2, '-'));
+                                entryName = Transliteration.CyrillicToLatin(entryName);
                                 zip.CreateEntryFromFile(filepath, entryName);
                             }
                         }

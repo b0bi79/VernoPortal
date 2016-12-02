@@ -58,23 +58,18 @@ export class BaMenuService {
   protected _convertArrayToItems(routes:any[], parent?:any):any[] {
     let items = [];
     routes.forEach((route) => {
-        let item = this._convertObjectToItem(route, parent);
-        if (item) items.push(item);
+      items.push(this._convertObjectToItem(route, parent));
     });
     return items;
   }
 
   protected _convertObjectToItem(object, parent?:any):any {
     let item:any = {};
-    if (object.data) {
-        if (object.data.authorize && !abp.auth.isGranted(object.data.authorize))
-            return null;
-        if (object.data.menu) {
-            // this is a menu object
-            item = object.data.menu;
-            item.route = object;
-            delete item.route.data.menu;
-        }
+    if (object.data && object.data.menu) {
+      // this is a menu object
+      item = object.data.menu;
+      item.route = object;
+      delete item.route.data.menu;
     } else {
       item.route = object;
       item.skip = true;

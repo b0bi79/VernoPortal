@@ -1,6 +1,4 @@
-﻿using System;
-using System.Data.SqlClient;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using Verno.Reports.DataSource;
 using Verno.Reports.Models;
@@ -10,54 +8,24 @@ namespace Verno.Reports.Executing
     public abstract class ReportGenerator
     {
         protected readonly ReportOutFormat Format;
+        private readonly IReportDataSourceFactory _dataSourceFactory;
 
-        protected ReportGenerator(ReportOutFormat format)
+        protected ReportGenerator(ReportOutFormat format, IReportDataSourceFactory dataSourceFactory)
         {
             Format = format;
+            _dataSourceFactory = dataSourceFactory;
         }
 
-        public static ReportResult BuildReport(Report report, ReportOutFormat format)
+        public virtual void Generate(Report report, Stream stream)
         {
-            var formatMapping = FormatMapping.GetOutputFormat(format.OutFormat);
-            string outFileName = $"{report.Name}_{DateTime.Now:yy-MM-dd HH-mm}{formatMapping.FileExtension}";
-
-            ReportGenerator gen = Create(format);
-            var stream = gen.Generate(report);
-
-            return new ReportResult(outFileName, stream);
-        }
-
-        public static ReportGenerator Create(ReportOutFormat format)
-        {
-            switch (format.OutFormat.GenerateUtil.ToLower())
+            using (var ds = _dataSourceFactory.Create(report))
             {
-                case "importfromsql":
-                    return new ImportFromSqlReportGenerator(format);
-                case "xsltransform":
-                    return new XslTransformReportGenerator(format);
-                default:
-                    throw new NotSupportedException($"Unknown GenerateUtil ({format.OutFormat.GenerateUtil}).");
+                ds.OpenConnection();
+                WriteReport(report, ds, stream, Encoding.UTF8);
             }
         }
 
-        public virtual Stream Generate(Report report)
-        {
-            var outFilePath = Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
-
-            string tableName = report.Name;
-
-            using (var ds = ReportDataSource.ReadReportData(report))
-            {
-                if (ds.Connection is SqlConnection)
-                {
-                    ((SqlConnection)ds.Connection).InfoMessage += (sender, e) => tableName = e.Message;
-                }
-                WriteReportFile(report, ds, outFilePath, Encoding.UTF8, idx => tableName);
-            }
-            return File.OpenRead(outFilePath);
-        }
-
-        protected abstract void WriteReportFile(Report report, ReportDataSource ds, string outFilePath, Encoding encoding, Func<int, string> getTableName);
+        protected abstract void WriteReport(Report report, IReportDataSource ds, Stream stream, Encoding encoding);
     }
 
     public class ReportResult

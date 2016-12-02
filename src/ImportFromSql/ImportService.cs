@@ -7,32 +7,30 @@ namespace ImportFromSql
 {
     public class ImportService
     {
-        public void ImportData(IDataReader reader, string outputFile, OutputFormat format, Encoding enc, Func<int, string> getTableName)
+        public void ImportData(Stream outStream, IDataReader reader, OutputFormat format, Encoding enc, Func<int, string> getTableName)
         {
-            string tableName = Path.GetFileNameWithoutExtension(outputFile);
+            if (outStream == null) throw new ArgumentNullException(nameof(outStream));
+            if (reader == null) throw new ArgumentNullException(nameof(reader));
+            if (getTableName == null) throw new ArgumentNullException(nameof(getTableName));
 
-            using (var outStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write, FileShare.Read))
+            int idx = 0;
+            string prevTableName = "";
+            var formatter = OutputFormatter.Create(format, outStream, enc);
+            do
             {
-                int idx = 0;
-                string prevTableName = "";
-                var formatter = OutputFormatter.Create(format, outStream, enc);
-                do
-                {
-                    if (getTableName != null) 
-                        tableName = getTableName(idx);
-                    if (tableName == prevTableName)
-                        tableName = "Таблица " + idx;
-                    WriteTable(tableName, reader, formatter);
-                    prevTableName = tableName;
-                    idx++;
-                } while (reader.NextResult());
-                formatter.Close();
-            }
+                var tableName = getTableName(idx);
+                if (tableName == prevTableName)
+                    tableName = "Таблица " + idx;
+                WriteTable(tableName, reader, formatter);
+                prevTableName = tableName;
+                idx++;
+            } while (reader.NextResult());
+            formatter.Close();
         }
 
         public void WriteTable(string tableName, IDataReader reader, OutputFormatter formatter)
         {
-            var values = new Object[reader.FieldCount];
+            var values = new object[reader.FieldCount];
             formatter.NewTable(tableName, reader);
             while (reader.Read())
             {

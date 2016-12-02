@@ -18,6 +18,7 @@ const routes: Routes = [
       { path: 'dashboard', loadChildren: () => System.import('./dashboard/dashboard.module') },
       { path: 'admin', loadChildren: () => System.import('./admin/admin.module') },
       { path: 'documents', loadChildren: () => System.import('./documents/documents.module') },
+      { path: 'reports', loadChildren: () => System.import('./reports/reports.module') },
     ]
   }
 ];

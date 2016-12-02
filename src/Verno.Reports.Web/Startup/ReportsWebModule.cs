@@ -9,6 +9,7 @@ using Verno.Configuration;
 using Verno.Identity;
 using Verno.Reports.Web.Modules.Print;
 using Verno.Reports.Web.Modules.Returns;
+using Verno.Reports.Web.Modules.Shop;
 
 namespace Verno.Reports.Web.Startup
 {
@@ -38,6 +39,7 @@ namespace Verno.Reports.Web.Startup
             config.CreateControllersForAppServices(typeof(ReportsApplicationModule).Assembly, "reports");
             config.CreateControllersForAppServices(typeof(IdentityApplicationModule).Assembly, "identity");
             config.CreateControllersForAppServices(typeof(ReportsWebModule).Assembly, "app");
+            Configuration.Authorization.Providers.Add<ShopAuthorizationProvider>();
             Configuration.Authorization.Providers.Add<PrintAuthorizationProvider>();
             Configuration.Authorization.Providers.Add<ReturnsAuthorizationProvider>();
         }

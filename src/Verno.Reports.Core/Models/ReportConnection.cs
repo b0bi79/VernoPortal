@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Data.Common;
 using Abp.Domain.Entities;
+using Verno.Reports.DataSource;
 
 namespace Verno.Reports.Models
 {
@@ -34,9 +35,7 @@ namespace Verno.Reports.Models
             {
                 try
                 {
-                    DbProviderFactory factory = DbProviderFactories.GetFactory(ProviderName);
-
-                    dbConn = factory.CreateConnection();
+                    dbConn = ConnectionFactory.CreateConnection(ProviderName);
                     dbConn.ConnectionString = ConnectionString;
                 }
                 catch (Exception ex)
@@ -44,9 +43,10 @@ namespace Verno.Reports.Models
                     // Set the connection to null if it was created.
                     if (dbConn != null)
                     {
-                        dbConn = null;
+                        dbConn.Dispose();
                     }
                     Console.WriteLine(ex.Message);
+                    throw;
                 }
             }
             // Return the connection.

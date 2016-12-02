@@ -40,7 +40,6 @@ export class Print implements OnInit {
         promise: app.print.getList(dfrom.format("YYYY-MM-DD"), dto.format("YYYY-MM-DD"), filter)
           .done(result => {
             self.datas = result.items;
-            //this.filterData(this.filter);
           })
       });
   }

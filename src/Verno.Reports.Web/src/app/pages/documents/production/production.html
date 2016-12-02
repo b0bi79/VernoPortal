@@ -1,0 +1,51 @@
+<div class="widgets">
+    <ba-card baCardClass="with-scroll table-panel">
+        <!--<data-filter>
+            <period></period>
+        </data-filter>-->
+
+        <div class="row">
+            <div class="offset-xl-9 offset-lg-8 offset-md-6 col-xl-3 col-lg-4 col-md-6 col-xs-12">
+                <div class="pull-right">
+                    <!--<export-table class="col-xs-1" [table]="mf"></export-table>-->
+                    <button type="button" class="btn btn-primary" (click)="exportExcel()"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Экспорт</button>
+                </div>
+            </div>
+        </div>
+        <table class="table table-striped" [mfData]="datas" #mf="mfDataTable" [mfRowsOnPage]="25">
+            <thead>
+                <tr>
+                    <th><mfDefaultSorter by="vidTovara">Код св/у</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="shtrixKod">Код<br />касса</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="naimenovanie">Наименование</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="imahPr">Производитель</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="realizSht">Реализ</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="spisSht">Спис<br/>ания</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="normativ">Норм<br/>атив</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="koeff">Коэф</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="toBake">Выпечь<br/>сегодня</mfDefaultSorter></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let row of mf.data">
+                    <td>{{row.vidTovara}}</td>
+                    <td>{{row.shtrixKod}}</td>
+                    <td nowrap>{{row.naimenovanie}}</td>
+                    <td>{{row.imahPr}}</td>
+                    <td>{{row.realizSht}}</td>
+                    <td>{{row.spisSht}}</td>
+                    <td>{{row.normativ}}</td>
+                    <td>{{row.koeff}}</td>
+                    <td>{{row.toBake}}</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="10">
+                        <mfBootstrapPaginator [rowsOnPageSet]="[15,25,50]"></mfBootstrapPaginator>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </ba-card>
+</div>

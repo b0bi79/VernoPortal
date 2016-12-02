@@ -7,6 +7,10 @@ namespace Verno.Reports.Models
     [Table("ReportParams")]
     public class RepParameter: Entity<int>
     {
+        public RepParameter()
+        {
+        }
+
         public RepParameter(string name, string displayText, TypeCode valueType, string displayType, bool isRequired = true, string valueFormat = null,
             string value = null, string listValues = null, string helpText = null)
             : this(name, displayText, valueType.ToString(), displayType, isRequired, valueFormat, value, listValues, helpText)

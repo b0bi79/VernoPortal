@@ -32,7 +32,7 @@ namespace Verno.Reports.EntityFrameworkCore
             builder.Entity<ReportOutFormat>(b =>
             {
                 b.HasOne(rf => rf.Report)
-                    .WithMany(r => r.OutFormats)
+                    .WithMany(r => r.ReportOutFormats)
                     .HasForeignKey(rf => rf.ReportId);
                 b.HasOne(rf => rf.OutFormat)
                     .WithMany()

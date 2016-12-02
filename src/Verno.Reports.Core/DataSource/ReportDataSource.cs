@@ -4,7 +4,13 @@ using Verno.Reports.Models;
 
 namespace Verno.Reports.DataSource
 {
-    public abstract class ReportDataSource : IDisposable
+    public interface IReportDataSource: IDisposable
+    {
+        IDbConnection OpenConnection();
+        IDataReader ExecuteReader();
+    }
+
+    public abstract class ReportDataSource : IReportDataSource
     {
         private bool _disposed;
         protected Report Report;
@@ -15,22 +21,6 @@ namespace Verno.Reports.DataSource
         }
 
         public IDbConnection Connection { get; private set; }
-
-        public static ReportDataSource ReadReportData(Report report)
-        {
-            if (report.SqlFile!=null)
-            {
-                var source = new SqlFileReportDataSource(report);
-                source.OpenConnection();
-                return source;
-            }
-            else
-            {
-                var source = new SqlProcReportDataSource(report);
-                source.OpenConnection();
-                return source;
-            }
-        }
 
         public IDbConnection OpenConnection()
         {

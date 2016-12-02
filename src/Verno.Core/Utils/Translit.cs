@@ -567,9 +567,4 @@ namespace Verno
             },
         };
     }
-
-    public class Translit
-    {
-
-    }
 }

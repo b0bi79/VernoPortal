@@ -12,34 +12,36 @@ namespace Verno.Reports.Executing
 {
     class XslTransformReportGenerator : ReportGenerator
     {
-        public XslTransformReportGenerator(ReportOutFormat format)
-            : base(format)
+        public XslTransformReportGenerator(ReportOutFormat format, IReportDataSourceFactory factory)
+            : base(format, factory)
         {
         }
 
         protected string ScriptsFolder { get; set; }
 
-        protected override void WriteReportFile(Report report, ReportDataSource ds, string outFilePath, Encoding encoding, Func<int, string> getTableName)
+        protected override void WriteReport(Report report, IReportDataSource ds, Stream stream, Encoding encoding)
         {
-            var fileName = string.Format("{0}_{1}.xml", report.Id, DateTime.Now.ToString("yyMMdd-HHmmss"));
-            var filePath = Path.Combine(Path.GetTempPath(), fileName);
-            using (XmlWriter writer = new XmlTextWriter(filePath, encoding))
+            using (var xmlStream = new MemoryStream())
             {
-                WriteXml(writer, ds.ExecuteReader(), report, getTableName);
-            }
-
-            using (var xmlr = new XmlTextReader(filePath))
-            {
-                xmlr.Read();
-                while (xmlr.ReadState != ReadState.EndOfFile)
+                using (XmlWriter writer = new XmlTextWriter(xmlStream, encoding))
                 {
-                    var myXslTrans = new XslCompiledTransform();
-                    if (Format.Template == null)
-                        throw new ArgumentException("Xsl template not specified.");
-                    var templatePath = Path.Combine(ScriptsFolder, Format.Template);
-                    myXslTrans.Load(templatePath);
-                    using (var writer = new StreamWriter(outFilePath, false, encoding))
-                        myXslTrans.Transform(xmlr, null, writer);
+                    WriteXml(writer, ds.ExecuteReader(), report, report.GetTableName);
+                }
+                xmlStream.Position = 0;
+
+                using (var xmlr = new XmlTextReader(xmlStream))
+                {
+                    xmlr.Read();
+                    while (xmlr.ReadState != ReadState.EndOfFile)
+                    {
+                        var myXslTrans = new XslCompiledTransform();
+                        if (Format.Template == null)
+                            throw new ArgumentException("Xsl template not specified.");
+                        var templatePath = Path.Combine(ScriptsFolder, Format.Template);
+                        myXslTrans.Load(templatePath);
+                        using (var writer = new StreamWriter(stream, encoding))
+                            myXslTrans.Transform(xmlr, null, writer);
+                    }
                 }
             }
         }
@@ -119,17 +121,18 @@ namespace Verno.Reports.Executing
                 else
                 {
                     writer.WriteAttributeString("Value", par.Value);
-                    writer.WriteValue(GetDisplaValue(par, report));
+                    writer.WriteValue(GetDisplayValue(par, report));
                 }
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();
         }
 
-        private string GetDisplaValue(RepParameter par, Report report)
+        private string GetDisplayValue(RepParameter par, Report report)
         {
             if (par.Value == null)
                 return null;
+
             var valuesList = ListValues.Parse(par, report);
             if (valuesList == null)
                 return par.Value;

@@ -1,5 +1,5 @@
 ﻿<ba-card id="userRoles" title="{{title}}" baCardClass="container">
-    <select #select multiple="" size="5" style="width: 100%;">
+    <select #select multiple="" size="25" style="width: 100%;">
         <option *ngFor="let role of roles" (mousedown)="onSelect($event)" [value]="role.name">
             {{role.application ? role.application+" - "+role.name : role.name}}
         </option>

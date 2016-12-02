@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data.Common;
 using System.Linq;
+using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Abp.Configuration.Startup;
@@ -22,7 +24,7 @@ namespace Verno.Reports.Tests
         protected ReportsTestBase()
         {
             //Seed initial data for host
-            UsingDbContext(TestIdentityBuilder.Build);
+            LocalIocManager.Resolve<TestIdentityBuilder>().Build();
             UsingDbContext(context => new TestDataBuilder(context).Build());
 
             LoginAsHostAdmin();
@@ -114,18 +116,19 @@ namespace Verno.Reports.Tests
 
         protected void LoginAsHost(string userName)
         {
-            Resolve<IMultiTenancyConfig>().IsEnabled = true;
-
             var user =
                 UsingDbContext(
                     context =>
-                        context.Users.FirstOrDefault(u => u.UserName == userName));
+                        context.Users.Include(x=>x.Claims).FirstOrDefault(u => u.UserName == userName));
             if (user == null)
             {
                 throw new Exception("There is no user: " + userName + " for host.");
             }
 
             AbpSession.UserId = user.Id;
+            var claims = user.Claims.Select(x=>new Claim(x.ClaimType, x.ClaimValue)).ToList();
+            claims.Add(new Claim(ClaimsIdentity.DefaultNameClaimType, userName));
+            Thread.CurrentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(claims));
         }
 
         #endregion

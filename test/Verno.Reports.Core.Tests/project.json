@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0-*",
+
+  "testRunner": "xunit",
+
+  "dependencies": {
+    "Abp.TestBase": "1.0.0",
+    "dotnet-test-xunit": "2.2.0-preview2-build1029",
+    "FluentAssertions": "4.17.0",
+    "NETStandard.Library": "1.6.1",
+    "NSubstitute": "1.10.0",
+    "Verno.Reports.Core": "1.0.0.0-*",
+    "xunit": "2.2.0-beta4-build3444"
+  },
+
+  "frameworks": {
+    "net461": {
+      "Microsoft.NETCore.App": "1.0.0-rc2-3002702"
+    }
+  }
+}

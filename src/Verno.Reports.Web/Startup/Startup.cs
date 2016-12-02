@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Owin;
+using Verno.Reports.Web.Modules.Shop;
 
 namespace Verno.Reports.Web.Startup
 {
@@ -42,6 +43,10 @@ namespace Verno.Reports.Web.Startup
 
             services.AddDbContext<PrintDbContext>(
                 options => options.UseSqlServer(Configuration.GetConnectionString("Print"))
+            );
+
+            services.AddDbContext<ShopDbContext>(
+                options => options.UseSqlServer(Configuration.GetConnectionString("Shop"))
             );
 
             services.AddDbContext<ReturnsDbContext>(
@@ -87,8 +92,8 @@ namespace Verno.Reports.Web.Startup
 
                 //Configure Log4Net logging
                 options.IocManager.IocContainer.AddFacility<LoggingFacility>(
-                f => f.UseAbpLog4Net().WithConfig("log4net.config")
-            );
+                    f => f.UseAbpLog4Net().WithConfig("log4net.config")
+                );
             });
             return result;
         }

@@ -4,7 +4,7 @@ using Verno.Reports.Models;
 
 namespace Verno.Reports.Reports.Dtos
 {
-    [AutoMapFrom(typeof(OutFormat))]
+    [AutoMap(typeof(OutFormat))]
     public class OutFormatDto : EntityDto<string>
     {
         public string DisplayText { get; set; }

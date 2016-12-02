@@ -1,4 +1,6 @@
-export const PAGES_MENU = [
+import { Routes } from '@angular/router';
+
+export const PAGES_MENU: Routes = [
   {
     path: 'pages',
     children: [
@@ -14,63 +16,91 @@ export const PAGES_MENU = [
           }
         }
       },
-            {
-                path: 'documents',
-                data: {
-                    authorize: 'Documents',
-                    menu: {
-                        title: 'Документы',
-                        icon: 'ion-document',
-                        selected: false,
-                        expanded: true,
-                        order: 100,
-                    }
-                },
-                children: [
-                    {
-                        path: 'print-list',
-                        data: {
-                            authorize: 'Documents.Print',
-                            menu: {
-                                title: 'Печатные формы',
-                            }
-                        }
-                    },
-                    {
-                        path: 'returns',
-                        data: {
-                            authorize: 'Documents.Returns',
-                            menu: {
-                                title: 'Возвраты',
-                            }
-                        }
-                    }
-                ]
-            },
-            {
-                path: 'admin',
-                data: {
-                    authorize: 'Administration',
-                    menu: {
-                        title: 'Администрирование',
-                        icon: 'ion-settings',
-                        selected: false,
-                        expanded: false,
-                        order: 10001,
-                    }
-                },
-                children: [
-                    {
-                        path: 'users',
-                        data: {
-                            authorize: 'Administration.UserManagement',
-                            menu: {
-                                title: 'Пользователи',
-                            }
-                        }
-                    }
-                ]
-            },      
+      {
+        path: 'documents',
+        data: {
+          authorize: 'Documents',
+          menu: {
+            title: 'Документы',
+            icon: 'ion-document',
+            selected: false,
+            expanded: true,
+            order: 100,
+          }
+        },
+        children: [
+          {
+            path: 'print-list',
+            data: {
+              authorize: 'Documents.Print',
+              menu: {
+                title: 'Печатные формы',
+              }
+            }
+          },
+          {
+            path: 'returns',
+            data: {
+              authorize: 'Documents.Returns',
+              menu: {
+                title: 'Возвраты',
+              }
+            }
+          },
+          {
+            path: 'production-calculator',
+            data: {
+              authorize: 'Documents.Shop.Production',
+              menu: {
+                title: 'Калькулятор выпечки',
+              }
+            }
+          }
+        ]
+      },
+      {
+        path: 'reports',
+        data: {
+          //authorize: 'reports',
+          menu: {
+            title: 'Отчёты',
+            icon: 'ion-stats-bars',
+            selected: false,
+            expanded: true,
+            order: 200,
+          }
+        },
+        children: [
+          {
+            path: 'categories',
+            outlet: "report-menu-outlet",
+          }
+        ]
+      },
+      {
+        path: 'admin',
+        data: {
+          authorize: 'Administration',
+          menu: {
+            title: 'Администрирование',
+            icon: 'ion-settings',
+            selected: false,
+            expanded: false,
+            order: 10001,
+          }
+        },
+        children: [
+          {
+            path: 'users',
+            data: {
+              authorize: 'Administration.UserManagement',
+              menu: {
+                title: 'Пользователи',
+              }
+            }
+          }
+        ]
+      },
       /*{
         path: 'editors',
         data: {

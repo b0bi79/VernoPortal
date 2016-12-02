@@ -6,8 +6,8 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>5d441612-29ca-4dad-9945-b9de11ce026c</ProjectGuid>
-    <RootNamespace>Verno.Reports.Web.Tests</RootNamespace>
+    <ProjectGuid>8d7a248a-7706-4a21-b880-13a96e5e84c5</ProjectGuid>
+    <RootNamespace>Verno.Reports.Core.Tests</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.\obj</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>

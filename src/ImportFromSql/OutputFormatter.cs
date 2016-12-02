@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Text;
@@ -9,6 +10,9 @@ namespace ImportFromSql
     {
         public static OutputFormatter Create(OutputFormat format, Stream stream, Encoding encoding)
         {
+            if (!Enum.IsDefined(typeof(OutputFormat), format))
+                throw new InvalidEnumArgumentException(nameof(format), (int) format, typeof(OutputFormat));
+
             switch (format)
             {
                 case OutputFormat.XLS:
@@ -29,6 +33,7 @@ namespace ImportFromSql
     {
         XLS,
         CSV,
-        XML
+        XML,
+        JSON,
     }
 }

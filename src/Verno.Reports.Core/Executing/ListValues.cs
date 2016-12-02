@@ -23,19 +23,40 @@ namespace Verno.Reports.Executing
             _par = par;
         }
 
-        public static ListValues Parse(RepParameter par, Report report)
+        public static ListValues Parse(RepParameter par, Report report, out bool lazy)
         {
+            lazy = false;
+            var str = par.ListValues;
+
             if (string.IsNullOrEmpty(par.ListValues))
                 return null;
 
+            if (str.StartsWith("LAZY{"))
+            {
+                lazy = true;
+                return null;
+            }
+            return Parse(par, report);
+        }
+
+        public static ListValues Parse(RepParameter par, Report report)
+        {
             var str = par.ListValues;
+
+            if (string.IsNullOrEmpty(str))
+                return null;
+
+            if (str.StartsWith("LAZY{"))
+                str = str.Substring(4);
+
             if (str[0] == '[' && str[str.Length - 1] == ']')
             {
+                var quotes = new[] {'"', '\'', ' '};
                 var items = from gr in str.Trim('[', ']').Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
                     select gr.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)
                     into vals
-                    let id = vals[0].Trim('"', ' ')
-                    let name = vals.Length == 1 ? vals[0].Trim('"', ' ') : vals[1].Trim('"', ' ')
+                    let id = vals[0].Trim(quotes)
+                    let name = vals.Length == 1 ? vals[0].Trim(quotes) : vals[1].Trim(quotes)
                     select new ListItem(id, name);
                 return new ListValues(par, items);
             }

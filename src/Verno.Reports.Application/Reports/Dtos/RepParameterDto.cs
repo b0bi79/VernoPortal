@@ -5,7 +5,7 @@ using Verno.Reports.Models;
 
 namespace Verno.Reports.Reports.Dtos
 {
-    [AutoMapFrom(typeof(RepParameter))]
+    [AutoMap(typeof(RepParameter))]
     public class RepParameterDto : EntityDto
     {
         public string Name { get; set; }
@@ -17,5 +17,6 @@ namespace Verno.Reports.Reports.Dtos
         public string Value { get; set; }
         public ListValues Values { get; set; }
         public string HelpText { get; set; }
+        public bool Lazy { get; set; }
     }
 }

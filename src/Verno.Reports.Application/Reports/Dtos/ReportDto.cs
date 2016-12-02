@@ -5,7 +5,7 @@ using Verno.Reports.Models;
 
 namespace Verno.Reports.Reports.Dtos
 {
-    [AutoMapFrom(typeof(Report))]
+    [AutoMap(typeof(Report))]
     public class ReportDto : EntityDto
     {
         public string Name { get; set; }
