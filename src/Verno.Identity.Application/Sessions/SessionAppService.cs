@@ -4,6 +4,7 @@ using Abp.Auditing;
 using Abp.Authorization;
 using Abp.AutoMapper;
 using Verno.Identity.Sessions.Dto;
+using Verno.Identity.Users;
 
 namespace Verno.Identity.Sessions
 {
@@ -18,6 +19,8 @@ namespace Verno.Identity.Sessions
             {
                 User = user.MapTo<UserLoginInfoDto>()
             };
+            var shopClaim = await UserManager.GetClaimAsync(user, UserClaimTypes.ShopNum);
+            if (shopClaim != null) output.User.ShopNum = shopClaim.Value;
 
             output.User.Roles = (await UserManager.GetRolesAsync(user)).ToArray();
             return output;

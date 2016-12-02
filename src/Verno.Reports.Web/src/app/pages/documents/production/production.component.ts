@@ -1,41 +1,58 @@
 ﻿import { Component, ViewEncapsulation, Input, OnInit, NgZone, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+import { GlobalState } from '../../../global.state';
 import { Production, ProductionDto } from './production.model';
 import { ExportToExcelService, Workbook, Worksheet, Column } from "app/theme/services";
 
-import { ProductionService } from './production.service';
+import { ShopService } from './production.service';
 
 @Component({
   selector: 'own-production',
   encapsulation: ViewEncapsulation.None,
   template: require('./production.html'),
-  providers: [ProductionService, ExportToExcelService]
+  providers: [ShopService, ExportToExcelService]
 })
 export class ProductionCalculator implements OnInit {
   private datas: ProductionDto[] = [];
+  private userShopNum: number;
+  private filterDelay: number = 0;
 
   constructor(
     private element: ElementRef,
     private exporter: ExportToExcelService,
-    private productionSvc: ProductionService
+    private productionSvc: ShopService,
+    state: GlobalState
   ) {
+    this.userShopNum = Number(state.user.shopNum);
   }
 
   ngOnInit() {
-    this.getDatas();
+    if (this.userShopNum)
+      this.getDatas(this.userShopNum);
   }
 
-  private getDatas(): void {
+  private getDatas(shopNum: number): void {
     var self = this;
     abp.ui.setBusy(jQuery('.card', this.element.nativeElement),
       {
         blockUI: true,
-        promise: this.productionSvc.getList()
+        promise: this.productionSvc.getList(shopNum)
           .then(result => {
             self.datas = result.items;
           })
       });
+  }
+
+  private refresh(shopNum: number): void {
+    var self = this;
+    this.filterDelay++;
+    setTimeout(() => {
+      if (self.filterDelay === 1) {
+        this.getDatas(shopNum);
+      }
+      self.filterDelay--;
+    }, 1000);
   }
 
   private exportExcel(): void {

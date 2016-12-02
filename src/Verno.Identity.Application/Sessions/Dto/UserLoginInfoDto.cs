@@ -16,5 +16,7 @@ namespace Verno.Identity.Sessions.Dto
         public int OrgUnitId { get; set; }
 
         public string[] Roles { get; set; }
+
+        public string ShopNum { get; set; }
     }
 }

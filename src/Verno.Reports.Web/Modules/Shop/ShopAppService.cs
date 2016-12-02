@@ -14,7 +14,7 @@ namespace Verno.Reports.Web.Modules.Shop
 {
     public interface IShopAppService
     {
-        Task<ListResultDto<ProductionCalc>> GetProductionCalculator();
+        Task<ListResultDto<ProductionCalc>> GetProductionCalculator(int shopNum);
     }
 
     [Route("api/services/app/shop")]
@@ -55,12 +55,13 @@ namespace Verno.Reports.Web.Modules.Shop
 
         #region Implementation of IShopAppService
 
-        [Route("production-calculator")]
+        [Route("{shopNum}/production-calculator")]
         [UnitOfWork(isTransactional: false)]
         [AbpAuthorize(ShopPermissionNames.Documents_Shop_Production)]
-        public async Task<ListResultDto<ProductionCalc>> GetProductionCalculator()
+        public async Task<ListResultDto<ProductionCalc>> GetProductionCalculator(int shopNum)
         {
-            int shopNum = await GetUserShopNum();
+            var userShopNum = await GetUserShopNum();
+            shopNum = userShopNum == 0 ? shopNum : userShopNum;
             if (shopNum == 0)
                 throw new UserFriendlyException("Пользователю не присвоен номер магазина.");
             return new ListResultDto<ProductionCalc>(await _context.GetProductionCalculator(shopNum));

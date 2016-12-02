@@ -5,7 +5,15 @@
         </data-filter>-->
 
         <div class="row">
-            <div class="offset-xl-9 offset-lg-8 offset-md-6 col-xl-3 col-lg-4 col-md-6 col-xs-12">
+            <div class="form-inline col-xl-9 col-lg-8 col-md-6 col-xs-12">
+                <div id="shopNum-filter" class="form-group" *ngIf="!userShopNum">
+                    <div class="input-group">
+                        <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-hashtag fa-fw"></i></span>
+                        <input [ngModel]="shopNum" (ngModelChange)="refresh($event)" type="text" class="form-control" placeholder="Магазин ...">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-md-6 col-xs-12">
                 <div class="pull-right">
                     <!--<export-table class="col-xs-1" [table]="mf"></export-table>-->
                     <button type="button" class="btn btn-primary" (click)="exportExcel()"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Экспорт</button>
