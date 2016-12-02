@@ -1,6 +1,5 @@
 const webpack = require('webpack');
 const path = require('path');
-const webpackMerge = require('webpack-merge'); // used to merge webpack configs
 const helpers = require('./helpers');
 
 /*
@@ -8,6 +7,7 @@ const helpers = require('./helpers');
  */
 // problem with copy-webpack-plugin
 const AssetsPlugin = require('assets-webpack-plugin');
+const NormalModuleReplacementPlugin = require('webpack/lib/NormalModuleReplacementPlugin');
 const ContextReplacementPlugin = require('webpack/lib/ContextReplacementPlugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ForkCheckerPlugin = require('awesome-typescript-loader').ForkCheckerPlugin;
@@ -17,6 +17,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin');
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
+const webpackMerge = require('webpack-merge'); // used to merge webpack configs
+
 
 /*
  * Webpack Constants
@@ -79,7 +81,7 @@ module.exports = function (options) {
       extensions: ['.ts', '.js', '.css', '.scss', '.json'],
 
       // An array of directory names to be resolved to the current directory
-      modules: [helpers.root('src'), 'node_modules', 'bower_modules'],
+      modules: [helpers.root('src'), helpers.root('node_modules'), helpers.root('bower_modules')],
 
     },
 
@@ -111,10 +113,11 @@ module.exports = function (options) {
          */
         {
           test: /\.ts$/,
-          loaders: [
+          use: [
             '@angularclass/hmr-loader?pretty=' + !isProd + '&prod=' + isProd,
             'awesome-typescript-loader',
-            'angular2-template-loader'
+            'angular2-template-loader',
+            'angular2-router-loader'
           ],
           exclude: [/\.(spec|e2e)\.ts$/]
         },
@@ -126,7 +129,7 @@ module.exports = function (options) {
          */
         {
           test: /\.json$/,
-          loader: 'json-loader'
+          use: 'json-loader'
         },
 
         /*
@@ -137,12 +140,12 @@ module.exports = function (options) {
         {
           test: /\.css$/,
           // loaders: ['to-string-loader', 'css-loader']
-          loaders: ['raw-loader']
+          use: ['raw-loader']
         },
 
         {
           test: /\.scss$/,
-          loaders: ['raw-loader', 'sass-loader']
+          use: ['raw-loader', 'sass-loader']
         },
 
         {
@@ -160,16 +163,18 @@ module.exports = function (options) {
                     })
                 },
         {
-          test: /\.woff(2)?(\?v=.+)?$/, loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+          test: /\.woff(2)?(\?v=.+)?$/,
+          use: 'url-loader?limit=10000&mimetype=application/font-woff'
         },
 
         {
-          test: /\.(ttf|eot|svg)(\?v=.+)?$/, loader: 'file-loader'
+          test: /\.(ttf|eot|svg)(\?v=.+)?$/,
+          use: 'file-loader'
         },
 
         {
           test: /bootstrap\/dist\/js\/umd\//,
-          loader: 'imports?jQuery=jquery'
+          use: 'imports-loader?jQuery=jquery'
         },
 
         /* Raw loader support for *.html
@@ -179,7 +184,7 @@ module.exports = function (options) {
          */
         {
           test: /\.html$/,
-          loader: 'raw-loader',
+          use: 'raw-loader',
           exclude: [helpers.root('src/index.html')]
         },
 
@@ -187,11 +192,14 @@ module.exports = function (options) {
          */
         {
           test: /\.(jpg|png|gif)$/,
-          loader: 'file'
+          use: 'file-loader'
         }
       ]
     },
 
+    resolveLoader: {
+      moduleExtensions: ['-loader']
+    },
 
         /*
          * Add additional plugins to the compiler.
@@ -236,7 +244,7 @@ module.exports = function (options) {
        */
       new ContextReplacementPlugin(
         // The (\\|\/) piece accounts for path separators in *nix and Windows
-        /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
+        /angular(\\|\/)core(\\|\/)src(\\|\/)linker/,
         helpers.root('src') // location of your src
       ),
 
@@ -341,18 +349,40 @@ module.exports = function (options) {
         "window.jQuery": "jquery",
         Tether: "tether",
         "window.Tether": "tether",
-        Tooltip: "exports?Tooltip!bootstrap/js/dist/tooltip",
-        Alert: "exports?Alert!bootstrap/js/dist/alert",
-        Button: "exports?Button!bootstrap/js/dist/button",
-        Carousel: "exports?Carousel!bootstrap/js/dist/carousel",
-        Collapse: "exports?Collapse!bootstrap/js/dist/collapse",
-        Dropdown: "exports?Dropdown!bootstrap/js/dist/dropdown",
-        Modal: "exports?Modal!bootstrap/js/dist/modal",
-        Popover: "exports?Popover!bootstrap/js/dist/popover",
-        Scrollspy: "exports?Scrollspy!bootstrap/js/dist/scrollspy",
-        Tab: "exports?Tab!bootstrap/js/dist/tab",
-        Util: "exports?Util!bootstrap/js/dist/util"
-      })
+        Tooltip: "exports-loader?Tooltip!bootstrap/js/dist/tooltip",
+        Alert: "exports-loader?Alert!bootstrap/js/dist/alert",
+        Button: "exports-loader?Button!bootstrap/js/dist/button",
+        Carousel: "exports-loader?Carousel!bootstrap/js/dist/carousel",
+        Collapse: "exports-loader?Collapse!bootstrap/js/dist/collapse",
+        Dropdown: "exports-loader?Dropdown!bootstrap/js/dist/dropdown",
+        Modal: "exports-loader?Modal!bootstrap/js/dist/modal",
+        Popover: "exports-loader?Popover!bootstrap/js/dist/popover",
+        Scrollspy: "exports-loader?Scrollspy!bootstrap/js/dist/scrollspy",
+        Tab: "exports-loader?Tab!bootstrap/js/dist/tab",
+        Util: "exports-loader?Util!bootstrap/js/dist/util"
+      }),
+
+      // Fix Angular 2
+      new NormalModuleReplacementPlugin(
+        /facade(\\|\/)async/,
+        helpers.root('node_modules/@angular/core/src/facade/async.js')
+      ),
+      new NormalModuleReplacementPlugin(
+        /facade(\\|\/)collection/,
+        helpers.root('node_modules/@angular/core/src/facade/collection.js')
+      ),
+      new NormalModuleReplacementPlugin(
+        /facade(\\|\/)errors/,
+        helpers.root('node_modules/@angular/core/src/facade/errors.js')
+      ),
+      new NormalModuleReplacementPlugin(
+        /facade(\\|\/)lang/,
+        helpers.root('node_modules/@angular/core/src/facade/lang.js')
+      ),
+      new NormalModuleReplacementPlugin(
+        /facade(\\|\/)math/,
+        helpers.root('node_modules/@angular/core/src/facade/math.js')
+      )
     ],
 
         externals: {
