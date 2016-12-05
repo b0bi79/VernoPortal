@@ -1,0 +1,12 @@
+﻿{
+  "culture": "ru",
+  "texts": {
+    "Administration": "Администрирование",
+    "Users": "Пользователи",
+    "Documents": "Документы",
+    "PrintForms": "Печатные формы",
+    "Returns": "Возвраты",
+    "ProductionCalculator": "Калькулятор выпечки",
+    "Dashboard": "Главная"
+  }
+}

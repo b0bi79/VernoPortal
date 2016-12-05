@@ -1,6 +1,8 @@
 ﻿{
   "culture": "ru",
   "texts": {
+    "Administration": "Администрирование",
+    "Users": "Пользователи",
     "Identity.UserNotLoggedIn": "Пользователь не зарегистрирован в системе.",
     "Identity.PasswordMismatch": "Неверный пароль."
   }

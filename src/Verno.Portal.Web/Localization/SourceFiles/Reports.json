@@ -1,0 +1,12 @@
+﻿{
+  "culture": "en",
+  "texts": {
+    "Administration": "Administration",
+    "Users": "Users",
+    "Documents": "Documents",
+    "PrintForms": "Print forms",
+    "Returns": "Returns",
+    "ProductionCalculator": "ProductionCalculator",
+    "Dashboard": "Dashboard"
+  }
+}
