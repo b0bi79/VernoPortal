@@ -22,11 +22,11 @@ namespace Verno.Portal.Web.Startup
         typeof(PrintEntityFrameworkCoreModule), 
         typeof(ReturnsEntityFrameworkCoreModule), 
         typeof(AbpAspNetCoreModule))]
-    public class ReportsWebModule : AbpModule
+    public class PortalWebModule : AbpModule
     {
         private readonly IConfigurationRoot _appConfiguration;
 
-        public ReportsWebModule(IHostingEnvironment env)
+        public PortalWebModule(IHostingEnvironment env)
         {
             _appConfiguration = AppConfigurations.Get(env.ContentRootPath, env.EnvironmentName);
         }
@@ -40,7 +40,7 @@ namespace Verno.Portal.Web.Startup
             var config = Configuration.Modules.AbpAspNetCore();
             config.CreateControllersForAppServices(typeof(ReportsApplicationModule).Assembly, "reports");
             config.CreateControllersForAppServices(typeof(IdentityApplicationModule).Assembly, "identity");
-            config.CreateControllersForAppServices(typeof(ReportsWebModule).Assembly, "app");
+            config.CreateControllersForAppServices(typeof(PortalWebModule).Assembly, "app");
             Configuration.Authorization.Providers.Add<ShopAuthorizationProvider>();
             Configuration.Authorization.Providers.Add<PrintAuthorizationProvider>();
             Configuration.Authorization.Providers.Add<ReturnsAuthorizationProvider>();

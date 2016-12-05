@@ -1,7 +1,7 @@
 {
   "name": "verno-reports-web",
   "version": "0.0.1",
-  "description": "Verno.Reports.Web",
+  "description": "Verno.Portal.Web",
   "author": "Rozhkov Alexey <b0bi@yandex.ru>",
   "dependencies": {
 

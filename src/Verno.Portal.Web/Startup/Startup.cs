@@ -86,7 +86,7 @@ namespace Verno.Portal.Web.Startup
             });
 
             //Configure Abp and Dependency Injection
-            var result = services.AddAbp<ReportsWebModule>(options =>
+            var result = services.AddAbp<PortalWebModule>(options =>
             {
                 options.ConfigureIdentity("Reports");
 

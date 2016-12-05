@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using Abp.Configuration.Startup;
 using Abp.Localization;
 using Abp.Localization.Dictionaries;
@@ -10,8 +10,8 @@ namespace Verno.Portal.Web.Localization
     {
         public static void Configure(ILocalizationConfiguration localizationConfiguration)
         {
-            localizationConfiguration.Languages.Add(new LanguageInfo("ru", "Русский", "famfamfam-flags ru", isDefault: true));
-            localizationConfiguration.Languages.Add(new LanguageInfo("en", "English", "famfamfam-flags england"));
+            localizationConfiguration.Languages.Add(new LanguageInfo("en", "English", "famfamfam-flags england", isDefault: true));
+            localizationConfiguration.Languages.Add(new LanguageInfo("ru", "Русский", "famfamfam-flags ru"));
 
             localizationConfiguration.Sources.Add(
                 new DictionaryBasedLocalizationSource(PortalConsts.LocalizationSourceName,

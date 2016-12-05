@@ -97,12 +97,7 @@ namespace Verno.Reports.Tests.Reports
             report.Parameters.ForEach(x => { x.Value = x.Value + "chg"; });
 
             // ACT
-            var output = await _reportAppService.Execute(new ExecuteInput()
-            {
-                OutputFormat = "TEST",
-                ReportId = report.Id,
-                Pars = report.Parameters
-            });
+            var output = await _reportAppService.Execute("primery_parametrov", "TEST", report.Parameters);
 
             // ASSERT
             reportGenerator.Received().Generate(Arg.Is<Report>(x => AssertReport(x, report, user)), Arg.Any<Stream>());

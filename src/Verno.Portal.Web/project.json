@@ -51,7 +51,11 @@
   "buildOptions": {
     "emitEntryPoint": true,
     "preserveCompilationContext": true,
-    "copyToOutput": "log4net.config"
+    "copyToOutput": "log4net.config",
+    "embed": [
+      "Localization/SourceFiles/Portal-ru.json",
+      "Localization/SourceFiles/Portal.json"
+    ]
   },
 
   "publishOptions": {
