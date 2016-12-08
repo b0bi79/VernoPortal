@@ -19,8 +19,9 @@ namespace Verno.Portal.Web.Startup
         typeof(IdentityApplicationModule), 
         typeof(ReportsApplicationModule), 
         typeof(ReportsEntityFrameworkCoreModule), 
-        typeof(PrintEntityFrameworkCoreModule), 
-        typeof(ReturnsEntityFrameworkCoreModule), 
+        typeof(PrintModule), 
+        typeof(ReturnsModule), 
+        typeof(ShopModule), 
         typeof(AbpAspNetCoreModule))]
     public class PortalWebModule : AbpModule
     {

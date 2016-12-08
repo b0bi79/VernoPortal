@@ -2,15 +2,15 @@
 using Abp.EntityFrameworkCore;
 using Abp.Modules;
 
-namespace Verno.Portal.Web.Modules.Returns
+namespace Verno.ShInfo.EntityFrameworkCore
 {
     [DependsOn(
         typeof(AbpEntityFrameworkCoreModule))]
-    public class ReturnsEntityFrameworkCoreModule : AbpModule
+    public class InfoEntityFrameworkCoreModule : AbpModule
     {
         public override void PreInitialize()
         {
-            Configuration.DefaultNameOrConnectionString = "Returns";
+            Configuration.DefaultNameOrConnectionString = ShInfoConsts.ConnectionStringName;
         }
 
         public override void Initialize()

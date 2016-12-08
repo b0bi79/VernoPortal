@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
 using System.Threading.Tasks;
 using Abp.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +7,8 @@ namespace Verno.Portal.Web.Modules.Shop
 {
     public class ShopDbContext : AbpDbContext
     {
-        /*public DbSet<PrintDoc> PrintDocs { get; set; }
-        public DbSet<PrintDocForm> PrintDocForms { get; set; }
-        public DbSet<PutqServ> PutqServ { get; set; }
-        public DbSet<Sklad> Sklads { get; set; }*/
         public DbSet<ProductionCalc> ProductionCalcs { get; set; }
+        public DbSet<KonfProizvMag> KonfProizvMag { get; set; }
 
         public ShopDbContext(DbContextOptions<ShopDbContext> options)
             : base(options)
@@ -23,27 +18,12 @@ namespace Verno.Portal.Web.Modules.Shop
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-           /* base.OnModelCreating(builder); // This needs to go before the other rules!
-            builder.Entity<PrintDoc>(b =>
+            base.OnModelCreating(builder); // This needs to go before the other rules!
+            builder.Entity<KonfProizvMag>(b =>
             {
                 b.HasKey(u => u.Id);
-                b.ToTable("Dokumenty");
-                b.HasMany(u => u.Forms).WithOne();
-                b.Property(u => u.Id).HasColumnName("DokId");
-                b.Property(u => u.DataNakl).HasColumnType("datetime");
-                b.HasOne(u => u.SkladSrc).WithMany().HasForeignKey(p => p.SklIst).HasPrincipalKey(p => p.NomerSklada);
+                b.Property(u => u.Id).HasColumnName("CNTaa");
             });
-            builder.Entity<PrintDocForm>(b =>
-            {
-                b.HasKey(u => u.Id);
-                b.Property(u => u.Id).HasColumnName("FrmId");
-            });
-            builder.Entity<Sklad>(b =>
-            {
-                b.HasKey(u => u.Id);
-                b.Property(u => u.Id).HasColumnName("Sklad");
-            });
-            builder.Entity<PutqServ>().HasKey(u => u.Id).HasName("CntAA");*/
         }
 
         public Task<List<ProductionCalc>> GetProductionCalculator(int shopNum)

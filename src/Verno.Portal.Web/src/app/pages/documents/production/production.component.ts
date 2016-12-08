@@ -16,6 +16,7 @@ import { ShopService } from './production.service';
 export class ProductionCalculator implements OnInit {
   private datas: ProductionDto[] = [];
   private userShopNum: number;
+  private currShopNum: number;
   private filterDelay: number = 0;
 
   constructor(
@@ -25,11 +26,12 @@ export class ProductionCalculator implements OnInit {
     state: GlobalState
   ) {
     this.userShopNum = Number(state.user.shopNum);
+    this.currShopNum = this.userShopNum;
   }
 
   ngOnInit() {
-    if (this.userShopNum)
-      this.getDatas(this.userShopNum);
+    if (this.currShopNum)
+      this.getDatas(this.currShopNum);
   }
 
   private getDatas(shopNum: number): void {
@@ -46,6 +48,7 @@ export class ProductionCalculator implements OnInit {
 
   private refresh(shopNum: number): void {
     var self = this;
+    this.currShopNum = shopNum;
     this.filterDelay++;
     setTimeout(() => {
       if (self.filterDelay === 1) {
@@ -77,6 +80,14 @@ export class ProductionCalculator implements OnInit {
       ]
     };
     this.exporter.export(wb, "returns.xlsx");
+  }
+
+  private printSticker(row: ProductionDto): void {
+    this.productionSvc.stickerFile(this.currShopNum, row.vidTovara)
+      .then(blob => {
+        var url = window.URL.createObjectURL(blob);
+        window.open(url);
+      });
   }
 
   private isGranted(name: string): boolean {

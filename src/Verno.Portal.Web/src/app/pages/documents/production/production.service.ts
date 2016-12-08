@@ -1,4 +1,5 @@
 ﻿import { Injectable } from '@angular/core';
+import { ResponseContentType } from '@angular/http';
 
 import { ProductionDto } from './production.model';
 import { AbpHttp } from 'app/theme/services';
@@ -10,9 +11,18 @@ export class ShopService {
 
   constructor(private http: AbpHttp) { }
 
+  //{shopNum}/production-calculator
   getList(shopNum: number): Promise<abp.List<ProductionDto>> {
-    let url = this.apiUrl + shopNum + "/" + "production-calculator";
+    let url = this.apiUrl + shopNum + "/production-calculator";
     return this.http.get(url)
+      .toPromise();
+  }
+
+  //{shopNum}/nomenklatura/{vidTovara}/sticker
+  stickerFile(shopNum: number, vidTovara: number): Promise<abp.List<ProductionDto>> {
+    let url = this.apiUrl + shopNum + "/nomenklatura/" + vidTovara +"/sticker";
+    return this.http.get(url, { responseType: ResponseContentType.Blob })
+      .map(res => res.blob())
       .toPromise();
   }
 }

@@ -2,15 +2,15 @@
 using Abp.EntityFrameworkCore;
 using Abp.Modules;
 
-namespace Verno.Portal.Web.Modules.Print
+namespace Verno.Portal.Web.Modules.Returns
 {
     [DependsOn(
         typeof(AbpEntityFrameworkCoreModule))]
-    public class PrintEntityFrameworkCoreModule : AbpModule
+    public class ReturnsModule : AbpModule
     {
         public override void PreInitialize()
         {
-            Configuration.DefaultNameOrConnectionString = "Print";
+            Configuration.DefaultNameOrConnectionString = "Returns";
         }
 
         public override void Initialize()

@@ -113,6 +113,7 @@ namespace Verno.Reports.Reports
 
         [HttpPost]
         [Route("{reportName}/execute/{outputFormat}")]
+        // TODO объеденить методы, возвращать ActionResult
         public async Task<FileStreamResult> Execute(string reportName, string outputFormat, RepParameterDto[] pars)
         {
             var report = await BuildReport(reportName, pars);

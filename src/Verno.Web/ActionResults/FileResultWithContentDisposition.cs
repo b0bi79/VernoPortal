@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Verno.Portal.Web.ActionResults
+namespace Verno.ActionResults
 {
     public class FileContentResultWithContentDisposition : FileContentResult
     {

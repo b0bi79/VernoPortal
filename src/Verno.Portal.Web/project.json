@@ -2,8 +2,6 @@
   "userSecretsId": "Verno-Portal-6396CBFC-97D0-4E8C-86F0-3D969C3CC67D",
 
   "dependencies": {
-    "Verno.Reports.Application": "1.0.0.0-*",
-    "Verno.Reports.EntityFrameworkCore": "1.0.0.0-*",
     "Castle.LoggingFacility.MsLogging": "1.0.0",
     "Microsoft.Owin": "3.0.1",
     "Microsoft.AspNetCore.Owin": "1.0.0",
@@ -22,20 +20,24 @@
     "Microsoft.Extensions.Logging": "1.0.0",
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0",
     "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0",
-    "Verno.Identity.Application": "1.0.0-*",
-    "System.Linq": "4.1.0",
     "Microsoft.AspNetCore.Mvc": "1.0.1",
     "Microsoft.EntityFrameworkCore.SqlServer": "1.0.1",
     "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.0.1",
     "Microsoft.VisualStudio.Web.CodeGeneration.Tools": "1.0.0-preview2-update1",
     "Microsoft.VisualStudio.Web.CodeGenerators.Mvc": "1.0.0-preview2-update1",
+    "System.IO.Compression.ZipFile": "4.0.1",
     "Abp.AspNetCore": "1.0.0",
     "Abp.Castle.Log4Net": "1.0.0",
     "Abp.Owin": "1.0.0",
     "Abp.RedisCache": "1.0.0",
     "Abp.Web.SignalR": "1.0.0",
     "Verno.Web": "1.0.0.0-*",
-    "System.IO.Compression.ZipFile": "4.0.1"
+    "Verno.Reports.Application": "1.0.0.0-*",
+    "Verno.Reports.EntityFrameworkCore": "1.0.0.0-*",
+    "Verno.Identity.Application": "1.0.0-*",
+    "Verno.shInfo.Core": "1.0.0-*",
+    "Microsoft.Office.Interop.Word": "15.0.4797.1003",
+    "DocX_Doc": "1.0.0"
   },
 
   "tools": {
@@ -53,8 +55,7 @@
     "preserveCompilationContext": true,
     "copyToOutput": "log4net.config",
     "embed": [
-      "Localization/SourceFiles/Portal-ru.json",
-      "Localization/SourceFiles/Portal.json"
+      "Localization/SourceFiles/*.json"
     ]
   },
 

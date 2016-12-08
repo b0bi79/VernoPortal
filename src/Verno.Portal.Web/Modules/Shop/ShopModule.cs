@@ -1,12 +1,14 @@
 ﻿using System.Reflection;
 using Abp.EntityFrameworkCore;
 using Abp.Modules;
+using Verno.ShInfo;
 
 namespace Verno.Portal.Web.Modules.Shop
 {
     [DependsOn(
+        typeof(ShInfoCoreModule),
         typeof(AbpEntityFrameworkCoreModule))]
-    public class ShopEntityFrameworkCoreModule : AbpModule
+    public class ShopModule : AbpModule
     {
         public override void PreInitialize()
         {

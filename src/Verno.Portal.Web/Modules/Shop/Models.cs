@@ -1,10 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 using Abp.Domain.Entities;
 
 namespace Verno.Portal.Web.Modules.Shop
 {
+    public class KonfProizvMag : Entity<int>
+    {
+        // PRIMARY KEY CNTaa
+        public int VidTovara { get; set; }
+        public int Normativ { get; set; }
+        public int Koeff { get; set; }
+        public string Etiketka { get; set; }
+        public int Proekt { get; set; }
+    }
+
     /*[Table("Dokumenty")]
     public class PrintDoc : Entity<int>
     {

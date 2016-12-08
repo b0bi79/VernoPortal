@@ -144,6 +144,19 @@ declare module abp.services.identity {
 }
 
 declare module abp {
+  interface IGenericPromise<T> {
+    done(successCallback: (promiseValue: T) => any): IPromise;
+    fail(errorCallback: () => any): IPromise;
+  }
+  interface IPromise {
+    done(successCallback: () => any): IPromise;
+    fail(errorCallback: () => any): IPromise;
+  }
+  interface List<T> {
+    items: T[];
+  } 
+}
+/*declare module abp {
   var appPath: string;
   class ui {
     static setBusy(element, IPromise);
@@ -171,20 +184,20 @@ declare module abp {
     *  given string (str).
     *  Example:
     *  replaceAll('This is a test string', 'is', 'X') = 'ThX X a test string'
-    ************************************************************/
+    ***********************************************************#1#
     static replaceAll(str: string, search: string, replacement: string): string;
 
     /* Formats a string just like string.format in C#.
     *  Example:
     *  formatString('Hello {0}','Tuana') = 'Hello Tuana'
-    ************************************************************/
+    ***********************************************************#1#
     static formatString(format: string, ...args: any[]): string;
     
     /**
      * parameterInfos should be an array of { name, value } objects
      * where name is query string parameter name and value is it's value.
      * includeQuestionMark is true by default.
-     */
+     #1#
     static buildQueryString(parameterInfos: {name:string, value: any}[], includeQuestionMark?: boolean): string;
 
     /**
@@ -192,14 +205,14 @@ declare module abp {
      * @param {string} key
      * @param {string} value 
      * @param {Date} expireDate Optional expire date (default: 30 days).
-     */
+     #1#
     static setCookieValue(key: string, value: string, expireDate?: Date): void;
 
     /**
      * Gets a cookie with given key.
      * @param {string} key
      * @returns {string} Cookie value
-     */
+     #1#
     static getCookieValue(key: string): string;
   }
 
@@ -223,18 +236,7 @@ declare module abp {
   class log {
     static error(message: string): void;
   }
-  interface IGenericPromise<T> {
-    done(successCallback: (promiseValue: T) => any): IPromise;
-    fail(errorCallback: () => any): IPromise;
-  }
-  interface IPromise {
-    done(successCallback: () => any): IPromise;
-    fail(errorCallback: () => any): IPromise;
-  }
-  interface List<T> {
-    items: T[];
-  }
-}
+}*/
 /*declare var abpSessionSvc: abp.services.app.session;
 declare var abpUserSvc: abp.services.app.user;
 declare var abpRoleSvc: abp.services.app.role;*/

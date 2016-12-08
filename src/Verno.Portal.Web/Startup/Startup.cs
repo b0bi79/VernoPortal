@@ -78,6 +78,7 @@ namespace Verno.Portal.Web.Startup
             {
                 s.SiteTitle = "Verno.Portal";
                 s.PrintFilesPath = Configuration.GetSection("Print")["FilesPath"];
+                s.PrintTemplatesPath = Configuration.GetSection("Common")["TemplatesPath"];
             });
 
             services.AddMvc(options =>
