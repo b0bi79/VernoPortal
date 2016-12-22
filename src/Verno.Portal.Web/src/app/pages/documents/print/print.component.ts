@@ -34,7 +34,7 @@ export class Print implements OnInit {
 
   getDatas(dfrom: moment.Moment, dto: moment.Moment, filter: string) {
     var self = this;
-    abp.ui.setBusy(jQuery('.card', this.element.nativeElement),
+    abp.ui.setBusy(jQuery('.card-body', this.element.nativeElement),
       {
         blockUI: true,
         promise: app.print.getList(dfrom.format("YYYY-MM-DD"), dto.format("YYYY-MM-DD"), filter)

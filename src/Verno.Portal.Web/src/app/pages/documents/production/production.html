@@ -5,7 +5,7 @@
         </data-filter>-->
 
         <div class="row">
-            <div class="form-inline col-xl-9 col-lg-8 col-md-6 col-xs-12">
+            <div class="form-inline col-xl-8 col-lg-7 col-md-6 col-xs-12">
                 <div id="shopNum-filter" class="form-group" *ngIf="!userShopNum">
                     <div class="input-group">
                         <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-hashtag fa-fw"></i></span>
@@ -13,10 +13,10 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-lg-4 col-md-6 col-xs-12">
+            <div class="col-xl-4 col-lg-5 col-md-6 col-xs-12">
                 <div class="pull-right">
                     <button type="button" class="btn btn-primary" (click)="exportExcel()"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Экспорт</button>
-                    <button type="button" class="btn btn-primary" (click)="printSticker(mf.activeRow)">
+                    <button type="button" class="btn btn-primary" (click)="printSticker(mf.activeRow)" [hidden]="!mf.activeRow?.etiketka">
                         <i class="fa fa-print" aria-hidden="true"></i> Этикетка
                     </button>
                 </div>
@@ -25,27 +25,31 @@
         <table class="table table-striped" [mfData]="datas" #mf="mfDataTable" [mfRowsOnPage]="25">
             <thead>
                 <tr>
-                    <th><mfDefaultSorter by="vidTovara">Код св/у</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="vidTovara"></mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="vidTovara">Код<br/>заказа</mfDefaultSorter></th>
                     <th><mfDefaultSorter by="shtrixKod">Код<br />касса</mfDefaultSorter></th>
-                    <th><mfDefaultSorter by="naimenovanie">Наименование</mfDefaultSorter></th>
-                    <th><mfDefaultSorter by="imahPr">Производитель</mfDefaultSorter></th>
-                    <th><mfDefaultSorter by="realizSht">Реализ</mfDefaultSorter></th>
-                    <th><mfDefaultSorter by="spisSht">Спис<br/>ания</mfDefaultSorter></th>
-                    <th><mfDefaultSorter by="normativ">Норм<br/>атив</mfDefaultSorter></th>
-                    <th><mfDefaultSorter by="koeff">Коэф</mfDefaultSorter></th>
-                    <th><mfDefaultSorter by="toBake">Выпечь<br/>сегодня</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="naimenovanie">Товар</mfDefaultSorter></th>
+                    <!--<th><mfDefaultSorter by="imahPr">Производитель</mfDefaultSorter></th>-->
+                    <th><mfDefaultSorter by="normativ">Норма<br />вып., шт</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="realizSht">Реализация<br />шт. за {{date1 | date: 'dd.MM.yy'}}</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="spisSht">Списания<br />шт. за {{date1 | date: 'dd.MM.yy'}}</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="koeff">Коэффициент<br />увеличения<br />реализации, %</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="ostSht">Конечный<br />остаток в<br />магазине, шт.</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="toBake">ВЫПЕЧЬ,<br />шт {{today | date: 'dd.MM.yy'}}</mfDefaultSorter></th>
                 </tr>
             </thead>
             <tbody>
                 <tr [mfSelectable]="row" *ngFor="let row of mf.data">
+                    <td><a *ngIf="row.etiketka" [tooltip]="'Можно распечатать этикетку.'"><i class="fa fa-print" aria-hidden="true"></i></a></td>
                     <td>{{row.vidTovara}}</td>
                     <td>{{row.shtrixKod}}</td>
                     <td nowrap>{{row.naimenovanie}}</td>
-                    <td>{{row.imahPr}}</td>
+                    <!--<td>{{row.imahPr}}</td>-->
+                    <td>{{row.normativ}}</td>
                     <td>{{row.realizSht}}</td>
                     <td>{{row.spisSht}}</td>
-                    <td>{{row.normativ}}</td>
                     <td>{{row.koeff}}</td>
+                    <td>{{row.ostSht}}</td>
                     <td>{{row.toBake}}</td>
                 </tr>
             </tbody>

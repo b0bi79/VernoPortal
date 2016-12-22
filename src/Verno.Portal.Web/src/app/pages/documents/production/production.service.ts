@@ -19,8 +19,16 @@ export class ShopService {
   }
 
   //{shopNum}/nomenklatura/{vidTovara}/sticker
-  stickerFile(shopNum: number, vidTovara: number): Promise<abp.List<ProductionDto>> {
+  stickerFile(shopNum: number, vidTovara: number): Promise<Blob> {
     let url = this.apiUrl + shopNum + "/nomenklatura/" + vidTovara +"/sticker";
+    return this.http.get(url, { responseType: ResponseContentType.Blob })
+      .map(res => res.blob())
+      .toPromise();
+  }
+
+  //{shopNum}/production-calculator/excel
+  getListExcel(shopNum: number): Promise<Blob> {
+    let url = this.apiUrl + shopNum + "/production-calculator/excel";
     return this.http.get(url, { responseType: ResponseContentType.Blob })
       .map(res => res.blob())
       .toPromise();

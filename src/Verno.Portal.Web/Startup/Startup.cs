@@ -53,6 +53,10 @@ namespace Verno.Portal.Web.Startup
                 options => options.UseSqlServer(Configuration.GetConnectionString("Returns"))
             );
 
+            services.AddDbContext<ShInfo.EntityFrameworkCore.ShInfoDbContext>(
+                options => options.UseSqlServer(Configuration.GetConnectionString("ShInfoSql"))
+            );
+
             services.AddDbContext<Identity.Data.IdentityDbContext>(
                 options => options.UseSqlServer(Configuration.GetConnectionString("Identity"))
             );
@@ -79,6 +83,7 @@ namespace Verno.Portal.Web.Startup
                 s.SiteTitle = "Verno.Portal";
                 s.PrintFilesPath = Configuration.GetSection("Print")["FilesPath"];
                 s.PrintTemplatesPath = Configuration.GetSection("Common")["TemplatesPath"];
+                s.XlReportTemplatesPath = Configuration.GetSection("Common")["XlReportTemplatesPath"];
             });
 
             services.AddMvc(options =>

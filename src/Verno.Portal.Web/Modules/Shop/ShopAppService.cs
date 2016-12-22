@@ -8,7 +8,7 @@ using Abp.Authorization;
 using Abp.Domain.Uow;
 using Abp.Runtime.Session;
 using Abp.UI;
-using Microsoft.AspNetCore.Http;
+using DotXLReport;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
@@ -34,15 +34,15 @@ namespace Verno.Portal.Web.Modules.Shop
     {
         private readonly ShopDbContext _context;
         private readonly AppSettings _appSettings;
-        private readonly NomenklaturaRepository _nomenklatura;
+        //private readonly NomenklaturaRepository _nomenklatura;
         private readonly KlientyRepository _klienty;
 
         public PrintAppService(ShopDbContext context, IOptions<AppSettings> appSettings, 
-            NomenklaturaRepository nomenklatura, KlientyRepository klienty)
+            /*NomenklaturaRepository nomenklatura, */KlientyRepository klienty)
         {
             _context = context;
             _appSettings = appSettings.Value;
-            _nomenklatura = nomenklatura;
+            //_nomenklatura = nomenklatura;
             _klienty = klienty;
         }
 
@@ -83,12 +83,31 @@ namespace Verno.Portal.Web.Modules.Shop
             return new ListResultDto<ProductionCalc>(await _context.GetProductionCalculator(shopNum));
         }
 
+        [Route("{shopNum}/production-calculator/excel")]
+        [UnitOfWork(isTransactional: false)]
+        [AbpAuthorize(ShopPermissionNames.Documents_Shop_Production)]
+        public async Task<ActionResult> GetProductionCalculatorToExcel(int shopNum)
+        {
+            var userShopNum = await GetUserShopNum();
+            shopNum = userShopNum == 0 ? shopNum : userShopNum;
+            if (shopNum == 0)
+                throw new UserFriendlyException("Пользователю не присвоен номер магазина.");
+            var datas = await _context.GetProductionCalculator(shopNum);
+            using (var template = File.OpenRead(Path.Combine(_appSettings.XlReportTemplatesPath, "BakeCalculator.xlsx")))
+            {
+                var xlsxTemplate = new XlsxTemplate();
+                xlsxTemplate.Load(template);
+                xlsxTemplate.AddVariable(datas, "table");
+                xlsxTemplate.AddVariable(shopNum, "shopNum");
 
+                return new MemoryStreamResult("BakeCalculator.xlsx", file=>xlsxTemplate.Generate(file));
+            }
+        }
+        
         [HttpGet]
         [Route("{shopNum}/nomenklatura/{vidTovara}/sticker")]
         [UnitOfWork(isTransactional: false)]
         [AbpAuthorize(ShopPermissionNames.Documents_Shop_Production)]
-        [DeleteFile]
         public async Task<ActionResult> StickerFile(int shopNum, int vidTovara)
         {
             var userShopNum = await GetUserShopNum();
@@ -101,58 +120,26 @@ namespace Verno.Portal.Web.Modules.Shop
                 throw new UserFriendlyException($"Не найден магазин {shopNum}.");
 
             var tovConf = await _context.KonfProizvMag.FirstOrDefaultAsync(x => x.VidTovara == vidTovara);
-            var tovar = await _nomenklatura.GetAsync(vidTovara);
-            if (tovConf != null && tovar != null)
+            //var tovar = await _nomenklatura.GetAsync(vidTovara);
+            if (tovConf != null && tovConf.Etiketka != null/* && tovar != null*/)
             {
-                var outfile = Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
                 var filepath = Path.Combine(ServPath, tovConf.Etiketka);
-                if (System.IO.File.Exists(filepath) && Path.HasExtension(".docx"))
+                if (File.Exists(filepath) && Path.GetExtension(filepath) == ".docx")
                 {
                     Document document = new Document();
                     document.LoadFromFile(filepath);
 
-                    document.Replace("{DateTime}", DateTime.Now.ToString("d t"), false, true);
+                    document.Replace("{DateTime}", DateTime.Now.ToString("dd.MM.yyyy HH:mm"), false, true);
                     document.Replace("{ProdAddr}", shop.Adres, false, true);
 
-                    document.SaveToFile(outfile, FileFormat.PDF);
-
-                    /*var appWord = new Application();
-                    var docWord = appWord.Documents.Open(filepath, ReadOnly: false, Visible: false);
-                    try
-                    {
-                        docWord.Activate();
-                        FindAndReplace(appWord, "{DateTime}", DateTime.Now.ToString("d t"));
-                        FindAndReplace(appWord, "{ProdAddr}", shop.Adres);
-                        docWord.ExportAsFixedFormat(outfile, WdExportFormat.wdExportFormatPDF);
-                    }
-                    finally
-                    {
-                        docWord.Close();
-                        appWord.Quit();
-                    }*/
-
-                    return new PhysicalFileResultWithContentDisposition(outfile, "application/pdf", new ContentDisposition()
-                    {
-                        Inline = true,
-                        FileName = Path.GetFileName(outfile)
-                    });
+                    document.Protect(ProtectionType.AllowOnlyReading, "EFDE775C-56F6-47ED-8C79-0AC2C027D6B1");
+                    return new MemoryStreamResult(tovConf.Etiketka, file => document.SaveToStream(file, FileFormat.Docx));
                 }
             }
             return new NotFoundResult();
         }
-        #endregion
 
-        /*private void FindAndReplace(Application doc, object findText, object replaceWithText)
-        {
-            //options
-            object matchCase = false, matchWholeWord = true, matchWildCards = false, matchSoundsLike = false,
-                matchAllWordForms = false, forward = true, format = false, matchKashida = false, matchDiacritics = false,
-                matchAlefHamza = false, matchControl = false, read_only = false, visible = true, replace = 2, wrap = 1;
-            //execute find and replace
-            doc.Selection.Find.Execute(ref findText, ref matchCase, ref matchWholeWord,
-                ref matchWildCards, ref matchSoundsLike, ref matchAllWordForms, ref forward, ref wrap, ref format, ref replaceWithText, ref replace,
-                ref matchKashida, ref matchDiacritics, ref matchAlefHamza, ref matchControl);
-        }*/
+        #endregion
 
         private string _servPath;
         public string ServPath => _servPath ?? (_servPath = _appSettings.PrintTemplatesPath);

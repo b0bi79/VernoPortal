@@ -67,7 +67,7 @@ export class Returns implements OnInit {
 
   private getDatas(dfrom: moment.Moment, dto: moment.Moment, filter: string, unreclaimed: boolean, shopNum: number): void {
     var self = this;
-    abp.ui.setBusy(jQuery('.card', this.element.nativeElement),
+    abp.ui.setBusy(jQuery('.card-body', this.element.nativeElement),
     {
       blockUI: true,
       promise: this.returnsSvc.getList(dfrom.format("YYYY-MM-DD"), dto.format("YYYY-MM-DD"), filter, unreclaimed, Number(shopNum))

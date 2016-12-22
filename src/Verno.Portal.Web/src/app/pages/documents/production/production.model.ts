@@ -9,6 +9,8 @@
   normativ     : number;
   koeff        : number;
   toBake       : number;
+  ostSht: number;
+  etiketka: number;
 }                                            
 export class Production implements ProductionDto {
   imahKod2: string;
@@ -21,4 +23,6 @@
   normativ: number;
   koeff: number;
   toBake: number;
+  ostSht: number;
+  etiketka: number;
 }

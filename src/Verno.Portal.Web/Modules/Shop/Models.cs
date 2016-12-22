@@ -7,10 +7,10 @@ namespace Verno.Portal.Web.Modules.Shop
     {
         // PRIMARY KEY CNTaa
         public int VidTovara { get; set; }
-        public int Normativ { get; set; }
-        public int Koeff { get; set; }
+        public int? Normativ { get; set; }
+        public int? Koeff { get; set; }
         public string Etiketka { get; set; }
-        public int Proekt { get; set; }
+        public int? Proekt { get; set; }
     }
 
     /*[Table("Dokumenty")]

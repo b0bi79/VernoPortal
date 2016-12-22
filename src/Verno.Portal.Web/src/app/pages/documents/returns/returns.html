@@ -69,7 +69,7 @@
                     <td>{{row.liniahTip}}</td>
                 </tr>
                 <tr *ngIf="mf.activeRow == row && !isDownloadMode">
-                    <td colspan="7">
+                    <td attr.colspan="{{ needShowShops ? 7 : 6 }}">
                         <returns-files [rasxod]="row"></returns-files>
                     </td>
                 </tr>
@@ -77,7 +77,7 @@
             </tbody>
             <tfoot>
             <tr>
-                <td colspan="7">
+                <td attr.colspan="{{ needShowShops ? 7 : 6 }}">
                     <mfBootstrapPaginator [rowsOnPageSet]="[15,25,50]"></mfBootstrapPaginator>
                 </td>
             </tr>

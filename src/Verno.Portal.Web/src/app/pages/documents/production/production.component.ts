@@ -4,13 +4,16 @@ import { CommonModule } from '@angular/common';
 import { GlobalState } from '../../../global.state';
 import { Production, ProductionDto } from './production.model';
 import { ExportToExcelService, Workbook, Worksheet, Column } from "app/theme/services";
+let saver = require("file-saver");
 
+import * as moment from 'moment';
 import { ShopService } from './production.service';
 
 @Component({
   selector: 'own-production',
   encapsulation: ViewEncapsulation.None,
   template: require('./production.html'),
+  styles: ['.table th, .table td {padding: 0.65rem}'],
   providers: [ShopService, ExportToExcelService]
 })
 export class ProductionCalculator implements OnInit {
@@ -18,6 +21,8 @@ export class ProductionCalculator implements OnInit {
   private userShopNum: number;
   private currShopNum: number;
   private filterDelay: number = 0;
+  private date1: moment.Moment = moment().subtract(7, 'days');
+  private today: moment.Moment = moment();
 
   constructor(
     private element: ElementRef,
@@ -36,7 +41,7 @@ export class ProductionCalculator implements OnInit {
 
   private getDatas(shopNum: number): void {
     var self = this;
-    abp.ui.setBusy(jQuery('.card', this.element.nativeElement),
+    abp.ui.setBusy(jQuery('.card-body', this.element.nativeElement),
       {
         blockUI: true,
         promise: this.productionSvc.getList(shopNum)
@@ -59,34 +64,51 @@ export class ProductionCalculator implements OnInit {
   }
 
   private exportExcel(): void {
-    var wb = <Workbook>{
+   /* var wb = <Workbook>{
       sheets: [
         <Worksheet>{
           name: "Калькулятор выпечки",
           data: this.datas,
           columns: [
-            <Column>{ header: "Подгруппа классификатор", eval: r => r.imahKod2, width: 40 },
-            <Column>{ header: "Код св/у", eval: r => r.vidTovara, width: 15 },
+            <Column>{ header: "Код заказа", eval: r => r.vidTovara, width: 15 },
             <Column>{ header: "Код касса", eval: r => r.shtrixKod, width: 15 },
-            <Column>{ header: "Наименование", eval: r => r.naimenovanie, width: 40 },
-            <Column>{ header: "Производитель", eval: r => r.imahPr, width: 30 },
-            <Column>{ header: "Норматив", eval: r => r.normativ, width: 10 },
-            <Column>{ header: "Реализация", eval: r => r.realizSht, width: 10 },
-            <Column>{ header: "Списания", eval: r => r.spisSht, width: 10 },
-            <Column>{ header: "Коэффициент", eval: r => r.koeff, width: 10 },
-            <Column>{ header: "Выпечь сегодня", eval: r => r.toBake, width: 10 },
+            <Column>{ header: "Товар", eval: r => r.naimenovanie, width: 40 },
+            <Column>{ header: "Норма вып., шт", eval: r => r.normativ, width: 10 },
+            <Column>{ header: "Реализация шт. за " + this.date1.format("DD.MM.YYYY"), eval: r => r.realizSht, width: 10 },
+            <Column>{ header: "Списания шт. за " + this.date1.format("DD.MM.YYYY"), eval: r => r.spisSht, width: 10 },
+            <Column>{ header: "Коэффициент увеличения реализации, %", eval: r => r.koeff, width: 10 },
+            <Column>{ header: "Конечный остаток в магазине, шт.", eval: r => r.ostSht, width: 10 },
+            <Column>{ header: "ВЫПЕЧЬ, шт " + this.today.format("DD.MM.YYYY"), eval: r => r.toBake, width: 10 },
           ]
         }
       ]
     };
-    this.exporter.export(wb, "returns.xlsx");
+    this.exporter.export(wb, "returns.xlsx");*/
+    this.productionSvc.getListExcel(this.currShopNum)
+      .then(blob => {
+        let fileName = "BakeCalculator.xlsx";
+        saver.saveAs(blob, fileName);
+      })
+      .catch(reason => {
+        abp.message.error(reason);
+      });
   }
 
   private printSticker(row: ProductionDto): void {
     this.productionSvc.stickerFile(this.currShopNum, row.vidTovara)
       .then(blob => {
-        var url = window.URL.createObjectURL(blob);
-        window.open(url);
+        let docxMimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        if (blob.type === docxMimeType) {
+          let fileName = row.naimenovanie.replace("/", "-").replace("\\", "-") + "_sticker.docx";
+          saver.saveAs(blob, fileName);
+        } else
+          abp.message.error("Для товара не добавлен шаблон этикетки", "Не найдена этикетка!");
+      })
+      .catch(reason => {
+        if (reason.status === 404)
+          abp.message.error("Для товара не добавлен шаблон этикетки", "Не найдена этикетка!");
+        else
+          abp.message.error(reason);
       });
   }
 

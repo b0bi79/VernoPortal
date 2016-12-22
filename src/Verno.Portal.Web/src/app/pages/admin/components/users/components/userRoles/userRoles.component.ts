@@ -81,7 +81,7 @@ export class UserRolesEdit implements OnInit {
   }
 
   private setBusy(promise: any): void {
-    abp.ui.setBusy(jQuery('.card', this.element.nativeElement),
+    abp.ui.setBusy(jQuery('.card-body', this.element.nativeElement),
       {
         blockUI: true,
         promise: promise

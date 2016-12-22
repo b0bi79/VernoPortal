@@ -28,6 +28,7 @@ namespace Verno.Portal.Web.Modules.Shop
 
         public Task<List<ProductionCalc>> GetProductionCalculator(int shopNum)
         {
+            Database.SetCommandTimeout(120);
             return ProductionCalcs.FromSql(@"
 if object_id('tempdb..#Matr')>0 DROP TABLE #Matr
 
@@ -47,12 +48,13 @@ CREATE TABLE #Matr (
       FmtMag INT NULL,
       RealizSht MONEY NULL DEFAULT(0),
       SpisSht MONEY NULL DEFAULT(0),
+      OstSht MONEY NULL DEFAULT(0) 
 )
 CREATE INDEX IND1 ON #Matr (VidTovara,NomerSklada)
 
 exec shReportsSQL.dbo.KalkProizvMag {0} --magazin
 
-select k2.ImahKod2, #Matr.VidTovara, ShtrixKod, Naimenovanie, ImahPr, RealizSht, SpisSht, kpm.Normativ, kpm.Koeff
+select k2.ImahKod2, #Matr.VidTovara, ShtrixKod, Naimenovanie, ImahPr, RealizSht, SpisSht, OstSht, kpm.Normativ, kpm.Koeff, Etiketka
 from #Matr
 	inner join shInfoSQL.dbo.Kod2 k2 on #Matr.Kod1=k2.Kod1 and #Matr.Kod2=k2.kod2
     left join shU1SQL.dbo.KonfProizvMag kpm on #matr.VidTovara=kpm.VidTovara --and #matr.Proekt=kpm.Proekt 

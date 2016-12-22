@@ -1,4 +1,6 @@
 ﻿using System.Threading.Tasks;
+using Abp.Runtime.Validation;
+using Abp.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -128,6 +130,8 @@ namespace Verno.Portal.Web.Controllers
         //
         // POST: /Manage/SetPassword
         [HttpPost]
+        [DontWrapResult]
+        [DisableValidation]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SetPassword(SetPasswordViewModel model)
         {

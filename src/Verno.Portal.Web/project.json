@@ -36,8 +36,8 @@
     "Verno.Reports.EntityFrameworkCore": "1.0.0.0-*",
     "Verno.Identity.Application": "1.0.0-*",
     "Verno.shInfo.Core": "1.0.0-*",
-    "Microsoft.Office.Interop.Word": "15.0.4797.1003",
-    "DocX_Doc": "1.0.0"
+    "DocX_Doc": "1.0.0",
+    "DotXLReport": "1.0.0-*"
   },
 
   "tools": {
