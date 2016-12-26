@@ -31,7 +31,6 @@ namespace Verno.Portal.Web.Modules.Shop
             Database.SetCommandTimeout(120);
             return ProductionCalcs.FromSql(@"
 if object_id('tempdb..#Matr')>0 DROP TABLE #Matr
-
 CREATE TABLE #Matr (
       CntAA INT IDENTITY(1,1) PRIMARY KEY,
       VidTovara INT NULL,
@@ -48,18 +47,22 @@ CREATE TABLE #Matr (
       FmtMag INT NULL,
       RealizSht MONEY NULL DEFAULT(0),
       SpisSht MONEY NULL DEFAULT(0),
-      OstSht MONEY NULL DEFAULT(0) 
+      OstSht MONEY NULL DEFAULT(0),
+      Normativ INT NULL,
+      Koeff INT NULL,
+      PlanVyp INT NULL,    
+      Etiketka NVARCHAR(1000) NULL
 )
 CREATE INDEX IND1 ON #Matr (VidTovara,NomerSklada)
-
-exec shReportsSQL.dbo.KalkProizvMag {0} --magazin
-
-select k2.ImahKod2, #Matr.VidTovara, ShtrixKod, Naimenovanie, ImahPr, RealizSht, SpisSht, OstSht, kpm.Normativ, kpm.Koeff, Etiketka
+ 
+exec shReportsSQL.dbo.KalkProizvMagNew {0} --magazin
+ 
+select k2.ImahKod2, #Matr.VidTovara, ShtrixKod, Naimenovanie, RealizSht, SpisSht, OstSht,
+    Normativ, Koeff, PlanVyp, Etiketka
 from #Matr
-	inner join shInfoSQL.dbo.Kod2 k2 on #Matr.Kod1=k2.Kod1 and #Matr.Kod2=k2.kod2
-    left join shU1SQL.dbo.KonfProizvMag kpm on #matr.VidTovara=kpm.VidTovara --and #matr.Proekt=kpm.Proekt 
-    left join shInfoSQL.dbo.ShtrixKody sk on #Matr.VidTovara=sk.VidTovara and len(ShtrixKod)<=4
-	left join shInfoSQL.dbo.Proizvoditeli pr on #Matr.KodPost=pr.KodPost", shopNum)
+inner join shInfoSQL.dbo.Kod2 k2 on #Matr.Kod1=k2.Kod1 and #Matr.Kod2=k2.kod2
+LEFT JOIN shInfoSQL.dbo.PereKod AS Pe WITH(NOLOCK) ON #Matr.VidTovara=Pe.NovKod
+INNER JOIN shInfoSQL.dbo.ShtrixKody sk on isnull(Pe.StarKod,#Matr.VidTovara)=sk.VidTovara and len(ShtrixKod)<=4", shopNum)
                 .ToListAsync();
         }
     }

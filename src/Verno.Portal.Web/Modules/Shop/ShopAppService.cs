@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net.Mime;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.Application.Services.Dto;
@@ -8,16 +7,13 @@ using Abp.Authorization;
 using Abp.Domain.Uow;
 using Abp.Runtime.Session;
 using Abp.UI;
-using DotXLReport;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 //using Microsoft.Office.Interop.Word;
 using Spire.Doc;
 using Verno.ActionResults;
 using Verno.Configuration;
-using Verno.Filters;
 using Verno.Identity.Users;
 using Verno.ShInfo.EntityFrameworkCore.Repositories;
 
@@ -95,7 +91,7 @@ namespace Verno.Portal.Web.Modules.Shop
             var datas = await _context.GetProductionCalculator(shopNum);
             using (var template = File.OpenRead(Path.Combine(_appSettings.XlReportTemplatesPath, "BakeCalculator.xlsx")))
             {
-                var xlsxTemplate = new XlsxTemplate();
+                var xlsxTemplate = new DotXLReport.XLTemplate();
                 xlsxTemplate.Load(template);
                 xlsxTemplate.AddVariable(datas, "table");
                 xlsxTemplate.AddVariable(shopNum, "shopNum");

@@ -15,11 +15,11 @@ namespace Verno.Portal.Web.Modules.Shop
         public string ImahKod2 { get; set; } // Подгруппа классификатор, 
         public string ShtrixKod { get; set; } // Код касса, 
         public string Naimenovanie { get; set; } // Наименование
-        public string ImahPr { get; set; } // Производитель
         public string Etiketka { get; set; } // Etiketka
         public decimal RealizSht { get; set; } // Реализация за предыдуший день (автомат) Данные за день пред недели
         public decimal SpisSht { get; set; } // Списания за предыдущий день (автомат)
         public decimal OstSht { get; set; } // Остаток
+        public int PlanVyp { get; set; } // План на сегодня
 
         // Норматив продаж (должна быть возможность менять из офиса)
         public int Normativ 
@@ -35,6 +35,6 @@ namespace Verno.Portal.Web.Modules.Shop
             set { _koeff = value; }
         }
 
-        public int ToBake => RealizSht > 0 ? (int)Math.Round(RealizSht + (RealizSht * Koeff) / 100) : Normativ; // План на сегодня 
+        public int ToBake => PlanVyp; //RealizSht > 0 ? (int)Math.Round(RealizSht + (RealizSht * Koeff) / 100) : Normativ; // План на сегодня 
     }
 }
