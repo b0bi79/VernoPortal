@@ -23,7 +23,7 @@ export class FilesModal {
 
   constructor(private element: ElementRef, private returnsSvc: ReturnsService) {
     this.uploader = new FileUploader({
-      allowedMimeType: [...FileType.mime_doc, ...FileType.mime_xsl, "application/pdf", "application/image"],
+      allowedMimeType: [...FileType.mime_doc, ...FileType.mime_xsl, ...FileType.mime_compress, "application/zip", "application/pdf", "image/jpeg","image/pjpeg","image/png","image/bmp"],
       autoUpload: false,
       //isHTML5: true,
       //authToken: string;

@@ -2,9 +2,9 @@
   "version": "1.0.0-*",
 
   "dependencies": {
-    "Abp.EntityFrameworkCore": "1.0.0",
+    "Abp.AutoMapper": "1.2.0",
+    "Abp.EntityFrameworkCore": "1.2.0",
     "Verno.Identity.Core": "1.0.0-*",
-    "Abp.AutoMapper": "1.0.0",
     "Verno.Web": "1.0.0.0-*"
   },
 

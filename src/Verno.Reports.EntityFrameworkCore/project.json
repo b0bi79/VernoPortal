@@ -7,9 +7,9 @@
       "type": "build"
     },
     "Verno.Reports.Core": "1.0.0.0-*",
-    "Abp.EntityFrameworkCore": "1.0.0",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.1",
-    "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.0.1"
+    "Abp.EntityFrameworkCore": "1.2.0",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0",
+    "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.1.0"
   },
 
   "tools": {

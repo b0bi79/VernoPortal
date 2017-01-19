@@ -10,7 +10,6 @@ namespace Verno.Portal.Web.Modules.Shop
         public int? Normativ { get; set; }
         public int? Koeff { get; set; }
         public string Etiketka { get; set; }
-        public int? Proekt { get; set; }
     }
 
     /*[Table("Dokumenty")]

@@ -3,14 +3,14 @@ import { DataTable } from "./DataTable";
 
 @Directive({ selector: "[mfSelectable]" })
 export class Selectable {
-    @Input("mfSelectable") public row: any;
+  @Input("mfSelectable") public row: any;
 
-    public constructor(private mfTable: DataTable) {
-    }
+  public constructor(private mfTable: DataTable) {
+  }
 
-    @HostListener('click', ['$event']) private onRowClick($event): void {
-        this.mfTable.activeRow = this.row;
-    }
+  @HostListener('click', ['$event']) private onRowClick($event): void {
+    this.mfTable.activeRow = this.mfTable.activeRow === this.row ? undefined : this.row;
+  }
 
-    @HostBinding('class.active') get active() { return this.mfTable.activeRow === this.row };
+  @HostBinding('class.active') get active() { return this.mfTable.activeRow === this.row };
 }

@@ -20,6 +20,7 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
 
 // Web dependencies
+import 'content-disposition';
 import 'jquery';
 import 'bootstrap-daterangepicker';
 import 'bootstrap-loader';

@@ -41,7 +41,9 @@ export class ProductionCalculator implements OnInit {
 
   private getDatas(shopNum: number): void {
     var self = this;
-    abp.ui.setBusy(jQuery('.card-body', this.element.nativeElement),
+    shopNum = Number(shopNum);
+    if (shopNum && shopNum>1000) {
+      abp.ui.setBusy(jQuery('.card-body', this.element.nativeElement),
       {
         blockUI: true,
         promise: this.productionSvc.getList(shopNum)
@@ -49,6 +51,9 @@ export class ProductionCalculator implements OnInit {
             self.datas = result.items;
           })
       });
+    } else {
+      self.datas = [];
+    }
   }
 
   private refresh(shopNum: number): void {

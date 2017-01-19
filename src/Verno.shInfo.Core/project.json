@@ -1,20 +1,20 @@
-﻿{
+{
   "version": "1.0.0-*",
 
   "dependencies": {
-    "Abp": "1.0.0",
-    "Microsoft.Extensions.Configuration.Abstractions": "1.0.0",
-    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0",
-    "Microsoft.Extensions.Configuration.UserSecrets": "1.0.0",
     "Microsoft.EntityFrameworkCore.Tools": {
       "version": "1.0.0-preview2-final",
       "type": "build"
     },
-    "Abp.EntityFrameworkCore": "1.0.0",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.1",
-    "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.0.1",
-    "Verno.Abp": "1.0.0-*"
+    "Verno.Abp": "1.0.0-*",
+    "Abp": "1.2.0",
+    "Abp.EntityFrameworkCore": "1.2.0",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0",
+    "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.1.0",
+    "Microsoft.Extensions.Configuration.Abstractions": "1.1.0",
+    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.1.0",
+    "Microsoft.Extensions.Configuration.Json": "1.1.0",
+    "Microsoft.Extensions.Configuration.UserSecrets": "1.1.0"
   },
 
   "frameworks": {

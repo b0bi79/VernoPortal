@@ -4,6 +4,8 @@ import { BrowserXhr } from '@angular/http';
 // Use Filesaver.js to save binary to file
 // https://github.com/eligrey/FileSaver.js/
 let saver = require("file-saver");
+let contentDisposition = require("content-disposition");
+
 
 @Component({
     selector: 'file-downloader',
@@ -77,13 +79,14 @@ export class FileDownloader {
     }
 
     getFileName(xhr: XMLHttpRequest) {
-        var filename = "";
-        var disposition = xhr.getResponseHeader('Content-Disposition');
+      var disposition = contentDisposition.parse(xhr.getResponseHeader('Content-Disposition'));
+        var filename = disposition.parameters.filename;
+       /* var disposition = xhr.getResponseHeader('Content-Disposition');
         if (disposition && disposition.indexOf('attachment') !== -1) {
             var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
             var matches = filenameRegex.exec(disposition);
             if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
-        }
+        }*/
         return filename;
     }
 }
