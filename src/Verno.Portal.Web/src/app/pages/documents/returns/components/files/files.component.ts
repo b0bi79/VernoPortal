@@ -30,10 +30,29 @@ export class FilesModal {
       //disableMultipart: true,
       //url: abp.appPath + 'api/services/app/returns/' + this.rasxod + '/files',
     });
+    this.uploader.onBeforeUploadItem = () => {
+      window.onbeforeunload = e => {
+        e = e || window.event;
+        var message = 'Идёт загрузка файлов!!! Вы действительно хотите уйти со страницы и прервать загрузку?';
+        if (e) { // For IE6-8 and Firefox prior to version 4
+          e.returnValue = message;
+        }
+        return message;
+      };
+    };
+    this.uploader.onErrorItem = (item, response, status, headers) => {
+      abp.message.error("Попробуйте загрузить файл " + item.file.name + " ещё раз, если ничего не помогло обратитесь в техподдержку.",
+        "Ошибка при загрузке файла");
+    };
+    this.uploader.onCancelItem = (item, response, status, headers) => {
+      abp.message.warn("Загрузка файла " + item.file.name+" была прервана или отменена пользователем.",
+        "Файл не был загружен");
+    };
     this.uploader.onCompleteAll = () => {
       this.refresh();
       this.uploader.clearQueue();
-    };
+      setTimeout(() => { window.onbeforeunload = null;}, 1000);
+    }
   }
 
   private fileOver(e: any): void {

@@ -11,6 +11,13 @@
     <link rel="stylesheet" href="~/assets/login.css" />
 }
 <div class="auth-main">
+    <div id="ie-alert" class="container collapse">
+        <div class="alert alert-danger" role="alert">
+            Verno-Portal работает нестабильно с Internet Explorer. 
+            Настоятельно рекомендуется установить <a href="https://www.google.ru/chrome/browser/desktop/index.html" target="_blank">Google Chrome</a> 
+            или <a href="https://www.mozilla.org/ru/firefox/new/" target="_blank">Mozilla Firefox</a>.
+        </div>
+    </div>
     <div class="auth-block">
         <h1>@ViewData["Title"]</h1>
         <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
@@ -33,14 +40,14 @@
                 <div class="col-sm-offset-2 col-sm-10">
                     <div class="checkbox">
                         <label asp-for="RememberMe">
-                            <input asp-for="RememberMe" />
+                            <input asp-for="RememberMe"/>
                             @Html.DisplayNameFor(m => m.RememberMe)
                         </label>
                     </div>
                 </div>
             </div>
 
-            <input id="ReturnUrlHash" type="hidden" name="returnUrlHash" />
+            <input id="ReturnUrlHash" type="hidden" name="returnUrlHash"/>
 
             <div class="form-group row">
                 <div class="col-sm-offset-2 col-sm-10">
@@ -131,7 +138,6 @@
     </div>*@
 
 @section scripts {
-    <script src="~/assets/scripts/Login.js"></script>
 
 <environment names="Development,Staging,Production">
     <script src="~/assets/libs/jquery/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
@@ -141,6 +147,7 @@
             asp-fallback-src="~/assets/libs/jquery/jquery.min.js"
             asp-fallback-test="window.jQuery"></script>
 </environment>
+<script src="~/assets/scripts/Login.js"></script>
 
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }
