@@ -37,9 +37,12 @@ namespace Verno.Portal.Web.Modules.Returns
     {
         public ReturnsRepository(IDbContextProvider<ReturnsDbContext> dbContextProvider) : base(dbContextProvider) { }
 
-        public async Task<Return> GetByRasxod(int rasxod)
+        public async Task<Return> Get(RasxodLink link)
         {
-            return await GetAll().FirstOrDefaultAsync(r => r.Rasxod == rasxod);
+            if (link.ReturnId.HasValue)
+                return await GetAll().FirstOrDefaultAsync(r => r.Id == link.ReturnId.Value);
+            else
+                return await GetAll().FirstOrDefaultAsync(r => r.DocDate == link.DocDate && r.DocNum == link.DocNum && r.ShopNum == link.ShopNum && r.SupplierId == link.SupplierId);
         }
     }
 
@@ -54,7 +57,7 @@ namespace Verno.Portal.Web.Modules.Returns
         {
             return base.GetAll().Where(r => !r.Deleted);
         }
-        
+
         /// <inheritdoc />
         public override IQueryable<ReturnFile> GetAllIncluding(params Expression<Func<ReturnFile, object>>[] propertySelectors)
         {
@@ -71,9 +74,12 @@ namespace Verno.Portal.Web.Modules.Returns
 
         #endregion
 
-        public IQueryable<ReturnFile> GetByRasxod(int rasxod)
+        public IQueryable<ReturnFile> Get(RasxodLink link)
         {
-            return GetAll().Where(r => r.Return.Rasxod == rasxod);
+            if (link.ReturnId.HasValue)
+                return GetAll().Where(r => r.ReturnId == link.ReturnId.Value);
+            else
+                return GetAll().Where(r => r.Return.DocDate == link.DocDate && r.Return.DocNum == link.DocNum && r.Return.ShopNum == link.ShopNum && r.Return.SupplierId == link.SupplierId);
         }
     }
 }

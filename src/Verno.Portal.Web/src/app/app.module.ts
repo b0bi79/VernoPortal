@@ -15,6 +15,7 @@ import { routing } from './app.routing';
 import { App } from './app.component';
 import { APP_RESOLVER_PROVIDERS } from './app.resolver';
 import { AppState, InternalStateType } from './app.service';
+import { Updater } from './app.updater';
 import { GlobalState } from './global.state';
 import { NgaModule } from './theme/nga.module';
 import { PagesModule } from './pages/pages.module';
@@ -24,6 +25,7 @@ import { NoContent } from './no-content';
 // Application wide providers
 const APP_PROVIDERS = [
   ...APP_RESOLVER_PROVIDERS,
+  Updater,
   AppState,
   GlobalState
 ];
@@ -62,7 +64,7 @@ type StoreType = {
 
 export class AppModule {
 
-  constructor(public appRef: ApplicationRef, public appState: AppState) {
+  constructor(public appRef: ApplicationRef, public appState: AppState, private updater: Updater) {
   }
 
   hmrOnInit(store: StoreType) {

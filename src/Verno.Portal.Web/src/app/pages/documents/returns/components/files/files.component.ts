@@ -91,7 +91,15 @@ export class FilesModal {
   public set rasxod(value: Return) {
     this._return = value;
     if (this.isGranted('Documents.Returns.UploadFile'))
-      this.uploader.setOptions({ url: abp.appPath + 'api/services/app/returns/' + this._return.id + '/files' });
+      this.uploader.setOptions({
+        url: abp.appPath + 'api/services/app/returns/files' + abp.utils.buildQueryString([
+            { name: 'shopNum', value: this._return.shopNum },
+            { name: 'docDate', value: this._return.docDate },
+            { name: 'docNum', value: this._return.docNum },
+            { name: 'supplierId', value: this._return.supplierId },
+            { name: 'returnId', value: this._return.returnId }
+          ])
+      });
     if (this._return.files)
       this.files = this._return.files;
     else
@@ -105,7 +113,7 @@ export class FilesModal {
     abp.ui.setBusy(jQuery('.fileupload-buttonbar', this.element.nativeElement),
       {
         blockUI: true,
-        promise: this.returnsSvc.getFilesList(this._return.id)
+        promise: this.returnsSvc.getFilesList(this._return)
           .then(list => {
             this.files = list.items;
             this._return.files = this.files;

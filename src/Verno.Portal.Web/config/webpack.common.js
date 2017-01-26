@@ -271,6 +271,7 @@ module.exports = function (options) {
                 { from: 'node_modules/bootstrap/dist', to: 'assets/libs/bootstrap' },
                 { from: 'node_modules/moment/min/moment.min.js', to: 'assets/libs/moment/moment.min.js' },
                 { from: 'node_modules/moment/locale/ru.js', to: 'assets/libs/moment/ru.js' },
+                { from: 'src/version.txt', to: 'version.txt' },
                 {
                     from: 'node_modules/bootstrap-daterangepicker/daterangepicker.js',
                     to: 'assets/libs/bootstrap-daterangepicker/daterangepicker.js'

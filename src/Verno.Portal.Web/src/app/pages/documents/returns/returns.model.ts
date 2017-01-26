@@ -2,10 +2,12 @@
 
 export interface ReturnDto extends abp.services.app.IReturnDto {
 }
+export interface RasxodLink extends abp.services.app.IRasxodLink {
+}
 export interface ReturnFileDto extends abp.services.app.IReturnFileDto {
 }
-export class Return implements ReturnDto {
-  id: number = undefined;
+export class Return implements ReturnDto, RasxodLink {
+  returnId?: number = undefined;
   shopNum: number = undefined;
   docDate: Date = undefined;
   docNum: string = undefined;
@@ -14,7 +16,6 @@ export interface ReturnDto extends abp.services.app.IReturnDto {
   summ: number = undefined;
   liniah: number = undefined;
   liniahTip: string = undefined;
-  returnId: number = undefined;
 
   @JsonProperty('status')
   private _status: number = undefined;

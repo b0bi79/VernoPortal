@@ -16,10 +16,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Verno.Identity.Users;
 using Abp.AutoMapper;
-using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
-using Abp.Runtime.Validation;
-using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Verno.ActionResults;
@@ -31,7 +28,7 @@ namespace Verno.Portal.Web.Modules.Returns
     public interface IReturnsAppService
     {
         Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, string filter, bool unreclaimedOnly, int shopNum);
-        Task<ListResultDto<ReturnFileDto>> GetFilesList(int rasxod);
+        Task<ListResultDto<ReturnFileDto>> GetFilesList(RasxodLink link);
         Task<ActionResult> File(int fileId);
         //Task<ReturnFileDto> UploadFile(/*int rasxod, */IFormFile file);
         Task<ReturnFileDto> DeleteFile(int fileId);
@@ -87,10 +84,10 @@ namespace Verno.Portal.Web.Modules.Returns
 
         [HttpGet]
         [UnitOfWork(isTransactional: false)]
-        [Route("{rasxod}/files")]
-        public async Task<ListResultDto<ReturnFileDto>> GetFilesList(int rasxod)
+        [Route("files")]
+        public async Task<ListResultDto<ReturnFileDto>> GetFilesList(RasxodLink link)
         {
-            var fileEntities = await _filesRepository.GetByRasxod(rasxod).ToListAsync();
+            var fileEntities = await _filesRepository.Get(link).ToListAsync();
             var result = new List<ReturnFileDto>();
             foreach (var file in fileEntities)
             {
@@ -144,7 +141,7 @@ namespace Verno.Portal.Web.Modules.Returns
                 using (var zip = new ZipArchive(stream, ZipArchiveMode.Create, true, enc1521))
                     foreach (var returnId in returnIds)
                     {
-                        var rfiles = await _filesRepository.GetAllIncluding(x => x.Return.ReturnData)
+                        var rfiles = await _filesRepository.GetAllIncluding(x => x.Return)
                             .Where(x => x.ReturnId == returnId).ToListAsync();
 
                         foreach (var file in rfiles)
@@ -152,8 +149,7 @@ namespace Verno.Portal.Web.Modules.Returns
                             var filepath = Path.Combine(ServPath, file.SavedName);
                             if (System.IO.File.Exists(filepath))
                             {
-                                var data = file.Return.ReturnData;
-                                var entryName = $"{data.DocNum}_{data.DocDate:yyyyMMdd}_{file.FileName}";
+                                var entryName = $"{file.Return.DocNum}_{file.Return.DocDate:yyyyMMdd}_{file.FileName}";
                                 entryName = invalidChars.Aggregate(entryName, (c1, c2) => c1.Replace(c2, '-'));
                                 entryName = Transliteration.CyrillicToLatin(entryName);
                                 zip.CreateEntryFromFile(filepath, entryName);
@@ -195,7 +191,7 @@ namespace Verno.Portal.Web.Modules.Returns
         /*[HttpPost]
         [Route("api/services/app/returns/{rasxod}/files")]
         [Route("api/services/app/returns/files")]*/
-        internal async Task<ReturnFileDto> UploadFile(int rasxod, IFormFile file)
+        internal async Task<ReturnFileDto> UploadFile(RasxodLink rasxodLink, IFormFile file)
         {
             var fileName = ContentDispositionHeaderValue
                 .Parse(file.ContentDisposition)
@@ -216,8 +212,8 @@ namespace Verno.Portal.Web.Modules.Returns
                 await fs.FlushAsync();
             }
 
-            var r = await _returnsRepository.GetByRasxod(rasxod) 
-                ?? await _returnsRepository.InsertAsync(new Return(rasxod));
+            var r = await _returnsRepository.Get(rasxodLink) 
+                ?? await _returnsRepository.InsertAsync(new Return(rasxodLink.DocDate, rasxodLink.DocNum, rasxodLink.ShopNum, rasxodLink.SupplierId));
             r.Status = ReturnStatus.Processed;
             var fileEntity = r.AddFile(Path.GetFileNameWithoutExtension(fileName), fileName, savedName);
 

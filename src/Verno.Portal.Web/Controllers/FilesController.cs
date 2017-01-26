@@ -18,11 +18,11 @@ namespace Verno.Portal.Web.Controllers
         }
 
         [HttpPost]
-        [Route("api/services/app/returns/{rasxod}/files")]
+        [Route("api/services/app/returns/files")]
         [AbpMvcAuthorize(ReturnsPermissionNames.Documents_Returns_UploadFile)]
-        public async Task<ReturnFileDto> ReturnForms(int rasxod, IFormFile file)
+        public async Task<ReturnFileDto> ReturnForms([FromQuery]RasxodLink rasxodLink, IFormFile file)
         {
-            return await _returns.UploadFile(rasxod, file);
+            return await _returns.UploadFile(rasxodLink, file);
         }
     }
 }

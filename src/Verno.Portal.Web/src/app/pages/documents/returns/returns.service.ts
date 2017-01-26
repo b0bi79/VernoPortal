@@ -1,5 +1,5 @@
 ﻿import { Injectable } from '@angular/core';
-import { ResponseContentType } from '@angular/http';
+import { ResponseContentType, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
 import 'rxjs/add/operator/toPromise';
@@ -7,14 +7,8 @@ import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/catch'
 import 'rxjs/add/observable/throw';
 
-import { ReturnDto, ReturnFileDto } from './returns.model';
+import { ReturnDto, ReturnFileDto, RasxodLink } from './returns.model';
 import { AbpHttp } from 'app/theme/services';
-
-function toPromise<T>($promise: abp.IGenericPromise<T>): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    $promise.done(resolve).fail(reject);
-  });
-}
 
 @Injectable()
 export class ReturnsService {
@@ -32,16 +26,22 @@ export class ReturnsService {
       ]);
     return this.http.get(url)
       .toPromise();
-//    return toPromise(abp.services.app.returns.getList(dfrom, dto, filter, unreclaimedOnly, shopNum));
   }
-  getFilesList(rasxod: number): Promise<abp.List<ReturnFileDto>> {
-    return this.http.get(this.apiUrl + rasxod + '/files')
+  getFilesList(rasxod: RasxodLink): Promise<abp.List<ReturnFileDto>> {
+    let params: URLSearchParams = new URLSearchParams();
+    if (rasxod.shopNum) params.set('shopNum', rasxod.shopNum.toString());
+    if (rasxod.docDate) params.set('docDate', rasxod.docDate.toString());
+    if (rasxod.docNum) params.set('docNum', rasxod.docNum);
+    if (rasxod.supplierId) params.set('supplierId', rasxod.supplierId.toString());
+    if (rasxod.returnId) params.set('returnId', rasxod.returnId.toString());
+
+    return this.http.get(this.apiUrl + 'files', { search: params })
       .toPromise();
     //return toPromise(abp.services.app.returns.getFilesList(rasxod));
   }
 
   deleteFile(fileId: number): Promise<ReturnFileDto> {
-    return this.http.delete(this.apiUrl + '/files/' + fileId)
+    return this.http.delete(this.apiUrl + 'files/' + fileId)
       .toPromise();
     //return toPromise(abp.services.app.returns.deleteFile(fileId));
   }

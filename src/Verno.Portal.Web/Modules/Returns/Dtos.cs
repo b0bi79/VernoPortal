@@ -1,8 +1,6 @@
 ﻿using System;
 using Abp.Application.Services.Dto;
 using Abp.AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 
 namespace Verno.Portal.Web.Modules.Returns
 {
@@ -19,6 +17,15 @@ namespace Verno.Portal.Web.Modules.Returns
         public string LiniahTip { get; set; }
         public int? ReturnId { get; set; }
         public ReturnStatus Status { get; set; }
+    }
+
+    public class RasxodLink
+    {
+        public int? ReturnId { get; set; }
+        public int ShopNum { get; set; }
+        public DateTime DocDate { get; set; }
+        public string DocNum { get; set; }
+        public int SupplierId { get; set; }
     }
 
     [AutoMap(typeof(ReturnFile))]

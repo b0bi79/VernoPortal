@@ -33,15 +33,19 @@ namespace Verno.Portal.Web.Modules.Returns
         {
         }
 
-        public Return(int rasxod)
+        public Return(DateTime docDate, string docNum, int shopNum, int supplierId)
         {
-            Rasxod = rasxod;
+            DocDate = docDate;
+            DocNum = docNum;
+            ShopNum = shopNum;
+            SupplierId = supplierId;
         }
 
-        public int Rasxod { get; set; }
-
-        [ForeignKey("Rasxod")]
-        public ReturnData ReturnData { get; set; }
+        public int ShopNum { get; set; }
+        [Column(TypeName = "datetime")]
+        public DateTime DocDate { get; set; }
+        public string DocNum { get; set; }
+        public int SupplierId { get; set; }
 
         public ReturnStatus Status { get; set; }
 

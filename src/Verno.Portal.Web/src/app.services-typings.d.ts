@@ -16,14 +16,22 @@
 
   class returns {
     static getList(dfrom: string, dto: string, filter: string, unreclaimedOnly: boolean, shopNum: number, httpParams?: any): abp.IGenericPromise<List<IReturnDto>>;
-    static getFilesList(rasxod: number, httpParams?: any): abp.IGenericPromise<List<IReturnFileDto>>;
-    static uploadFile(rasxod: number, file: any, httpParams?: any): abp.IGenericPromise<IReturnFileDto>;
+    static getFilesList(rasxodLink: IRasxodLink, httpParams?: any): abp.IGenericPromise<List<IReturnFileDto>>;
+    static uploadFile(rasxodLink: IRasxodLink, file: any, httpParams?: any): abp.IGenericPromise<IReturnFileDto>;
     static deleteFile(fileId: number, httpParams?: any): abp.IGenericPromise<IReturnFileDto>;
     static returnFiles(returnIds: number[], httpParams?: any): abp.IGenericPromise<Blob>;
   }
 
+  interface IRasxodLink {
+    returnId?: number;
+    shopNum: number;
+    docDate: Date;
+    docNum: string;
+    supplierId: number;
+  }
+
   interface IReturnDto {
-    id: number;
+    returnId?: number;
     shopNum: number;
     docDate: Date;
     docNum: string;
@@ -32,8 +40,7 @@
     summ: number;
     liniah: number;
     liniahTip: string;
-    returnId: number;
-    status: number;
+    status?: number;
   }
 
   interface IReturnFileDto {
@@ -154,7 +161,7 @@ declare module abp {
   }
   interface List<T> {
     items: T[];
-  } 
+  }
 }
 /*declare module abp {
   var appPath: string;
