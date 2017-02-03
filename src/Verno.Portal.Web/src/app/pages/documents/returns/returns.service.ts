@@ -17,12 +17,13 @@ export class ReturnsService {
 
   constructor(private http: AbpHttp) { }
 
-  getList(dfrom: string, dto: string, filter: string, unreclaimedOnly: boolean, shopNum?: number): Promise<abp.List<ReturnDto>> {
+  getList(dfrom: string, dto: string, filter: string, unreclaimedOnly: boolean, shopNum?: number, filial?: number): Promise<abp.List<ReturnDto>> {
     let url = this.apiUrl + dfrom + '!' + dto +
       abp.utils.buildQueryString([
         { name: 'filter', value: filter },
         { name: 'unreclaimedOnly', value: unreclaimedOnly },
-        { name: 'shopNum', value: shopNum }
+        { name: 'shopNum', value: shopNum },
+        { name: 'filial', value: filial }
       ]);
     return this.http.get(url)
       .toPromise();

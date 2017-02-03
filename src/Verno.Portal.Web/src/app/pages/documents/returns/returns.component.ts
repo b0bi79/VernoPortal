@@ -24,9 +24,8 @@ let saver = require("file-saver");
       border: 1px dashed brown;
       background-color: #FFC107 !important;
     }
-    #shopNum-filter {
-      width: 150px;
-    }
+    select.form-control:not([size]):not([multiple]) { height: 2.2rem; }
+    #shopNum-filter { width: 150px; }
   `],
   providers: [ReturnsService, ExportToExcelService, WindowViewService, WindowViewLayerService]
 })
@@ -34,10 +33,11 @@ export class Returns implements OnInit {
   @ViewChild('editFilesTmpl') editTmpl: TemplateRef<any>;
   @ViewChild('mf') table: DataTable;
 
-  private filter: string;
+  private filter: string = "";
   private unreclaimed: boolean = false;
   private shopNum: number = null;
-  private periodFilter: any = { start: moment(), end: moment() };
+  private filial: number = null;
+  private periodFilter = { start: moment(), end: moment() };
   private datas: Return[] = [];
   private selectedRow: Return;
   private needShowShops: boolean;
@@ -62,15 +62,21 @@ export class Returns implements OnInit {
   }
 
   ngOnInit() {
-    this.getDatas(this.periodFilter.start, this.periodFilter.end, "", this.unreclaimed, this.shopNum);
+    this.getDatas();
   }
 
-  private getDatas(dfrom: moment.Moment, dto: moment.Moment, filter: string, unreclaimed: boolean, shopNum: number): void {
+  private getDatas(): void {
     var self = this;
     abp.ui.setBusy(jQuery('.card-body', this.element.nativeElement),
     {
       blockUI: true,
-      promise: this.returnsSvc.getList(dfrom.format("YYYY-MM-DD"), dto.format("YYYY-MM-DD"), filter, unreclaimed, Number(shopNum))
+      promise: this.returnsSvc.getList(
+            this.periodFilter.start.format("YYYY-MM-DD"),
+            this.periodFilter.end.format("YYYY-MM-DD"),
+            this.filter,
+            Boolean(this.unreclaimed),
+            Number(this.shopNum),
+            Number(this.filial))
         .then(result => {
           self.datas = result.items.map(x => MapUtils.deserialize(Return, x));
           if (self.datas.length) {
@@ -83,12 +89,12 @@ export class Returns implements OnInit {
 
   private dateSelected(period): void {
     this.periodFilter = period;
-    this.getDatas(period.start, period.end, this.filter, this.unreclaimed, this.shopNum);
+    this.getDatas();
   }
 
   private unreclaimedChanged(value: boolean): void {
     this.unreclaimed = value;
-    this.getDatas(this.periodFilter.start, this.periodFilter.end, this.filter, this.unreclaimed, this.shopNum);
+    this.getDatas();
   }
 
   private filterData(query: string): void {
@@ -101,12 +107,17 @@ export class Returns implements OnInit {
     this.filterWithDelay();
   }
 
+  private filterFilial(filial: number): void {
+    this.filial = filial;
+    this.getDatas();
+  }
+
   private filterWithDelay(): void {
     var self = this;
     this.filterDelay++;
     setTimeout(() => {
       if (self.filterDelay === 1) {
-        this.getDatas(this.periodFilter.start, this.periodFilter.end, this.filter, this.unreclaimed, this.shopNum);
+        this.getDatas();
       }
       self.filterDelay--;
     }, 1000);
@@ -124,7 +135,7 @@ export class Returns implements OnInit {
             <Column>{ header: "№ накладной", eval: r => r.docNum, width: 13 },
             <Column>{ header: "Поставщик", eval: r => r.supplierName, width: 40 },
             <Column>{ header: "Сумма", eval: r => r.summ, width: 15 },
-            <Column>{ header: "Линия", eval: r => r.liniahTip, width: 20 },
+            <Column>{ header: "Линия", eval: r => r.liniahTip, width: 20 }
           ]
         }
       ]

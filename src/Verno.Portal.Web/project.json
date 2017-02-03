@@ -38,7 +38,8 @@
     "Abp.Castle.Log4Net": "1.2.0",
     "Abp.Owin": "1.2.0",
     "Abp.RedisCache": "1.2.0",
-    "Abp.Web.SignalR": "1.2.0"
+    "Abp.Web.SignalR": "1.2.0",
+    "Verno.Images": "1.0.0-*"
   },
 
   "tools": {

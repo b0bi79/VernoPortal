@@ -13,6 +13,18 @@
                         <input [ngModel]="shopNum" (ngModelChange)="filterShopNum($event)" type="text" class="form-control" placeholder="Магазин ...">
                     </div>
                 </div>
+                <div id="filial-filter" class="form-group" *ngIf="needShowShops">
+                    <div class="input-group">
+                        <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-share-alt-square"></i></span>
+                        <select class="form-control" [ngModel]="filial" (ngModelChange)="filterFilial($event)" placeholder="Филиал ...">
+                            <option value="">Все</option>
+                            <option value="1">ЦФ</option>
+                            <option value="2">СЗФ</option>
+                            <option value="3">УФ</option>
+                            <option value="4">ПФ</option>
+                        </select>
+                    </div>
+                </div>
                 <div id="date-range-filter" class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-calendar fa-fw"></i></span>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
@@ -19,15 +20,17 @@ using Abp.AutoMapper;
 using Abp.Domain.Uow;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+using Spire.Pdf.Exceptions;
 using Verno.ActionResults;
 using Verno.Configuration;
+using Verno.Images;
 using Verno.Portal.Web.Utils;
 
 namespace Verno.Portal.Web.Modules.Returns
 {
     public interface IReturnsAppService
     {
-        Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, string filter, bool unreclaimedOnly, int shopNum);
+        Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, string filter = "", bool unreclaimedOnly = false, int shopNum = 0, int filial = 0);
         Task<ListResultDto<ReturnFileDto>> GetFilesList(RasxodLink link);
         Task<ActionResult> File(int fileId);
         //Task<ReturnFileDto> UploadFile(/*int rasxod, */IFormFile file);
@@ -44,7 +47,7 @@ namespace Verno.Portal.Web.Modules.Returns
         private readonly ReturnFilesRepository _filesRepository;
         private readonly ReturnsRepository _returnsRepository;
 
-        public ReturnsAppService(ReturnsDbContext context, IOptions<AppSettings> appSettings, 
+        public ReturnsAppService(ReturnsDbContext context, IOptions<AppSettings> appSettings,
             IHttpContextAccessor contextAccessor, ReturnFilesRepository filesRepository, ReturnsRepository returnsRepository)
         {
             _context = context;
@@ -61,15 +64,18 @@ namespace Verno.Portal.Web.Modules.Returns
         [HttpGet]
         [UnitOfWork(isTransactional: false)]
         [Route("{dfrom:datetime}!{dto:datetime}")]
-        public async Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, string filter, bool unreclaimedOnly, int shopNum = 0)
+        public async Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, string filter = "", bool unreclaimedOnly = false, int shopNum = 0, int filial = 0)
         {
             shopNum = await GetUserShopNum() ?? shopNum;
             var result = from d in _context.ReturnDatas
-                where d.DocDate >= dfrom && d.DocDate <= dto && d.ShopNum > 0
-                select d;
+                         where d.DocDate >= dfrom && d.DocDate <= dto && d.ShopNum > 0
+                         select d;
 
             if (shopNum > 0)
                 result = result.Where(d => d.ShopNum == shopNum);
+
+            if (filial > 0)
+                result = result.Where(d => d.Filial == filial);
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
@@ -91,7 +97,7 @@ namespace Verno.Portal.Web.Modules.Returns
             var result = new List<ReturnFileDto>();
             foreach (var file in fileEntities)
             {
-                var item = new ReturnFileDto(file.Id, "", file.FileName, 0, file.Name, file.ReturnId, 
+                var item = new ReturnFileDto(file.Id, "", file.FileName, 0, file.Name, file.ReturnId,
                     _httpContext.CreateUrl("/api/services/app/returns/files/" + file.Id));
                 var fileInfo = new FileInfo(Path.Combine(ServPath, file.SavedName));
                 if (fileInfo.Exists)
@@ -158,7 +164,7 @@ namespace Verno.Portal.Web.Modules.Returns
                     }
                 await stream.FlushAsync();
                 stream.Position = 0;
-                return new FileStreamResult(stream, "application/zip") {FileDownloadName = "Документы возврат.zip"};
+                return new FileStreamResult(stream, "application/zip") { FileDownloadName = "Документы возврат.zip" };
             }
             catch
             {
@@ -174,7 +180,7 @@ namespace Verno.Portal.Web.Modules.Returns
         {
             var file = await _filesRepository.GetAllIncluding(x => x.Return).SingleOrDefaultAsync(x => x.Id == fileId); //.GetAsync(fileId);
 
-            if (file==null)
+            if (file == null)
                 throw new ApplicationException($"Файла с id={fileId} не существует.");
 
             await _filesRepository.DeleteAsync(file);
@@ -198,21 +204,42 @@ namespace Verno.Portal.Web.Modules.Returns
                 .FileName
                 .Trim('"');
 
+            var ext = Path.GetExtension(fileName);
             string savedName;
             string savedFilePath;
             do
             {
-                savedName = Path.GetRandomFileName();
+                savedName = Path.Combine(DateTime.Today.ToString("yyMM"), Path.GetRandomFileName().Replace(".", ""));
+                savedName = Path.ChangeExtension(savedName, ext);
                 savedFilePath = Path.Combine(ServPath, savedName);
             } while (System.IO.File.Exists(savedFilePath));
 
-            using (FileStream fs = System.IO.File.Create(savedFilePath))
+            var dir = Path.GetDirectoryName(savedFilePath);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            if (ext == ".pdf")
+                using (var stream = file.OpenReadStream())
+                {
+                    PdfHelper.ReducePdf(stream, savedFilePath, 100, InterpolationMode.HighQualityBilinear);
+                }
+            else if (ImageHelper.GetImageFormat(fileName) != null)
+                using (var stream = file.OpenReadStream())
+                {
+                    savedName = Path.ChangeExtension(savedName, ".jpg");
+                    savedFilePath = Path.ChangeExtension(savedFilePath, ".jpg");
+                    ImageHelper.Reduce(stream, savedFilePath, 100, InterpolationMode.HighQualityBilinear);
+                }
+            else
             {
-                await file.CopyToAsync(fs);
-                await fs.FlushAsync();
+                using (FileStream stream = System.IO.File.Create(savedFilePath))
+                {
+                    await file.CopyToAsync(stream);
+                    await stream.FlushAsync();
+                }
             }
 
-            var r = await _returnsRepository.Get(rasxodLink) 
+            var r = await _returnsRepository.Get(rasxodLink)
                 ?? await _returnsRepository.InsertAsync(new Return(rasxodLink.DocDate, rasxodLink.DocNum, rasxodLink.ShopNum, rasxodLink.SupplierId));
             r.Status = ReturnStatus.Processed;
             var fileEntity = r.AddFile(Path.GetFileNameWithoutExtension(fileName), fileName, savedName);

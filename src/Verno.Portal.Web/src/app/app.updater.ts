@@ -1,15 +1,20 @@
 ﻿import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { Http, Headers } from '@angular/http';
 import { Observable } from 'rxjs';
 
 @Injectable()
 export class Updater {
-  private currentVersion: string = '1.0';
+  private currentVersion: string = '1.1';
 
   constructor(private http: Http) {
-    let o = Observable.timer(0, 0.5 * 60 * 1000);
+    let o = Observable.timer(0, 20 * 60 * 1000);
     o.subscribe(() => {
-      this.http.get(abp.appPath + 'version.txt')
+      let headers = new Headers({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
+      this.http.get(abp.appPath + 'version.txt', { headers: headers })
         .toPromise()
         .then(response => {
           var ver = response.text();

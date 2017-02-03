@@ -10,6 +10,7 @@ namespace Verno.Portal.Web.Modules.Returns
     public class ReturnData : Entity<int>
     {
         // PRIMARY KEY Rasxod
+        public int Filial { get; set; }
         public int ShopNum { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime DocDate { get; set; }
