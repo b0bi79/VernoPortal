@@ -11,7 +11,7 @@ import { Return } from '../../returns.model';
   encapsulation: ViewEncapsulation.None,
   template: require('./packDownload.html'),
   styles: [`
-pack-download .card { background: rgb(0, 126, 195); }
+pack-download .card { background: #007ec3; }
 .remove-item { cursor: pointer; }
 pack-download li { list-style-type: none; }
 `]

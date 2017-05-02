@@ -5,6 +5,8 @@ import { layoutSizes } from '../../../theme';
 import { MENU } from '../../../../app/app.menu';
 import * as _ from 'lodash';
 
+import { BaMenuService } from '../baMenu';
+
 @Component({
   selector: 'ba-sidebar',
   encapsulation: ViewEncapsulation.None,
@@ -76,29 +78,8 @@ export class BaSidebar {
   static convertToRoutes(menu): Route[] {
     var result: Route = {
       path: "pages",
-      children: BaSidebar.convertMenuArray(menu.items)
+      children: BaMenuService.convertMenuArray(menu.items)
     };
     return [result];
-  }
-
-  static convertMenuArray(menuItems): Route[] {
-    var result: Route[] = [];
-    for (var i = 0; i < menuItems.length; i++) {
-      var item = menuItems[i];
-      result.push({
-        path: item.name,
-        data: {
-          menu: {
-            title: item.displayName,
-            icon: item.icon,
-            selected: item.customData && item.customData.selected,
-            expanded: item.customData && item.customData.expanded,
-            order: item.order
-          }
-        },
-        children: BaSidebar.convertMenuArray(item.items)
-      });
-    }
-    return result;
   }
 }

@@ -1,0 +1,79 @@
+﻿<form novalidate (ngSubmit)="save(spec, form.valid)" #form="ngForm" ngForm>
+    <ba-card title="{{title}}" baCardClass="container">
+
+        <!-- Text input-->
+        <div class="form-group has-feedback row">
+            <label class="col-sm-2 col-form-label" for="dateFrom">Начало</label>
+            <div class="col-sm-10">
+                <input daterangepicker id="dateFrom" name="dateFrom" 
+                       [(ngModel)]="spec.dateFrom" #dateFrom="ngModel" 
+                       [options]="pickerOptions" type="text" 
+                       class="form-control input-md" />
+            </div>
+        </div>
+        
+        <!-- Text input-->
+        <div class="form-group has-feedback row">
+            <label class="col-sm-2 col-form-label" for="dateTo">Окончание</label>
+            <div class="col-sm-10">
+                <input daterangepicker id="dateTo" name="dateTo"
+                       [(ngModel)]="spec.dateTo" #dateTo="ngModel" 
+                       [options]="pickerOptions" type="text" 
+                       class="form-control input-md" />
+            </div>
+        </div>
+        
+        <!-- Select Basic -->
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label" for="proekt">Проект</label>
+            <div class="col-sm-10">
+                <searchable-dropdown [value]="proekt"
+                                     [items]="proektNames"
+                                     (onSelect)="proektSelected($event)"
+                                     placeholder="Не выбран проект"
+                                     id="proekt" name="proekt">
+                </searchable-dropdown>
+            </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="form-group row">
+            <div class="offset-sm-2 col-sm-10">
+                <ba-checkbox [(ngModel)]="spec.promo" #promo="ngModel" [label]="'Промо'" id="promo" name="promo"></ba-checkbox>
+            </div>
+        </div>
+        
+        <div class="">
+            <ng2-smart-table [settings]="settings" [source]="items" (deleteConfirm)="onDeleteConfirm($event)" *ngIf="this.spec.proekt"></ng2-smart-table>
+            <!--<table class="table table-striped" [mfData]="data.items" #mf="mfDataTable" [mfRowsOnPage]="15">
+                <thead>
+                <tr>
+                    <th><mfDefaultSorter by="nameTov">Товар</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="norm">Норма</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="koeff">Коэффициент</mfDefaultSorter></th>
+                </tr>
+                </thead>
+                <tbody>
+                $1$<tr *ngFor="let row of mf.data | printFilter:filter">#1#
+                <tr [mfSelectable]="row" *ngFor="let row of mf.data">
+                    <td>{{row.nameTov}}</td>
+                    <td>{{row.norm}}</td>
+                    <td>{{row.koeff}}</td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="5">
+                        <mfBootstrapPaginator [rowsOnPageSet]="[15,25,50]"></mfBootstrapPaginator>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>-->
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" (click)="goBack()">Отмена</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!form.form.valid">Сохранить</button>
+        </div>
+    </ba-card>
+</form>

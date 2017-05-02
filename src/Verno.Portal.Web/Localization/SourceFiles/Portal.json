@@ -5,6 +5,8 @@
     "Documents": "Documents",
     "PrintForms": "Print Forms",
     "Returns": "Returns",
-    "ProductionCalculator": "Production calculator"
+    "ProductionCalculator": "Production calculator",
+    "OwnProduction": "Own production",
+    "Specifications": "Specifications"
   }
 }

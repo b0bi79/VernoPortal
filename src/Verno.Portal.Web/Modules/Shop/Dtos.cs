@@ -1,8 +1,40 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Abp.AutoMapper;
+using Verno.ShInfo.Models.Dto;
 
 namespace Verno.Portal.Web.Modules.Shop
 {
+    [AutoMap(typeof(ProizvMagSpec))]
+    public class ProizvMagSpecDto
+    {
+        public int Id { get; set; }
+        public int Proekt { get; set; }
+        public string ProektName { get; set; }
+        public DateTime Date { get; set; }
+        public DateTime DateFrom { get; set; }
+        public DateTime DateTo { get; set; }
+        public bool Promo { get; set; }
+
+        public IEnumerable<ProizvMagSpecItemDto> Items { get; set; } = new List<ProizvMagSpecItemDto>();
+
+        public override string ToString()
+        {
+            return $"[{Id}] {ProektName}: {DateFrom:d}-{DateTo:d} {(Promo ? "Promo" : "")}";
+        }
+    }
+
+    [AutoMap(typeof(ProizvMagSpecItem))]
+    public class ProizvMagSpecItemDto
+    {
+        public int Id { get; set; }
+        public NomenklaturaDto Tovar { get; set; }
+        public int? Norm { get; set; }
+        public int? Koeff { get; set; }
+    }
+
     public class ProductionCalc
     {
         private int? _normativ;

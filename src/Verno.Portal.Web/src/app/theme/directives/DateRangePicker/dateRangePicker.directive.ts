@@ -1,4 +1,5 @@
 ﻿import { Directive, ElementRef, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { NgModel } from '@angular/forms';
 import * as moment from 'moment';
 
 @Directive({
@@ -8,8 +9,9 @@ import * as moment from 'moment';
 export class DateRangePickerDirective implements OnInit {
   @Input() options: Object = {};
   @Output() selected: EventEmitter<any> = new EventEmitter();
+  singleDatePicker: boolean;
 
-  constructor(private elementRef: ElementRef) { }
+  constructor(private elementRef: ElementRef, private ngModel: NgModel) { }
 
   ngOnInit() {
     this.options["locale"] = {
@@ -33,11 +35,25 @@ export class DateRangePickerDirective implements OnInit {
       'Этот месяц': [moment().startOf('month'), moment().endOf('month')],
       'Прошлый месяц': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
     };
+    this.singleDatePicker = this.options["singleDatePicker"];
     jQuery(this.elementRef.nativeElement)
       .daterangepicker(this.options, this.dateCallback.bind(this));
+
+    let that = this;
+    that.ngModel.valueChanges.subscribe(value => {
+      var picker = jQuery(this.elementRef.nativeElement).data('daterangepicker');
+      if (this.singleDatePicker) {
+        picker.setStartDate(value);
+      } else {
+        picker.setStartDate(value.start);
+        picker.setEndDate(value.end);
+      }
+    });
   }
 
   dateCallback(start, end, label) {
-    this.selected.emit({ start, end });
+    let value = this.singleDatePicker ? start : { start: start, end: end };
+    this.ngModel.update.emit(value);
+    this.selected.emit(value);
   }
 }

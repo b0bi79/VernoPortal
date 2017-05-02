@@ -20,43 +20,44 @@
  * as an Intergovernmental Organization or submit itself to any jurisdiction.
 */
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
 
 @Component({
-    selector: 'searchable-dropdown',
-    styles: [
-        require('./searchable-dropdown.component.scss')
-    ],
-    template: require('./searchable-dropdown.component.html')
+  selector: 'searchable-dropdown',
+  encapsulation: ViewEncapsulation.None,
+  styles: [
+    require('./searchable-dropdown.component.scss')
+  ],
+  template: require('./searchable-dropdown.component.html')
 })
 export class SearchableDropdownComponent {
 
-    @Input() items: Array<string> = [];
-    @Input() shortcutMap: Object;
-    @Input() value: string;
-    prefix: string = '';
-    status: { isOpen: boolean } = { isOpen: false };
+  @Input() items: Array<string> = [];
+  @Input() shortcutMap: Object;
+  @Input() value: string;
+  prefix: string = '';
+  status: { isOpen: boolean } = { isOpen: false };
 
-    @Output() onSelect: EventEmitter<string> = new EventEmitter<string>();
+  @Output() onSelect: EventEmitter<string> = new EventEmitter<string>();
 
-    onPrefixChange(prefix: string) {
-        this.prefix = prefix;
+  onPrefixChange(prefix: string) {
+    this.prefix = prefix;
+  }
+
+  onItemClick(item: string) {
+    this.value = item;
+    this.onSelect.emit(item);
+    this.prefix = '';
+  }
+
+  onKeypress(key: string) {
+    if (key === 'Enter') {
+      this.status.isOpen = false;
+      if (this.shortcutMap && this.shortcutMap[this.prefix]) {
+        this.onItemClick(this.shortcutMap[this.prefix]);
+      }
+      this.prefix = '';
     }
-
-    onItemClick(item: string) {
-        this.value = item;
-        this.onSelect.emit(item);
-        this.prefix = '';
-    }
-
-    onKeypress(key: string) {
-        if (key === 'Enter') {
-            this.status.isOpen = false;
-            if (this.shortcutMap && this.shortcutMap[this.prefix]) {
-                this.onItemClick(this.shortcutMap[this.prefix]);
-            }
-            this.prefix = '';
-        }
-    }
+  }
 
 }

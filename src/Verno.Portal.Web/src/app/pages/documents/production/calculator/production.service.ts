@@ -1,7 +1,7 @@
 ﻿import { Injectable } from '@angular/core';
-import { ResponseContentType } from '@angular/http';
+import { ResponseContentType, URLSearchParams } from '@angular/http';
 
-import { ProductionDto } from './production.model';
+import { ProductionDto, IdQty } from './production.model';
 import { AbpHttp } from 'app/theme/services';
 
 @Injectable()
@@ -19,8 +19,20 @@ export class ShopService {
   }
 
   //{shopNum}/nomenklatura/{vidTovara}/sticker
-  stickerFile(shopNum: number, vidTovara: number): Promise<Blob> {
+  /*stickerFile(shopNum: number, vidTovara: number): Promise<Blob> {
     let url = this.apiUrl + shopNum + "/nomenklatura/" + vidTovara +"/sticker";
+    return this.http.get(url, { responseType: ResponseContentType.Blob })
+      .map(res => res.blob())
+      .toPromise();
+  }*/
+
+  //{shopNum}/nomenklatura/sticker
+  stickerFile(shopNum: number, toPrint: IdQty[]): Promise<Blob> { //{ id: number, qty: number }[]): Promise<Blob> {
+    let params = [
+      { name: "ids", value: toPrint.map(x => x.id) },
+      { name: "qtys", value: toPrint.map(x => x.qty) }
+    ];
+    let url = this.apiUrl + shopNum + "/nomenklatura/sticker" + abp.utils.buildQueryString(params);
     return this.http.get(url, { responseType: ResponseContentType.Blob })
       .map(res => res.blob())
       .toPromise();

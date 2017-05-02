@@ -68,23 +68,23 @@ export class Returns implements OnInit {
   private getDatas(): void {
     var self = this;
     abp.ui.setBusy(jQuery('.card-body', this.element.nativeElement),
-    {
-      blockUI: true,
-      promise: this.returnsSvc.getList(
-            this.periodFilter.start.format("YYYY-MM-DD"),
-            this.periodFilter.end.format("YYYY-MM-DD"),
-            this.filter,
-            Boolean(this.unreclaimed),
-            Number(this.shopNum),
-            Number(this.filial))
-        .then(result => {
-          self.datas = result.items.map(x => MapUtils.deserialize(Return, x));
-          if (self.datas.length) {
-            var firstShop = self.datas[0].shopNum;
-            self.needShowShops = self.needShowShops || self.datas.some(x => x.shopNum !== firstShop);
-          }
-        })
-    });
+      {
+        blockUI: true,
+        promise: this.returnsSvc.getList(
+          this.periodFilter.start.format("YYYY-MM-DD"),
+          this.periodFilter.end.format("YYYY-MM-DD"),
+          this.filter,
+          Boolean(this.unreclaimed),
+          Number(this.shopNum),
+          Number(this.filial))
+          .then(result => {
+            self.datas = result.items.map(x => MapUtils.deserialize(Return, x));
+            if (self.datas.length) {
+              var firstShop = self.datas[0].shopNum;
+              self.needShowShops = self.needShowShops || self.datas.some(x => x.shopNum !== firstShop);
+            }
+          })
+      });
   }
 
   private dateSelected(period): void {
@@ -147,7 +147,7 @@ export class Returns implements OnInit {
     var self = this;
     this.downloadItems = [];
     this.windowView.pushBareDynamicWindow(PackDownload, { imports: [CommonModule] }).then(window => {
-      window.position = { x: e.x-300, y: e.y+50 };
+      window.position = { x: e.x - 300, y: e.y + 50 };
       window.items = self.downloadItems;
       let waitResult: Subscription = window.result$.subscribe(
         ok => { // result
@@ -155,14 +155,17 @@ export class Returns implements OnInit {
             window.showProgress();
             self.returnsSvc.downloadPack(self.downloadItems.map(x => x.returnId))
               .then(blob => {
-                saver.saveAs(blob, 'returnspack.zip');
+                saver.saveAs(blob, 'returnspack_' + moment().format('YYYYMMDD') + '.zip');
                 window.close();
               })
-              .catch(error => { window.close(); });
+              .catch(error => {
+                abp.message.error(error);
+                window.close();
+              });
           } else
             window.close();
-        }, 
-        () => {}, // error
+        },
+        () => { }, // error
         () => { //complete
           self.downloadItems = undefined;
           waitResult.unsubscribe();

@@ -16,14 +16,30 @@ namespace Verno.Portal.Web.Modules.Shop
         public override void SetNavigation(INavigationProviderContext context)
         {
             base.SetNavigation(context);
-            Documents
-                .AddItem(
-                    new MenuItemDefinition(
-                        "production-calculator",
-                        L("ProductionCalculator"),
-                        requiredPermissionName: ShopPermissionNames.Documents_Shop_Production
-                    )
-                );
+ 
+            var productionRoot = new MenuItemDefinition(
+                "production",
+                L("OwnProduction"),
+                requiredPermissionName: ShopPermissionNames.Documents_Shop_Production,
+                customData: new
+                {
+                    expanded = false,
+                    selected = false,
+                    selectable = true
+                }
+            );
+            productionRoot.AddItem(new MenuItemDefinition(
+                "calculator",
+                L("ProductionCalculator"),
+                requiredPermissionName: ShopPermissionNames.Documents_Shop_Production
+            ));
+            productionRoot.AddItem(new MenuItemDefinition(
+                "manage",
+                L("Specifications"),
+                requiredPermissionName: ShopPermissionNames.Documents_Shop_Production_Manage
+            ));
+
+            Documents.AddItem(productionRoot);
         }
     }
 

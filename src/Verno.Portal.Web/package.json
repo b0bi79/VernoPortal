@@ -47,7 +47,7 @@
     "ng2-bootstrap": "1.1.16",
     "ng2-ckeditor": "1.0.7",
     "ng2-file-upload": "^1.1.0",
-    "ng2-smart-table": "^0.3.2",
+    "ng2-smart-table": "^0.6.0-1",
     "ng2-tree": "^0.0.2-7",
     "ng2-uploader": "1.1.0",
     "ng2-window-view": "github:b0bi79/ng2-window-view",

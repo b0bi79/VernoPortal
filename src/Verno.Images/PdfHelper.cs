@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -43,7 +44,9 @@ namespace Verno.Images
                     {
                         buffer = PdfReader.GetStreamBytesRaw(stream);
                     }
-                    using (var image = Image.FromStream(new MemoryStream(buffer)))
+                    //using (var image = Image.FromStream(new MemoryStream(buffer)))
+                    var converter = new ImageConverter();
+                    using (var image = (Image)converter.ConvertFrom(buffer))
                     {
                         var k = Math.Min(pageH * dpi / image.Height, pageW * dpi / image.Width);
                         var newH = (int)Math.Round(image.Height * (double)k);

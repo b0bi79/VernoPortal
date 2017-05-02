@@ -1,0 +1,67 @@
+﻿<div class="widgets">
+    <ba-card baCardClass="with-scroll table-panel">
+        <!--<data-filter>
+            <period></period>
+        </data-filter>-->
+        <div class="form-inline">
+            <!--<div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-filter fa-fw"></i></span>
+                    <input [(ngModel)]="filter" (ngModelChange)="filterData($event)" type="text" class="form-control" placeholder="Поиск по складу, номеру или названию ...">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-addon input-group-addon-primary addon-left"><i class="fa fa-calendar fa-fw"></i></span>
+                    <input daterangepicker
+                           (selected)="dateSelected($event)"
+                           [options]="pickerOptions" type="submit"
+                           class="form-control btn btn-success" />
+                </div>
+            </div>-->
+            <div class="form-group">
+                <div class="btn-toolbar" role="toolbar">
+                    <div class="btn-group" role="group">
+                        <button *ngIf="isGranted('Documents.Shop.Production.Manage')" class="btn btn-default" (click)="editSpec(null)">
+                            <i class="fa fa-plus-square-o fa-fw"></i> Создать
+                        </button>
+                        <button *ngIf="isGranted('Documents.Shop.Production.Manage')" class="btn btn-default" (click)="editSpec(mf.activeRow)" [hidden]="!mf.activeRow">
+                            <i class="fa fa-pencil-square-o fa-fw"></i> Изменить
+                        </button>
+                        <!--<button *ngIf="isGranted('Documents.Shop.Production.Manage')" class="btn btn-default" (click)="deleteSpec(mf.activeRow)" [hidden]="!mf.activeRow">
+                            <i class="fa fa-trash-o fa-fw"></i> Удалить
+                        </button>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table class="table table-striped" [mfData]="datas" #mf="mfDataTable" [mfRowsOnPage]="15">
+            <thead>
+                <tr>
+                    <th><mfDefaultSorter by="proektName">Проект</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="date">Создан</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="dateFrom">Начало</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="dateTo">Окончание</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="promo">Промо</mfDefaultSorter></th>
+                </tr>
+            </thead>
+            <tbody>
+                <!--<tr *ngFor="let row of mf.data | printFilter:filter">-->
+                <tr [mfSelectable]="row" *ngFor="let row of mf.data">
+                    <td>{{row.proektName}}</td>
+                    <td>{{row.date | date: 'dd.MM.yyyy'}}</td>
+                    <td>{{row.dateFrom | date: 'dd.MM.yyyy'}}</td>
+                    <td>{{row.dateTo | date: 'dd.MM.yyyy'}}</td>
+                    <td>{{row.promo}}</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="5">
+                        <mfBootstrapPaginator [rowsOnPageSet]="[15,25,50]"></mfBootstrapPaginator>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </ba-card>
+</div>

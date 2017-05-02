@@ -1,19 +1,16 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using System.Linq;
 using System.Net.Mime;
 using Abp.Authorization;
 using Abp.Domain.Uow;
-using Abp.Runtime.Session;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Verno.ActionResults;
-using Verno.Identity.Users;
 using Verno.Portal.Web.Utils;
 
 namespace Verno.Portal.Web.Modules.Print
@@ -25,7 +22,7 @@ namespace Verno.Portal.Web.Modules.Print
     }
 
     [AbpAuthorize(PrintPermissionNames.Documents_Print)]
-    public class PrintAppService : ApplicationService, IPrintAppService
+    public class PrintAppService : AppServiceBase, IPrintAppService
     {
         private readonly PrintDbContext _context;
         private readonly HttpContext _httpContext;
@@ -35,8 +32,6 @@ namespace Verno.Portal.Web.Modules.Print
             _context = context;
             _httpContext = contextAccessor.HttpContext;
         }
-
-        public UserManager UserManager { get; set; }
 
         #region Implementation of IPrintAppService
 
@@ -102,25 +97,5 @@ namespace Verno.Portal.Web.Modules.Print
         }
 
         #endregion
-
-        private async Task<int> GetUserShopNum()
-        {
-            var user = await GetCurrentUserAsync();
-            var claims = await UserManager.GetClaimAsync(user, UserClaimTypes.ShopNum);
-            if (claims == null)
-                return 0;
-            return int.Parse(claims.Value);
-        }
-
-        protected virtual Task<User> GetCurrentUserAsync()
-        {
-            var user = UserManager.FindByIdAsync(AbpSession.GetUserId().ToString());
-            if (user == null)
-            {
-                throw new ApplicationException("There is no current user!");
-            }
-
-            return user;
-        }
     }
 }

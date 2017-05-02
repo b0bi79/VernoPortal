@@ -1,5 +1,5 @@
-import {Injectable} from '@angular/core';
-import {Router, Routes} from '@angular/router';
+import { Injectable } from '@angular/core';
+import { Route, Router, Routes } from '@angular/router';
 
 @Injectable()
 export class BaMenuService {
@@ -33,6 +33,28 @@ export class BaMenuService {
       items.push(item);
     });
     return items;
+  }
+
+  static convertMenuArray(menuItems): Route[] {
+    var result: Route[] = [];
+    for (var i = 0; i < menuItems.length; i++) {
+      var item = menuItems[i];
+      result.push({
+        path: item.name,
+        data: {
+          menu: {
+            title: item.displayName,
+            icon: item.icon,
+            expanded: item.customData && item.customData.expanded,
+            selected: item.customData && item.customData.selected,
+            selectable: item.customData && item.customData.selectable,
+            order: item.order
+          }
+        },
+        children: BaMenuService.convertMenuArray(item.items)
+      });
+    }
+    return result;
   }
 
   protected _skipEmpty(items:any[]):any[] {

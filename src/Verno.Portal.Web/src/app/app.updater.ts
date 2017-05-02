@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class Updater {
-  private currentVersion: string = '1.1';
+  private currentVersion: string = '1.4';
 
   constructor(private http: Http) {
     let o = Observable.timer(0, 20 * 60 * 1000);

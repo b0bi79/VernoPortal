@@ -1,5 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Abp.Domain.Entities;
+using Verno.ShInfo.Models;
 
 namespace Verno.Portal.Web.Modules.Shop
 {
@@ -10,6 +13,37 @@ namespace Verno.Portal.Web.Modules.Shop
         public int? Normativ { get; set; }
         public int? Koeff { get; set; }
         public string Etiketka { get; set; }
+
+        public int? Filial { get; set; }
+        public string Areal { get; set; }
+        public int? Format { get; set; }
+    }
+
+    [Table("ProizvMagSpec")]
+    public class ProizvMagSpec : Entity<int>
+    {
+        public int Proekt { get; set; }
+        [Column("Data")]
+        public DateTime Date { get; set; }
+        public DateTime DateFrom { get; set; }
+        public DateTime DateTo { get; set; }
+        public bool Promo { get; set; }
+
+        public List<ProizvMagSpecItem> Items { get; set; }
+    }
+
+    public class ProizvMagSpecItem : Entity<int>
+    {
+        public int ProizvMagSpecId { get; set; }
+        public int VidTovara { get; set; }
+        public int? Norm { get; set; }
+        public int? Koeff { get; set; }
+
+        [ForeignKey("ProizvMagSpecId")]
+        public ProizvMagSpec ProizvMagSpec { get; set; }
+
+        [ForeignKey("VidTovara")]
+        public Nomenklatura Tovar { get; set; }
     }
 
     /*[Table("Dokumenty")]

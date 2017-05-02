@@ -1,5 +1,5 @@
 {
-  "projects": [ "src", "test", "../DotXLReport/src" ],
+  "projects": [ "src", "test", "../DotXLReport/src", "../../asr/ClosedXML", "../ClosedXML.Report" ],
   "sdk": {
     "version": "1.0.0-preview2-003121"
   }

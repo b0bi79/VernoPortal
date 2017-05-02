@@ -15,6 +15,17 @@ var abp = abp || {};
         }
 
         var qs = '';
+		var val;
+
+        function addSeperator() {
+            if (!qs.length) {
+                if (includeQuestionMark) {
+                    qs = qs + '?';
+                }
+            } else {
+                qs = qs + '&';
+            }
+        }
 
         for (var i = 0; i < parameterInfos.length; ++i) {
             var parameterInfo = parameterInfos[i];
@@ -26,23 +37,23 @@ var abp = abp || {};
                 parameterInfo.value = '';
             }
 
-            if (!qs.length) {
-                if (includeQuestionMark) {
-                    qs = qs + '?';
-                }
-            } else {
-                qs = qs + '&';
-            }
+            addSeperator();
 
             if (parameterInfo.value.toJSON && typeof parameterInfo.value.toJSON === "function") {
                 qs = qs + parameterInfo.name + '=' + encodeURIComponent(parameterInfo.value.toJSON());
             } else {
 				if (Array.isArray(parameterInfo.value))//ids=24041&ids=24117
 				{
-					for(var i=0; i<parameterInfo.value.length; i++){
-						qs = qs + parameterInfo.name + '=' + encodeURIComponent(parameterInfo.value[i]) + '&';
+					for(var j=0; j<parameterInfo.value.length; j++){
+						if (j > 0) {
+							addSeperator();
+						}
+					
+						if (parameterInfo.value[j].toJSON && typeof parameterInfo.value[j].toJSON === "function")
+							qs = qs + parameterInfo.name + '[' + j + ']=' + parameterInfo.value[j].toJSON();
+						else
+							qs = qs + parameterInfo.name + '[' + j + ']=' + encodeURIComponent(parameterInfo.value[j]);
 					}
-					qs = qs.slice(0, -1);
 				} else {
 					qs = qs + parameterInfo.name + '=' + encodeURIComponent(parameterInfo.value);
 				}

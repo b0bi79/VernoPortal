@@ -15,7 +15,7 @@ namespace Verno.ShInfo.EntityFrameworkCore.Repositories
         public Task<Klient> GetByShopNumAsync(int shopNum)
         {
             return Context.ZaahvKlient.Where(z => z.NomerSklada == shopNum)
-                .Select(z => z.Klient).FirstOrDefaultAsync();
+                .Select(z => z.Klient).Include(z=>z.ZaahvKlient).FirstOrDefaultAsync();
         }
     }
 }

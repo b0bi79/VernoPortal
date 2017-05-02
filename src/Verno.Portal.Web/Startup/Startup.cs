@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Owin;
+using Verno.Portal.Web.DataAccess;
 using Verno.Portal.Web.Modules.Shop;
 
 namespace Verno.Portal.Web.Startup
@@ -50,6 +51,10 @@ namespace Verno.Portal.Web.Startup
             );
 
             services.AddDbContext<ReturnsDbContext>(
+                options => options.UseSqlServer(Configuration.GetConnectionString("Returns"))
+            );
+
+            services.AddDbContext<ShPrintSqlDbContext>(
                 options => options.UseSqlServer(Configuration.GetConnectionString("Returns"))
             );
 

@@ -12,7 +12,8 @@ namespace Verno.Portal.Web.Modules.Shop
                                  context.CreatePermission(ShopPermissionNames.Documents, L("Documents"));
 
             var shop = documents.CreateChildPermission(ShopPermissionNames.Documents_Shop, L("Shop documents"));
-            shop.CreateChildPermission(ShopPermissionNames.Documents_Shop_Production, L("Own production"));
+            shop.CreateChildPermission(ShopPermissionNames.Documents_Shop_Production, L("Own production"))
+                .CreateChildPermission(ShopPermissionNames.Documents_Shop_Production_Manage, L("Specifications"));
         }
 
         private static ILocalizableString L(string name)

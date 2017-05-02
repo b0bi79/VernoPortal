@@ -4,23 +4,21 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
-using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using System.Linq;
 using System.Net.Mime;
 using System.Text;
 using Abp.Authorization;
-using Abp.Runtime.Session;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
-using Verno.Identity.Users;
 using Abp.AutoMapper;
 using Abp.Domain.Uow;
+using Abp.UI;
+using iTextSharp.text.exceptions;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using Spire.Pdf.Exceptions;
 using Verno.ActionResults;
 using Verno.Configuration;
 using Verno.Images;
@@ -39,7 +37,7 @@ namespace Verno.Portal.Web.Modules.Returns
 
     [Route("api/services/app/returns")]
     [AbpAuthorize(ReturnsPermissionNames.Documents_Returns)]
-    public class ReturnsAppService : ApplicationService, IReturnsAppService
+    public class ReturnsAppService : AppServiceBase, IReturnsAppService
     {
         private readonly ReturnsDbContext _context;
         private readonly AppSettings _appSettings;
@@ -57,8 +55,6 @@ namespace Verno.Portal.Web.Modules.Returns
             _httpContext = contextAccessor.HttpContext;
         }
 
-        public UserManager UserManager { get; set; }
-
         #region Implementation of IReturnAppService
 
         [HttpGet]
@@ -66,7 +62,8 @@ namespace Verno.Portal.Web.Modules.Returns
         [Route("{dfrom:datetime}!{dto:datetime}")]
         public async Task<ListResultDto<ReturnDto>> GetList(DateTime dfrom, DateTime dto, string filter = "", bool unreclaimedOnly = false, int shopNum = 0, int filial = 0)
         {
-            shopNum = await GetUserShopNum() ?? shopNum;
+            var userShopNum = await GetUserShopNum();
+            shopNum = userShopNum == 0 ? shopNum : userShopNum;
             var result = from d in _context.ReturnDatas
                          where d.DocDate >= dfrom && d.DocDate <= dto && d.ShopNum > 0
                          select d;
@@ -85,7 +82,7 @@ namespace Verno.Portal.Web.Modules.Returns
 
             if (unreclaimedOnly)
                 result = result.Where(r => r.Status == 0 /*ReturnStatus.None*/);
-            return new ListResultDto<ReturnDto>((await result.Take(500).ToListAsync()).MapTo<List<ReturnDto>>());
+            return new ListResultDto<ReturnDto>((await result.Take(800).ToListAsync()).MapTo<List<ReturnDto>>());
         }
 
         [HttpGet]
@@ -218,25 +215,42 @@ namespace Verno.Portal.Web.Modules.Returns
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
-            if (ext == ".pdf")
-                using (var stream = file.OpenReadStream())
-                {
-                    PdfHelper.ReducePdf(stream, savedFilePath, 100, InterpolationMode.HighQualityBilinear);
-                }
-            else if (ImageHelper.GetImageFormat(fileName) != null)
-                using (var stream = file.OpenReadStream())
-                {
-                    savedName = Path.ChangeExtension(savedName, ".jpg");
-                    savedFilePath = Path.ChangeExtension(savedFilePath, ".jpg");
-                    ImageHelper.Reduce(stream, savedFilePath, 100, InterpolationMode.HighQualityBilinear);
-                }
-            else
+            try
             {
-                using (FileStream stream = System.IO.File.Create(savedFilePath))
+                if (ext == ".pdf")
+                    using (var stream = file.OpenReadStream())
+                    {
+                        PdfHelper.ReducePdf(stream, savedFilePath, 100, InterpolationMode.HighQualityBilinear);
+                    }
+                else if (ImageHelper.GetImageFormat(fileName) != null)
+                    using (var stream = file.OpenReadStream())
+                    {
+                        savedName = Path.ChangeExtension(savedName, ".jpg");
+                        savedFilePath = Path.ChangeExtension(savedFilePath, ".jpg");
+                        ImageHelper.Reduce(stream, savedFilePath, 100, InterpolationMode.HighQualityBilinear);
+                    }
+                else
                 {
-                    await file.CopyToAsync(stream);
-                    await stream.FlushAsync();
+                    using (FileStream stream = System.IO.File.Create(savedFilePath))
+                    {
+                        await file.CopyToAsync(stream);
+                        await stream.FlushAsync();
+                    }
                 }
+            }
+            catch (ArgumentException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка сжатия файла {file.FileName}. " + ex);
+                using (var fileStream = System.IO.File.Create(savedFilePath))
+                {
+                    await file.CopyToAsync(fileStream);
+                    await fileStream.FlushAsync();
+                }
+            }
+            catch (InvalidPdfException)
+            {
+                throw new UserFriendlyException("Неверный формат файла PDF.",
+                    "Проверьте, что файл открывается в Adobe Acrobat Reader. Если файл открывается, то обратитесь в техподдержку.");
             }
 
             var r = await _returnsRepository.Get(rasxodLink)
@@ -256,25 +270,5 @@ namespace Verno.Portal.Web.Modules.Returns
         public string ServPath => _servPath ?? (_servPath = _appSettings.PrintFilesPath);
 
         #endregion
-
-        private async Task<int?> GetUserShopNum()
-        {
-            var user = await GetCurrentUserAsync();
-            var claims = await UserManager.GetClaimAsync(user, UserClaimTypes.ShopNum);
-            if (claims == null)
-                return null;
-            return int.Parse(claims.Value);
-        }
-
-        protected virtual Task<User> GetCurrentUserAsync()
-        {
-            var user = UserManager.FindByIdAsync(AbpSession.GetUserId().ToString());
-            if (user == null)
-            {
-                throw new ApplicationException("There is no current user!");
-            }
-
-            return user;
-        }
     }
 }

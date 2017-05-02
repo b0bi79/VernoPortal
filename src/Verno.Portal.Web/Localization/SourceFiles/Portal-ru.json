@@ -5,6 +5,8 @@
     "Documents": "Документы",
     "PrintForms": "Печатные формы",
     "Returns": "Возвраты",
-    "ProductionCalculator": "Калькулятор выпечки"
+    "ProductionCalculator": "Калькулятор выпечки",
+    "OwnProduction": "Производство",
+    "Specifications": "Спецификации"
   }
 }

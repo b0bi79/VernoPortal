@@ -1,3 +1,4 @@
+<window-view-outlet></window-view-outlet>
 <div class="widgets">
     <ba-card baCardClass="with-scroll table-panel">
         <!--<data-filter>
@@ -15,8 +16,9 @@
             </div>
             <div class="col-xl-4 col-lg-5 col-md-6 col-xs-12">
                 <div class="pull-right">
-                    <button type="button" class="btn btn-primary" (click)="exportExcel()"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Экспорт</button>
-                    <button type="button" class="btn btn-primary" (click)="printSticker(mf.activeRow)" [hidden]="!mf.activeRow?.etiketka">
+                    <button id="exportExcelBtn" type="button" class="btn btn-primary" (click)="exportExcel()"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Экспорт</button>
+                    <!--<button type="button" class="btn btn-primary" (click)="printSticker(mf.activeRow)" [hidden]="!mf.activeRow?.etiketka">-->
+                    <button type="button" class="btn btn-primary" (click)="printSticker($event)">
                         <i class="fa fa-print" aria-hidden="true"></i> Этикетка
                     </button>
                 </div>
@@ -26,7 +28,7 @@
             <thead>
                 <tr>
                     <th><mfDefaultSorter by="vidTovara"></mfDefaultSorter></th>
-                    <th><mfDefaultSorter by="vidTovara">Код<br/>заказа</mfDefaultSorter></th>
+                    <th><mfDefaultSorter by="vidTovara">Код<br />заказа</mfDefaultSorter></th>
                     <th><mfDefaultSorter by="shtrixKod">Код<br />касса</mfDefaultSorter></th>
                     <th><mfDefaultSorter by="naimenovanie">Товар</mfDefaultSorter></th>
                     <!--<th><mfDefaultSorter by="imahPr">Производитель</mfDefaultSorter></th>-->
@@ -39,7 +41,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr [mfSelectable]="row" *ngFor="let row of mf.data">
+                <tr *ngFor="let row of mf.data">
                     <td><a *ngIf="row.etiketka" [tooltip]="'Можно распечатать этикетку.'"><i class="fa fa-print" aria-hidden="true"></i></a></td>
                     <td>{{row.vidTovara}}</td>
                     <td>{{row.shtrixKod}}</td>

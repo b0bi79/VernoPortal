@@ -1,0 +1,45 @@
+﻿<window-view-container heading=""
+                       size="m"
+                       floating="true"
+                       showBackground="true"
+                       panelClass="card-inverse card-primary"
+                       (close)="deny()">
+
+    <table class="table table-striped" [mfData]="items" #mf="mfDataTable" [mfRowsOnPage]="8">
+        <thead>
+            <tr>
+                <th><mfDefaultSorter by="vidTovara">Код<br />заказа</mfDefaultSorter></th>
+                <th><mfDefaultSorter by="shtrixKod">Код<br />касса</mfDefaultSorter></th>
+                <th><mfDefaultSorter by="naimenovanie">Товар</mfDefaultSorter></th>
+                <th><mfDefaultSorter by="toBake">ВЫПЕЧЬ,<br />шт</mfDefaultSorter></th>
+                <th>Этикеток,<br />шт</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let row of mf.data">
+                <td>{{row.vidTovara}}</td>
+                <td>{{row.shtrixKod}}</td>
+                <td nowrap>{{row.naimenovanie}}</td>
+                <td>{{row.toBake}}</td>
+                <td><input type="text" class="form-control" [(ngModel)]="row.toPrintSticker"></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5">
+                    <mfBootstrapPaginator [rowsOnPageSet]="[8,12]"></mfBootstrapPaginator>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div panel-footer class="confirm-dialog-button-set" *ngIf="!progress">
+        <button class="btn btn-primary" (click)="confirm()">Скачать</button>
+        <button class="btn btn-default" (click)="deny()">Закрыть</button>
+    </div>
+
+    <div panel-footer *ngIf="progress">
+        <div class="text-xs-center" id="example-caption-2">Идёт скачивание&hellip;</div>
+        <progress class="progress progress-striped progress-info progress-animated" value="100" max="100"></progress>
+    </div>
+</window-view-container>

@@ -5,10 +5,10 @@
     "Abp": "1.2.0",
     "Abp.AspNetCore": "1.2.0",
     "Abp.EntityFrameworkCore": "1.2.0",
-    "Microsoft.AspNetCore.Identity": "1.1.0",
-    "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.1.0",
-    "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.1.0",
-    "Microsoft.EntityFrameworkCore.Tools": "1.1.0-preview4-final"
+    "Microsoft.AspNetCore.Identity": "1.1.1",
+    "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.1.1",
+    "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.1.1",
+    "Microsoft.EntityFrameworkCore.Tools": "1.1.0"
   },
 
   "buildOptions": {

@@ -11,7 +11,6 @@ import { routing } from './documents.routing';
 import { Documents } from './documents.component';
 import { Print } from './print';
 import { Returns } from './returns';
-import { ProductionCalculator } from './production';
 import { FilesModal } from './returns/components/files';
 
 @NgModule({
@@ -27,7 +26,6 @@ import { FilesModal } from './returns/components/files';
   declarations: [
     Print,
     Returns,
-    ProductionCalculator,
     Documents,
     FilesModal,
   ],

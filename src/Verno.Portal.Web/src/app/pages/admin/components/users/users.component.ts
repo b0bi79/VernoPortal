@@ -78,23 +78,6 @@ export class Users implements OnInit {
         );
     }
   
-    userSaved(event) {
-        if (event.isNew) {
-            this.datas = [...this.datas, event.user];
-        } else {
-            var idx: number = -1;
-            for (var i = 0; i < this.datas.length; i++) {
-                if (this.datas[i].id == event.user.id) {
-                    idx = i;
-                    break;
-                }
-            }
-            if (idx >= 0)
-                this.datas[idx] = event.user;
-        }
-        this.filteredDatas = this.datas;
-    }
-
     public isGranted(name: string): boolean {
         return abp.auth.isGranted(name);
     }

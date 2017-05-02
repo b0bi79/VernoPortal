@@ -32,7 +32,6 @@ export interface ReturnDto extends abp.services.app.IReturnDto {
 
   isReadonly(): boolean {
     var docDate = moment(this.docDate);
-    var today = moment();
-    return docDate.year() !== today.year() || (docDate.month() !== today.month() && (docDate.month() !== today.month() - 1 || today.date() >= 4));
+    var today = moment();    return false;//docDate.year() !== today.year() || (docDate.month() !== today.month() && (docDate.month() !== today.month() - 1 || today.date() >= 4));
   }
 }

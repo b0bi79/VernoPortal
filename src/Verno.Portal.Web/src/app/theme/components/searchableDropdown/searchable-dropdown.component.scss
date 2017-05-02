@@ -1,18 +1,49 @@
 $placeholder-color: #000;
 
-::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+input[placeholder] {
+    text-overflow: ellipsis;
     color: $placeholder-color;
+    opacity: 1 !important;
 }
+
+::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    text-overflow: ellipsis;
+    color: $placeholder-color;
+    opacity: 1 !important;
+}
+
 :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-   color: $placeholder-color;
-   opacity: 1;
+    text-overflow: ellipsis;
+    color: $placeholder-color;
+    opacity: 1 !important;
 }
+
 ::-moz-placeholder { /* Mozilla Firefox 19+ */
-   color: $placeholder-color;
-   opacity: 1;
+    text-overflow: ellipsis;
+    color: $placeholder-color;
+    opacity: 1 !important;
 }
+
 :-ms-input-placeholder { /* Internet Explorer 10-11 */
-   color: $placeholder-color;
+    text-overflow: ellipsis;
+    color: $placeholder-color;
+    opacity: 1 !important;
+}
+
+:focus::-webkit-input-placeholder {
+    color: transparent;
+}
+
+:focus::-moz-placeholder {
+    color: transparent;
+}
+
+:focus:-moz-placeholder {
+    color: transparent;
+}
+
+:focus:-ms-input-placeholder {
+    color: transparent;
 }
 
 div.btn-group {
